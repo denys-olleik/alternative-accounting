@@ -1,0 +1,50 @@
+﻿@model Accounting.Models.TenantViewModels.UpdateTenantEmailViewModel
+
+@{
+  ViewData["Title"] = "Update tenant - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+@{
+  string headerText = "Update tenant";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div class="margin-left-20px flex-1 text-align-right">
+    <a asp-action="Tenants" asp-controller="Tenant" class="font-Roboto font-size-16px color-blue">Tenants</a>
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
+  </div>
+</div>
+
+<form asp-action="UpdateTenant" asp-controller="Tenant" method="post"
+      class="display-flex flex-direction-column margin-bottom-5px">
+
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Email" class="font-Roboto font-size-20px">Email</label>
+    <input asp-for="Email" class="font-size-20px" required autocomplete="off" />
+  </div>
+
+  <div class="display-flex">
+    <div class="flex-1">
+      <button class="full-width-regular-button width-100" type="button" onclick="event.preventDefault(); window.location.href='@Url.Action("Tenants", "Tenant")';">Cancel</button>
+    </div>
+    <div class="width-5px"></div>
+    <div class="flex-1">
+      <button type="submit" class="full-width-regular-button width-100">Update</button>
+    </div>
+  </div>
+</form>
+
+@if (Model != null && Model.ValidationResult != null)
+{
+  foreach (var error in Model.ValidationResult.Errors)
+  {
+    <div>
+      <small class="color-red">@error.ErrorMessage</small>
+    </div>
+  }
+  <div class="margin-bottom-5px">
+  </div>
+}

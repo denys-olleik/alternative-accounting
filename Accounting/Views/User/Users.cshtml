@@ -1,0 +1,169 @@
+﻿@model Accounting.Models.UserViewModels.UsersPaginatedViewModel
+
+@{
+  ViewData["Title"] = "Users - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+@{
+  string headerText = "Users";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+<template id="user-action-template">
+  <div class="display-flex padding-top-bottom-2px">
+    <div class="display-flex flex-1">
+      <a href="#" @@click.prevent="toggleAction" class="margin-right-5px">{{ user.email }}</a>
+      <span v-if="isExpanded" class="display-flex">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex
+          flex-direction-column
+          background-color-333333
+          padding-right-5px
+          padding-left-5px
+          margin-left-2px">
+          <div class="flex-1"></div>
+          <a :href="'/u/update/' + user.userID" class="font-size-16px font-Roboto color-white text-decoration-none">
+            update
+          </a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div>
+    <a asp-action="Create" asp-controller="User" class="font-Roboto font-size-16px color-blue margin-left-20px">
+      Create user
+    </a>
+  </div>
+  <div class="margin-left-20px flex-1 text-align-right">
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">
+      Home
+    </a>
+  </div>
+</div>
+
+<div id="app">
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px"></th>
+        <th colspan="3" class="text-align-left">
+          <input type="text" v-model="userFilter" @@input="fetchUsers"
+                 placeholder="Search" class="font-size-16px width-100" />
+        </th>
+      </tr>
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">#</th>
+        <th class="text-align-left padding-right-20px">Email</th>
+        <th class="text-align-right width-1px padding-right-20px white-space-nowrap">First name</th>
+        <th class="text-align-right width-1px white-space-nowrap">Last name</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <tr v-for="user in users" :key="user.userID">
+        <td class="padding-right-20px">{{ user.rowNumber }}</td>
+        <td class="padding-right-20px">
+          <user-action :user="user" :is-expanded="user.userID === expandedUserId"
+                       @@expand="handleUserExpand(user.userID)"></user-action>
+        </td>
+        <td class="text-align-right padding-right-20px white-space-nowrap">{{ user.firstName }}</td>
+        <td class="text-align-right white-space-nowrap">{{ user.lastName }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pagination-component
+    :prev-page-url="`/u/users?page=${page - 1}&pageSize=${pageSize}`"
+    :next-page-url="nextPage ? `/u/users?page=${nextPage}&pageSize=${pageSize}` : ''"
+    :is-filtered="isFiltered"
+    :page="page">
+  </pagination-component>
+</div>
+
+<script src="~/js/PaginationComponent.js" asp-append-version="true"></script>
+<script>
+  const { createApp } = Vue;
+
+  const UserAction = {
+    name: 'UserAction',
+    props: ['user', 'isExpanded'],
+    template: '#user-action-template',
+    methods: {
+      toggleAction() {
+        this.$emit('expand');
+      }
+    }
+  };
+
+  const app = createApp({
+    components: {
+      'user-action': UserAction,
+      'pagination-component': PaginationComponent,
+    },
+    data() {
+      return {
+        users: [],
+        expandedUserId: null,
+        page: @Model.Page,
+        pageSize: @Model.PageSize,
+        nextPage: null,
+        rememberPageSize: @(Model.RememberPageSize ? "true" : "false"),
+        userFilter: ''
+      };
+    },
+    computed: {
+      isFiltered() {
+        return !!this.userFilter;
+      }
+    },
+    methods: {
+			handleUserExpand(userId) {
+				this.expandedUserId = this.expandedUserId === userId ? null : userId;
+			},
+      fetchUsers() {
+        const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+        if (storedPageSize) {
+          this.pageSize = storedPageSize;
+        }
+        let apiUrl;
+
+        if (this.userFilter) {
+          apiUrl = `/api/user/get-users-filtered?search=${encodeURIComponent(this.userFilter)}`;
+        } else {
+          apiUrl = `/api/user/get-users?page=${this.page}&pageSize=${this.pageSize}`;
+        }
+
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            this.users = data.users;
+            if (!this.userFilter) {
+              if (data.page > 0) {
+                this.page = data.page;
+              }
+              if (data.nextPage > 0) {
+                this.nextPage = data.nextPage;
+              }
+            }
+          });
+      }
+    },
+    mounted() {
+      if (this.rememberPageSize) {
+        localStorage.setItem('pageSize', this.pageSize);
+      }
+      this.fetchUsers();
+    }
+  });
+
+  app.mount('#app');
+</script>

@@ -1,0 +1,16 @@
+[Unit]
+Description=Accounting Application
+After=network.target postgresql.service
+
+[Service]
+EnvironmentFile=/etc/environment
+User=postgres
+WorkingDirectory=/opt/accounting/Accounting
+Environment="HOME=/var/lib/postgresql"
+Environment="DOTNET_CLI_HOME=/var/lib/postgresql"
+ExecStart=/usr/bin/dotnet /opt/accounting/Accounting/bin/Release/net8.0/Accounting.dll
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

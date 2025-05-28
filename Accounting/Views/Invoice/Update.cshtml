@@ -1,0 +1,587 @@
+﻿@model Accounting.Models.InvoiceViewModels.UpdateInvoiceViewModel
+
+@{
+  ViewData["Title"] = "Update invoice - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+@{
+  string headerText = "Update invoice";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<template id="invoice-line-removal-template">
+  <div class="background-color-red text-align-center">
+    <div v-if="!isRemoveConfirmationVisible">
+      <a href="#" class="color-white text-decoration-none width-100 display-block" @@click.prevent="toggleConfirmationVisibility">
+        remove
+      </a>
+    </div>
+    <div v-else>
+      <div class="margin-bottom-5px">
+        <a href="#" class="color-white text-decoration-none" @@click.prevent="confirmRemoval">remove</a>
+      </div>
+      <div>
+        <a href="#" class="color-white text-decoration-none" @@click.prevent="toggleConfirmationVisibility">cancel</a>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="invoice-line-template">
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <div class="display-flex flex-1 flex-direction-column">
+      <div class="display-flex max-width-768-flex-direction-column">
+        <div class="display-flex flex-2 flex-direction-column">
+          <label>Title</label>
+          <input type="text" ref="titleInput" class="font-size-20px font-Roboto-Mono width-100" v-model="invoiceLine.title" />
+        </div>
+        <div class="width-5px"></div>
+        <div class="display-flex flex-2 flex-direction-column">
+          <label>Quantity</label>
+          <input type="number" ref="quantityInput" class="font-size-20px font-Roboto-Mono width-100" v-model="invoiceLine.quantity" />
+        </div>
+        <div class="width-5px"></div>
+        <div class="display-flex flex-2 flex-direction-column">
+          <label>Price</label>
+          <input type="number" step="0.01" class="font-size-20px font-Roboto-Mono width-100" v-model="invoiceLine.price" />
+        </div>
+        <div class="width-5px"></div>
+        <div class="display-flex flex-1 flex-direction-column text-align-right">
+          <label>Total</label>
+          <div class="font-size-20px font-Roboto-Mono width-100 background-color-lightgray">{{ lineTotal }}</div>
+        </div>
+      </div>
+      <div class="display-flex">
+        <div class="display-flex flex-1 flex-direction-column">
+          <label>Description</label>
+          <textarea v-model="invoiceLine.description" class="font-size-20px font-Roboto-Mono width-100"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="display-flex">
+      <div class="flex-1"></div>
+      <invoice-line-removal :invoice-line="invoiceLine" @@confirm-removal="$emit('confirm-removal', invoiceLine)" @@cancel-removal="$emit('cancel-removal', invoiceLine)">
+      </invoice-line-removal>
+    </div>
+  </div>
+</template>
+
+<template id="total-template">
+  <div class="display-flex margin-bottom-5px">
+    <div class="flex-1 max-width-768-display-none"></div>
+    <div class="flex-1 background-color-antiquewhite">
+      <table class="width-100 border-collapse">
+        <thead>
+          <tr>
+            <th colspan="2">Subtotals</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-size-20px">Total</td>
+            <td class="text-align-right font-size-20px">{{ total }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<template id="payment-term-selector-template">
+  <div class="display-flex flex-direction-column">
+    <select class="font-size-20px" v-model="selectedPaymentTermId" name="SelectedPaymentTermId">
+      <option value="">Select payment term</option>
+      <option v-for="paymentTerm in paymentTerms" :value="paymentTerm.id" :key="paymentTerm.id">
+        {{ paymentTerm.displayText }}
+      </option>
+    </select>
+  </div>
+</template>
+
+<template id="invoice-detail-template">
+  <table>
+    <tbody>
+      <tr>
+        <td class="text-align-right white-space-nowrap width-1px">
+          Invoice date
+        </td>
+        <td class="text-align-right">
+          {{ formatDate(invoiceDate) }}
+        </td>
+      </tr>
+      <tr>
+        <td class="text-align-left white-space-nowrap">Due date</td>
+        <td class="text-align-right">{{ formatDate(dueDate) }}</td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+
+<template id="addresses-and-selected-address-template">
+  <div v-if="selectedAddress" class="background-color-black color-white">
+    <div class="display-flex">
+      <div class="font-Roboto-Mono">
+        <div>{{ selectedAddress.extraAboveAddress }}</div>
+        <div>{{ selectedAddress.addressLine1 }}</div>
+        <div>{{ selectedAddress.addressLine2 }}</div>
+        <div>{{ selectedAddress.extraBelowAddress }}</div>
+        <div>{{ selectedAddress.city }}, {{ selectedAddress.stateProvince }} {{ selectedAddress.postalCode }}</div>
+        <div>{{ selectedAddress.country }}</div>
+      </div>
+    </div>
+  </div>
+  <div v-show="dropdownVisible">
+    <div v-for="address in addresses" :key="address.id" class="display-flex margin-bottom-5px margin-2px">
+      <a href="" @@click.prevent="selectAddress(address)" class="display-flex flex-1 text-decoration-none">
+        <div class="flex-1 border-left-5px-solid-dodgerblue border-top-bottom-2px-solid-dodgerblue font-Roboto-Mono">
+          <div>{{ address.extraAboveAddress }}</div>
+          <div>{{ address.addressLine1 }}</div>
+          <div>{{ address.addressLine2 }}</div>
+          <div>{{ address.extraBelowAddress }}</div>
+          <div>{{ address.city }}, {{ address.stateProvince }} {{ address.postalCode }}</div>
+          <div>{{ address.country }}</div>
+        </div>
+        <div class="writing-mode-vertical-lr text-align-center color-white background-color-dodgerblue">
+          select
+        </div>
+      </a>
+    </div>
+  </div>
+</template>
+
+<template id="attachment-action-template">
+  <div class="display-flex padding-top-bottom-2px">
+    <div class="display-flex flex-1">
+      <a href="#" @@click.prevent="toggleAction" class="margin-right-5px">{{ attachment.fileName }}</a>
+      <span v-if="isExpanded" class="display-flex margin-left-2px">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a :href="'/api/invoice-attachment/download/' + attachment.invoiceAttachmentID"
+             class="font-size-16px font-Roboto color-white text-decoration-none"
+             download>download</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a href="#"
+             @@click.prevent="$emit('remove', attachment.invoiceAttachmentID)"
+             class="font-size-16px font-Roboto color-white text-decoration-none">remove</a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>
+
+<form id="app" asp-action="Update" asp-controller="Invoice" method="post" class="display-flex flex-direction-column margin-bottom-5px">
+
+  <div class="display-flex margin-bottom-5px max-width-768-flex-direction-column">
+    <div class="display-flex flex-1 flex-direction-column background-color-antiquewhite">
+      @* <customer-detail :customer="customer" v-if="customer"></customer-detail> *@
+    </div>
+    <div class="width-5px"></div>
+    <div class="display-flex flex-1 flex-direction-column background-color-antiquewhite">
+      <invoice-detail :invoice-date="invoiceDate" :selected-payment-term="selectedPaymentTerm">
+      </invoice-detail>
+    </div>
+  </div>
+
+  <div class="display-flex margin-bottom-5px max-width-768-flex-direction-column">
+    <div class="display-flex flex-direction-column flex-1 max-width-768-margin-bottom-5px background-color-antiquewhite">
+      <div>
+        Billing
+      </div>
+      <addresses-and-selected-address :selected-address="billingAddress" @@update:selected-address="handleSelectedAddress($event, 'billing')" :addresses="customer ? customer.addresses : []" :customer="customer">
+      </addresses-and-selected-address>
+    </div>
+    <div class="width-5px"></div>
+    <div class="display-flex flex-direction-column flex-1 background-color-antiquewhite">
+      <div>
+        Shipping
+      </div>
+      <addresses-and-selected-address :selected-address="shippingAddress" @@update:selected-address="handleSelectedAddress($event, 'shipping')" :addresses="customer ? customer.addresses : []" :customer="customer">
+      </addresses-and-selected-address>
+    </div>
+  </div>
+
+  <products-and-services-search :products-or-services="productsOrServices" @@product-or-service-selected="handleProductOrServiceSelected">
+  </products-and-services-search>
+
+  <invoice-line v-for="invoiceLine in invoiceLines" :key="invoiceLine.id" :invoice-line="invoiceLine" @@confirm-removal="handleConfirmRemoval">
+  </invoice-line>
+
+  <total :invoice-lines="invoiceLines"></total>
+
+  <div class="display-flex margin-bottom-5px">
+    <div class="flex-1 padding-5px background-color-antiquewhite">
+      <input type="file" @@change="uploadFile" ref="fileInput" />
+    </div>
+  </div>
+
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">File name</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <tr v-for="attachment in attachments" :key="attachment.invoiceAttachmentID">
+        <td class="padding-right-20px white-space-nowrap">
+          <attachment-action
+            :attachment='attachment'
+            :is-expanded="attachment.invoiceAttachmentID === expandedAttachmentId"
+            @@expand="handleAttachmentExpand(attachment.invoiceAttachmentID)"
+            @@remove="removeAttachment"></attachment-action>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <input type="hidden" name="InvoiceLinesJson" :value="JSON.stringify(invoiceLines)" />
+  <input type="hidden" name="DeletedInvoiceLinesJson" :value="JSON.stringify(deletedInoiceLines)" />
+  <input type="hidden" name="SelectedPaymentTermJSON" :value="JSON.stringify(selectedPaymentTerm)" />
+  <input type="hidden" name="InvoiceDate" value="@Model.InvoiceDate!.Value.ToString("o")" />
+  <input type="hidden" name="DueDate" :value="dueDate" />
+  <input type="hidden" name="LastUpdated" value="@Model.LastUpdated" />
+  <input type="hidden" name="DeletedAttachmentIdsCsv" :value="deletedAttachmentIds.join(',')" />
+  <input type="hidden" name="NewAttachmentIdsCsv" :value="newAttachmentIds.join(',')" />
+
+  <div class="display-flex">
+    <div class="flex-1">
+      <button type="button" class="full-width-regular-button width-100" onclick="event.preventDefault(); window.location.href='@Url.Action("Invoices", "Invoice")';">
+        Cancel
+      </button>
+    </div>
+    <div class="width-5px"></div>
+    <div class="flex-1">
+      <button type="submit" class="full-width-regular-button width-100">Update invoice</button>
+    </div>
+  </div>
+</form>
+
+@if (Model != null && Model.ValidationResult != null)
+{
+  foreach (var error in Model.ValidationResult.Errors)
+  {
+    <div>
+      <small class="color-red">@error.ErrorMessage</small>
+    </div>
+  }
+  <div class="margin-bottom-5px">
+  </div>
+}
+
+<script src="~/js/ProductsAndServicesSearch.js" asp-append-version="true"></script>
+<script src="~/js/BusinessEntityNameDisplay.js" asp-append-version="true"></script>
+
+<script>
+  const { createApp } = Vue;
+
+  const AttachmentAction = {
+    name: 'AttachmentAction',
+    props: ['attachment', 'isExpanded'],
+    template: '#attachment-action-template',
+    methods: {
+      toggleAction() {
+        this.$emit('expand');
+      },
+      removeAttachment() {
+        this.$emit('remove', this.attachment.invoiceAttachmentID);
+      }
+    }
+  };
+
+  const Total = {
+    name: 'Total',
+    template: '#total-template',
+    props: ['invoiceLines'],
+    computed: {
+      total() {
+        let total = 0;
+        for (let line of this.invoiceLines) {
+          let lineTotal = line.quantity * line.price;
+          total += lineTotal;
+        }
+        return total;
+      }
+    }
+  };
+
+  const InvoiceLineRemoval = {
+    name: 'InvoiceLineRemoval',
+    template: '#invoice-line-removal-template',
+    props: ['invoiceLine'],
+    data() {
+      return {
+        isRemoveConfirmationVisible: false
+      }
+    },
+    methods: {
+      toggleConfirmationVisibility() {
+        this.isRemoveConfirmationVisible = !this.isRemoveConfirmationVisible;
+      },
+      confirmRemoval() {
+        this.$emit('confirm-removal', this.invoiceLine);
+      },
+    }
+  };
+
+  const InvoiceLine = {
+    name: 'InvoiceLine',
+    template: '#invoice-line-template',
+    components: {
+      'invoice-line-removal': InvoiceLineRemoval
+    },
+    props: ['invoiceLine'],
+    mounted() {
+      this.$nextTick(() => {
+        this.$refs.quantityInput.focus();
+      });
+    },
+    methods: {
+      confirmRemoval() {
+        this.$emit('remove-invoice-line', this.invoiceLine);
+      },
+    },
+    watch: {
+      'invoiceLine.title'(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.invoiceLine.titleOrDescriptionModified = true;
+        }
+      },
+      'invoiceLine.description'(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.invoiceLine.titleOrDescriptionModified = true;
+        }
+      },
+      'invoiceLine.quantity'(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.invoiceLine.quantityOrPriceModified = true;
+        }
+      },
+      'invoiceLine.price'(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.invoiceLine.quantityOrPriceModified = true;
+        }
+      },
+    },
+    computed: {
+      lineTotal() {
+        return this.invoiceLine.quantity * this.invoiceLine.price;
+      }
+    }
+  };
+
+  const PaymentTermSelector = {
+    name: 'PaymentTermSelector',
+    template: '#payment-term-selector-template',
+    props: ['paymentTerms', 'selectedPaymentTerm'],
+    computed: {
+      selectedPaymentTermId: {
+        get() {
+          return this.selectedPaymentTerm && this.selectedPaymentTerm.id ? this.selectedPaymentTerm.id : '';
+        },
+        set(newValue) {
+          let selected = this.paymentTerms.find(paymentTerm => paymentTerm.id === newValue);
+          if (selected) {
+            this.$emit('update:selectedPaymentTerm', selected);
+          } else {
+            this.$emit('update:selectedPaymentTerm', null);
+          }
+        }
+      }
+    }
+  };
+
+  const InvoiceDetail = {
+    name: 'InvoiceDetail',
+    template: '#invoice-detail-template',
+    props: ['invoiceDate', 'selectedPaymentTerm'],
+    computed: {
+      dueDate() {
+        if (!this.selectedPaymentTerm) {
+          return null;
+        }
+        let dueDate = new Date(this.invoiceDate);
+        dueDate.setDate(dueDate.getDate() + this.selectedPaymentTerm.daysUntilDue);
+        return dueDate;
+      }
+    },
+    methods: {
+      formatDate(date) {
+        if (!date) {
+          return '';
+        }
+        let d = new Date(date),
+          localDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000),
+          month = '' + (localDate.getMonth() + 1),
+          day = '' + localDate.getDate(),
+          year = localDate.getFullYear();
+
+        if (month.length < 2)
+          month = '0' + month;
+        if (day.length < 2)
+          day = '0' + day;
+
+        return [month, day, year].join('/');
+      }
+    }
+  };
+
+  const AddressesAndSelectedAddress = {
+    name: 'AddressesAndSelectedAddress',
+    template: '#addresses-and-selected-address-template',
+    props: ['addresses', 'selectedAddress', 'customer'],
+    data: function () {
+      return {
+        dropdownVisible: false,
+      };
+    },
+    watch: {
+      addresses: {
+        handler() {
+          this.dropdownVisible = false;
+        },
+        deep: true
+      }
+    },
+    methods: {
+      selectAddress(address) {
+        this.dropdownVisible = false;
+        this.$emit('update:selectedAddress', address);
+      },
+    },
+  };
+
+  const CustomerDetail = {
+    name: 'CustomerDetail',
+    props: ['customer'],
+    template: '#customer-detail-template',
+    components: {
+      'business-entity-name-display': BusinessEntityNameDisplay
+    }
+  };
+
+  const app = createApp({
+    components: {
+      'invoice-detail': InvoiceDetail,
+      'payment-term-selector': PaymentTermSelector,
+      'invoice-line': InvoiceLine,
+      'invoice-line-removal': InvoiceLineRemoval,
+      'total': Total,
+      'addresses-and-selected-address': AddressesAndSelectedAddress,
+      'products-and-services-search': ProductsAndServicesSearch,
+      'business-entity-name-display': BusinessEntityNameDisplay,
+      'customer-detail': CustomerDetail,
+      'attachment-action': AttachmentAction,
+    },
+    data() {
+      return {
+        customer: @Html.Raw(Json.Serialize(Model.Customer).ToString() ?? "null"),
+        billingAddress: @Html.Raw(Json.Serialize(Model.BillingAddress).ToString() ?? "null"),
+        shippingAddress: @Html.Raw(Json.Serialize(Model.ShippingAddress).ToString() ?? "null"),
+        invoiceLines: @Html.Raw(Json.Serialize(Model.ExistingInvoiceLines).ToString() ?? "[]"),
+        deletedInoiceLines: [],
+        paymentTerms: @Html.Raw(Json.Serialize(Model.PaymentTerms).ToString() ?? "[]"),
+        selectedPaymentTerm: @Html.Raw(Json.Serialize(Model.SelectedPaymentTerm).ToString() ?? "null"),
+        invoiceDate: @Html.Raw(Json.Serialize(Model.InvoiceDate).ToString() ?? "null"),
+        dueDate: @Html.Raw(Json.Serialize(Model.DueDate).ToString() ?? "null"),
+        activeInvoiceLine: null,
+        dropdownPosition: { top: 0, left: 0 },
+        productsOrServices: @Html.Raw(Json.Serialize(Model.ProductsAndServices).ToString() ?? "[]"),
+        blurTimeout: null,
+        appWidth: 0,
+
+        attachments: @Html.Raw(Json.Serialize(Model.Attachments).ToString() ?? "[]"),
+        deletedAttachmentIds: [],
+        expandedAttachmentId: null,
+        newAttachmentIds: [],
+      };
+    },
+    watch: {
+
+    },
+    methods: {
+      uploadFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('formFile', file);
+
+        fetch('/api/invoice-attachment/upload', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            this.attachments.push(data);
+            this.newAttachmentIds.push(data.invoiceAttachmentID);
+            this.$refs.fileInput.value = '';
+          })
+          .catch(error => {
+            console.log('There was a problem with the fetch operation: ', error);
+          });
+      },
+      handleAttachmentExpand(id) {
+        this.expandedAttachmentId = this.expandedAttachmentId === id ? null : id;
+      },
+      removeAttachment(id) {
+        // Remove from attachments list and track for deletion
+        const index = this.attachments.findIndex(att => att.invoiceAttachmentID === id);
+        if (index !== -1) {
+          this.deletedAttachmentIds.push(id);
+          this.attachments.splice(index, 1);
+        }
+      },
+      removeInvoiceLine(invoiceLine) {
+        const index = this.invoiceLines.indexOf(invoiceLine);
+        if (index !== -1) {
+          this.deletedInoiceLines.push(this.invoiceLines[index]);
+
+          this.invoiceLines.splice(index, 1);
+        }
+      },
+      handleConfirmRemoval(invoiceLine) {
+        this.removeInvoiceLine(invoiceLine);
+      },
+      handleProductOrServiceSelected(productOrService) {
+        this.invoiceLines.push({
+          id: -1 * Math.floor(Math.random() * 2147483648),
+          title: productOrService.name,
+          description: productOrService.description,
+          price: productOrService.price,
+          revenueAccountId: productOrService.revenueAccountId,
+          assetsAccountId: productOrService.assetsAccountId,
+        });
+      },
+      calculateDueDate() {
+        if (!this.invoiceDate || !this.selectedPaymentTerm) {
+          this.dueDate = null;
+          return;
+        }
+        let dueDate = new Date(this.invoiceDate);
+        dueDate.setDate(dueDate.getDate() + this.selectedPaymentTerm.daysUntilDue);
+        this.dueDate = dueDate.toISOString();
+      },
+    }
+  });
+
+  app.mount('#app');
+</script>
+
+@if (Context.RequestServices.GetService<IWebHostEnvironment>()!.IsDevelopment())
+{
+
+}

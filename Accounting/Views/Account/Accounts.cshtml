@@ -1,0 +1,186 @@
+﻿@model Accounting.Models.Account.AccountsPaginatedViewModel
+
+@{
+  ViewData["Title"] = "Accounts - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+@{
+  string headerText = "Accounts";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div class="margin-left-20px">
+    <a asp-action="Create" asp-controller="Account" class="font-Roboto font-size-16px color-blue">Create account</a>
+  </div>
+  <div class="margin-left-20px flex-1 text-align-right">
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue">Home</a>
+  </div>
+</div>
+
+<template id="account-template">
+  <div class="background-color-antiquewhite">
+    <div class="display-flex border-bottom-1px-solid-lightgray padding-top-bottom-2px">
+      <div class="display-flex flex-1 align-items-center">
+        <span v-if="account.children && account.children.length && account.childrenExpanded" class="margin-right-5px">➖</span>
+        <a href="#" @@click.prevent="handleAccountClick(account.accountID)">
+          {{ account.name }}
+        </a>
+        <span v-if="account.children && account.children.length && !account.childrenExpanded" class="margin-left-5px">➕</span>
+
+        <div v-if="account.optionsExpanded" class="display-flex flex-direction-column margin-left-5px">
+          <div class="display-flex margin-bottom-2px">
+            <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+              <div class="flex-1"></div>
+              <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+              <div class="flex-1"></div>
+            </div>
+            <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+              <div class="flex-1"></div>
+              <a class="font-size-16px font-Roboto color-white text-decoration-none"
+                 :href="`/a/create/${account.accountID}`">add</a>
+              <div class="flex-1"></div>
+            </div>
+            <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+              <div class="flex-1"></div>
+              <a class="font-size-16px font-Roboto color-white text-decoration-none"
+                 :href="`/a/update/${account.accountID}`">update</a>
+              <div class="flex-1"></div>
+            </div>
+            <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+              <div class="flex-1"></div>
+              <a class="font-size-16px font-Roboto color-white text-decoration-none"
+                 :href="`/a/delete/${account.accountID}`">delete</a>
+              <div class="flex-1"></div>
+            </div>
+          </div>
+          <div class="display-flex">
+            <div class="display-flex flex-direction-column background-color-darkcyan padding-left-5px padding-right-5px">
+              <div class="flex-1"></div>
+              <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">information:</a>
+              <div class="flex-1"></div>
+            </div>
+            <div class="display-flex flex-direction-column background-color-darkcyan padding-right-5px padding-left-5px border-radius-5px margin-left-2px">
+              <div class="flex-1"></div>
+              <a class="font-size-16px font-Roboto color-white text-decoration-none">
+                {{ account.journalEntryCount }} entries
+              </a>
+              <div class="flex-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>{{ account.type }}</div>
+    </div>
+    <div v-if="account.childrenExpanded && account.children && account.children.length" class="margin-left-25px">
+      <template v-for="childAccount in account.children" :key="childAccount.accountID">
+        <account :account="childAccount" @@account-clicked="handleAccountClick"></account>
+      </template>
+    </div>
+  </div>
+</template>
+
+<div id="app" class="display-flex flex-direction-column font-Roboto-Mono">
+  <div>
+    <template v-for="account in accounts" :key="account.accountID">
+      <account :account="account" @@account-clicked="onAccountClicked"></account>
+    </template>
+  </div>
+
+  <div class="margin-bottom-5px display-flex font-Roboto font-size-16px background-color-antiquewhite margin-top-5px">
+    <div>
+      <a :href="`/a/accounts?page=${page - 1}&pageSize=${pageSize}`" v-if="page > 1" class="color-blue">prev</a>
+    </div>
+    <div class="flex-1"></div>
+    <div>
+      <a :href="`/a/accounts?page=${nextPage}&pageSize=${pageSize}`" v-if="nextPage" class="color-blue">next</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const { createApp } = Vue;
+
+  const Account = {
+    name: 'account',
+    template: '#account-template',
+    props: ['account'],
+    methods: {
+      handleAccountClick(accountID) {
+        console.log(accountID);
+        this.$emit('account-clicked', accountID);
+      },
+    }
+  };
+
+  const app = createApp({
+    components: {
+      'account': Account
+    },
+    data() {
+      return {
+        accounts: [],
+        selectedAccountID: null,
+        page: @Model.Page,
+        pageSize: @Model.PageSize,
+        nextPage: null,
+        rememberPageSize: @(Model.RememberPageSize ? "true" : "false")
+      }
+    },
+    methods: {
+      updateAccountExpansion(account, selectedID, path = []) {
+        const isSelected = account.accountID === selectedID;
+        const isPathNode = path.includes(account.accountID);
+        const children = account.children ? account.children.map(child =>
+          this.updateAccountExpansion(child, selectedID, isSelected ? [account.accountID, ...path] : path)
+        ) : [];
+
+        return {
+          ...account,
+          children,
+          childrenExpanded: isSelected || isPathNode || children.some(child => child.childrenExpanded),
+          optionsExpanded: isSelected
+        };
+      },
+      fetchAccounts() {
+        const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+        if (storedPageSize) {
+          this.pageSize = storedPageSize;
+        }
+
+        let apiUrl = `/api/a/get-all-accounts?page=${this.page}&pageSize=${this.pageSize}&includeDescendants=true&includeJournalEntriesCount=true`;
+
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            this.accounts = data.accounts;
+            if (data.page > 0) {
+              this.page = data.page;
+            }
+            if (data.nextPage > 0) {
+              this.nextPage = data.nextPage;
+            } else {
+              this.nextPage = null;
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching accounts:', error);
+          });
+      },
+      onAccountClicked(accountID) {
+        this.selectedAccountID = this.selectedAccountID === accountID ? null : accountID;
+        this.accounts = this.accounts.map(account => this.updateAccountExpansion(account, this.selectedAccountID));
+      },
+    },
+    mounted() {
+      if (this.rememberPageSize) {
+        localStorage.setItem('pageSize', this.pageSize);
+      }
+      this.fetchAccounts();
+    },
+  });
+
+  app.mount('#app');
+</script>

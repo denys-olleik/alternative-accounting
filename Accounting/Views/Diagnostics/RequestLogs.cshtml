@@ -1,0 +1,160 @@
+﻿@model Accounting.Models.DiagnosticsViewModels.RequestLogsPaginatedViewModel
+
+@{
+  ViewData["Title"] = "Request logs - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+@{
+  string headerText = "Request logs";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div>
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">
+      Home
+    </a>
+  </div>
+</div>
+
+<div id="app">
+  <table ref="requestLogsTable" class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">#</th>
+        <th class="text-align-left width-1px padding-right-20px">ID</th>
+        <th class="text-align-left padding-right-20px">IP</th>
+        <th class="text-align-left width-1px padding-right-20px">Country</th>
+        <th class="text-align-left width-1px padding-right-20px">Referer</th>
+        <th class="text-align-left width-1px padding-right-20px">Agent</th>
+        <th class="text-align-left">Path</th>
+        <th class="text-align-right white-space-nowrap width-1px padding-left-5px">Length</th>
+        <th class="text-align-right white-space-nowrap width-1px padding-right-20px">Status</th>
+        <th class="text-align-right white-space-nowrap width-1px">Created</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <tr v-for="log in requestLogs" :key="log.requestLogID">
+        <td class="padding-0px width-1px">
+          <div class="hidden-nowrap-ellipsis">{{ log.rowNumber }}</div>
+        </td>
+        <td class="padding-0px width-1px">
+          <div class="hidden-nowrap-ellipsis">{{ log.requestLogID }}</div>
+        </td>
+        <td class="padding-0px">
+          <div class="filter-blur-5px">{{ log.remoteIp }}</div>
+        </td>
+        <td class="padding-0px width-1px">
+          <div class="hidden-nowrap-ellipsis">{{ log.countryCode }}</div>
+        </td>
+        <td class="padding-0px width-1px">
+          <div class="hidden-nowrap-ellipsis">{{ log.referer }}</div>
+        </td>
+        <td class="padding-0px width-1px">
+          <div class="hidden-nowrap-ellipsis">{{ log.userAgent }}</div>
+        </td>
+        <td class="padding-0px">
+          <div class="hidden-nowrap-ellipsis">{{ log.path }}</div>
+        </td>
+        <td class="text-align-right width-1px white-space-nowrap padding-0px">
+          <div class="hidden-nowrap-ellipsis">{{ log.responseLengthBytes }}</div>
+        </td>
+        <td class="text-align-right width-1px white-space-nowrap padding-0px padding-right-20px">
+          <div class="hidden-nowrap-ellipsis">{{ log.statusCode }}</div>
+        </td>
+        <td class="text-align-right width-1px white-space-nowrap padding-0px">
+          <div class="hidden-nowrap-ellipsis">{{ log.created }}</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Updated Pagination Section -->
+  <pagination-component :prev-page-url="`/diagnostics/request-logs?page=${page - 1}&pageSize=${pageSize}`"
+                        :next-page-url="nextPage ? `/diagnostics/request-logs?page=${nextPage}&pageSize=${pageSize}` : ''"
+                        :is-filtered="false"
+                        :page="page">
+  </pagination-component>
+</div>
+
+<script src="~/js/PaginationComponent.js" asp-append-version="true"></script>
+
+<script>
+  const { createApp } = Vue;
+
+  const app = createApp({
+    components: {
+      'pagination-component': PaginationComponent
+    },
+    data() {
+      return {
+        requestLogs: [],
+        page: @Model.Page,
+        pageSize: @Model.PageSize,
+        nextPage: null,
+        rememberPageSize: @(Model.RememberPageSize ? "true" : "false"),
+        headerWidths: []
+      };
+    },
+    methods: {
+      setTdWidths() {
+        const table = this.$refs.requestLogsTable;
+        if (!table) return;
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+          const tds = row.querySelectorAll('td');
+          tds.forEach((td, i) => {
+            const innerDiv = td.querySelector('div');
+            if (innerDiv && this.headerWidths[i]) {
+              innerDiv.style.width = this.headerWidths[i] + 'px';
+            }
+          });
+        });
+      },
+      fetchRequestLogs() {
+        const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+        if (storedPageSize) {
+          this.pageSize = storedPageSize;
+        }
+        fetch(`/api/diagnostics/get-request-logs?page=${this.page}&pageSize=${this.pageSize}`)
+          .then(response => response.json())
+          .then(data => {
+            this.requestLogs = data.requestLogs;
+            this.$nextTick(() => {
+              this.setTdWidths();
+            });
+            if (data.page > 0) {
+              this.page = data.page;
+            }
+            if (data.nextPage > 0) {
+              this.nextPage = data.nextPage;
+            } else {
+              this.nextPage = null;
+            }
+          });
+      },
+      recordHeaderWidths() {
+        this.headerWidths = [];
+        const table = this.$refs.requestLogsTable;
+        if (!table) return;
+        const ths = table.querySelectorAll('thead th');
+        ths.forEach(th => {
+          this.headerWidths.push(th.offsetWidth);
+        });
+      }
+    },
+    mounted() {
+      if (this.rememberPageSize) {
+        localStorage.setItem('pageSize', this.pageSize);
+      }
+      this.$nextTick(() => {
+        this.recordHeaderWidths();
+      });
+      this.fetchRequestLogs();
+    }
+  });
+
+  app.mount('#app');
+</script>

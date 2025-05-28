@@ -1,0 +1,340 @@
+@model Accounting.Models.HomeViewModels.LatestPostViewModel
+
+@{
+  ViewData["Title"] = ConfigurationSingleton.Instance.ApplicationName;
+}
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+@if (!User.Identity.IsAuthenticated)
+{
+  <div class="display-flex margin-bottom-5px background-color-antiquewhite padding-15px">
+    <p class="font-size-20px text-align-center font-weight-500 font-Oswald">General purpose accounting and record-keeping system.</p>
+  </div>
+
+  <div class="display-flex margin-bottom-5px">
+    <div class="flex-1 background-color-A62626 text-align-center">
+      <a href="https://github.com/denys-olleik/accounting" class="font-Oswald color-white font-size-40px">source</a>
+    </div>
+    <div class="width-5px"></div>
+    <div class="flex-1 background-color-A62626 text-align-center">
+      <a asp-action="Register" asp-controller="Registration" class="font-Oswald color-white font-size-40px">demo</a>
+    </div>
+  </div>
+  <div class="background-color-antiquewhite padding-sides-10px padding-bottom-10px font-Oswald">
+    <div class="font-size-20px">Hosting options</div>
+    <table class="border-collapse width-100 background-color-antiquewhite">
+      <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+        <tr>
+          <th class="text-align-left width-1px padding-right-20px">#</th>
+          <th class="text-align-left width-1px padding-right-20px">Option</th>
+          <th class="text-align-left width-1px white-space-nowrap padding-right-20px">SSH</th>
+          <th class="text-align-left width-1px white-space-nowrap padding-right-20px">DNS</th>
+          <th class="text-align-right white-space-nowrap">Support</th>
+        </tr>
+      </thead>
+      <tbody class="font-Roboto-Mono">
+        <tr>
+          <td class="padding-right-20px vertical-align-top">1</td>
+          <td class="padding-right-20px vertical-align-top">
+            Shared
+          </td>
+          <td class="text-align-left padding-right-20px vertical-align-top">no</td>
+          <td class="text-align-left padding-right-20px vertical-align-top">no</td>
+          <td class="text-align-right vertical-align-top">free</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">2</td>
+          <td class="padding-right-20px vertical-align-top">
+            Dedicated
+          </td>
+          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">no</td>
+          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">yes</td>
+          <td class="text-align-right vertical-align-top">$1,000/year + cloud usage</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">3</td>
+          <td class="padding-right-20px vertical-align-top">
+            Independent
+          </td>
+          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">yes</td>
+          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">yes</td>
+          <td class="text-align-right vertical-align-top">no</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">4</td>
+          <td class="padding-right-20px vertical-align-top">
+            localhost
+          </td>
+          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">n/a</td>
+          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">n/a</td>
+          <td class="text-align-right vertical-align-top">n/a</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="background-color-antiquewhite padding-sides-10px margin-top-5px padding-bottom-10px font-Oswald margin-bottom-5px">
+    <div class="font-size-20px">3rd party integrations</div>
+    <table class="border-collapse width-100 background-color-antiquewhite">
+      <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+        <tr>
+          <th class="text-align-left width-1px padding-right-20px">#</th>
+          <th class="text-align-left width-1px padding-right-20px">Vendor</th>
+
+          <th class="text-align-left white-space-nowrap padding-right-20px">Purpose</th>
+        </tr>
+      </thead>
+      <tbody class="font-Roboto-Mono">
+        <tr>
+          <td class="padding-right-20px vertical-align-top">1</td>
+          <td class="padding-right-20px vertical-align-top">
+            SendGrid
+          </td>
+          <td class="text-align-left padding-right-20px">
+            for sending password recovery emails
+          </td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">2</td>
+          <td class="padding-right-20px vertical-align-top">
+            DigitalOcean
+          </td>
+          <td class="text-align-left padding-right-20px vertical-align-top">
+            for provisioning independent instances of this application
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="display-flex margin-bottom-5px">
+    <div class="flex-1 background-color-A62626 text-align-center">
+      <a href="#" class="font-Oswald color-white font-size-40px letter-spacing-10px">unlimited</a>
+    </div>
+  </div>
+  <div class="background-color-antiquewhite padding-sides-10px padding-bottom-10px font-Oswald">
+    <div class="font-size-20px">Features</div>
+    <table class="border-collapse width-100 background-color-antiquewhite">
+      <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+        <tr>
+          <th class="text-align-left width-1px padding-right-20px">#</th>
+          <th class="text-align-left width-1px padding-right-20px">Feature</th>
+          <th class="text-align-right white-space-nowrap">Limits</th>
+        </tr>
+      </thead>
+      <tbody class="font-Roboto-Mono">
+        <tr>
+          <td class="padding-right-20px vertical-align-top">1</td>
+          <td class="padding-right-20px vertical-align-top">
+            Organizations
+          </td>
+          <td class="text-align-right vertical-align-top">max <b>two</b> on <b>shared</b></td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">2</td>
+          <td class="padding-right-20px vertical-align-top">
+            Users
+          </td>
+          <td class="text-align-right vertical-align-top">unlimited</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">3</td>
+          <td class="padding-right-20px vertical-align-top">
+            Accounts
+          </td>
+          <td class="text-align-right vertical-align-top">unlimited</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">4</td>
+          <td class="padding-right-20px vertical-align-top">
+            Invoices
+          </td>
+          <td class="text-align-right vertical-align-top">unlimited</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">5</td>
+          <td class="padding-right-20px vertical-align-top">
+            Payments
+          </td>
+          <td class="text-align-right vertical-align-top">unlimited</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">6</td>
+          <td class="padding-right-20px vertical-align-top">
+            Attachments
+          </td>
+          <td class="text-align-right vertical-align-top"><b>three</b> second upload limit on <b>shared</b></td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">7</td>
+          <td class="padding-right-20px vertical-align-top">
+            Inventories
+          </td>
+          <td class="text-align-right vertical-align-top">unlimited</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">8</td>
+          <td class="padding-right-20px vertical-align-top">
+            Locations
+          </td>
+          <td class="text-align-right vertical-align-top">unlimited</td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">9</td>
+          <td class="padding-right-20px vertical-align-top">
+            Blogs
+          </td>
+          <td class="text-align-right vertical-align-top">unlimited</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="display-flex">
+    <div class="flex-1"></div>
+    <div class="color-white">v22</div>
+  </div>
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+  <div class="background-color-antiquewhite">
+    <ul class="margin-0">
+      <li>
+        <a href="@Url.Action("Update", "Organization")">Organization 🟩 </a>
+      </li>
+      <li>
+        <a href="@Url.Action("Users", "User")">Users 🟩 </a>
+        <ul>
+          <li><a href="@Url.Action("Create", "User")">Create user 🟩 </a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("ToDos", "ToDo")">Project management 🟧</a>
+        <ul>
+          <li><a href="@Url.Action("Create", "ToDo")">Create task 🟧</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("Invoices", "Invoice")">Invoices 🟩 </a>
+        <ul>
+          <li><a href="@Url.Action("Create", "Invoice")">Create invoice 🟩 </a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("Customers", "Customer")">Customers and vendors 🟩 </a>
+        <ul>
+          <li><a href="@Url.Action("Create", "Customer")">Create customer and or vendor 🟩 </a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("PaymentTerms", "PaymentTerm")">Payment terms 🟩 </a>
+        <ul>
+          <li><a href="@Url.Action("Create", "PaymentTerm")">Create payment term 🟩 </a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("Items", "Item")">Items 🟨</a>
+        <ul>
+          <li><a href="@Url.Action("Create", "Item")">Create item 🟧</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("Locations", "Location")">Locations 🟧</a>
+        <ul>
+          <li><a href="@Url.Action("Create", "Location")">Create location 🟩</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("Reconciliations", "Reconciliation")">Reconciliations 🟥</a>
+        <ul>
+          <li><a href="@Url.Action("Import", "Reconciliation")">Import 🟥</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("Accounts", "Account")">Accounts 🟩 </a>
+        <ul>
+          <li><a href="@Url.Action("Create", "Account")">Create account 🟩 </a></li>
+        </ul>
+      </li>
+      @* <li>
+        <a href="@Url.Action("ShippingAndReceiving", "ShippingAndReceiving")">Shipping and receiving</a>
+      </li> *@
+      <li>
+        <a href="@Url.Action("Blogs", "Blog")">Blog 🟩 </a>
+        <ul>
+          <li><a href="@Url.Action("Create", "Blog")">Create post 🟩 </a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("Tenants", "Tenant")">Tenants 🟩 </a>
+        <ul>
+          <li>
+            <a href="@Url.Action("Secrets", "Secret")">Secrets 🟩 </a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="@Url.Action("UpdatePassword", "User")">Update password 🟩 </a>
+      </li>
+      <li>
+        <a href="@Url.Action("RequestLogs", "Diagnostics")">Request logs 🟨</a>
+      </li>
+      <li>
+        <a href="@Url.Action("Exceptions", "Diagnostics")">Exceptions 🟨</a>
+      </li>
+    </ul>
+  </div>
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+  <div class="display-flex background-color-white">
+    <div class="flex-1">
+      <canvas id="accountBalanceChart" width="400" height="400"></canvas>
+    </div>
+    <div class="width-5px">
+    </div>
+    <div class="flex-1">
+    </div>
+  </div>
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+  <script>
+    (async () => {
+      try {
+        const response = await fetch(`${window.location.protocol}//${window.location.hostname}:${window.location.port ? window.location.port : ''}/api/r/get-account-balance-report`);
+        const apiData = await response.json();
+
+        const accountNumbers = apiData.map(item => item.name);
+        const currentBalances = apiData.map(item => item.currentBalance);
+
+        const ctx = document.getElementById('accountBalanceChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: accountNumbers,
+            datasets: [{
+              label: 'Current Balance',
+              data: currentBalances,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          }
+        });
+      } catch (error) {
+
+      }
+    })();
+  </script>
+}

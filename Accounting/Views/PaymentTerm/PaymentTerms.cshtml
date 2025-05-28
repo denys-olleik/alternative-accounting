@@ -1,0 +1,99 @@
+﻿@model Accounting.Models.PaymentTermViewModels.PaymentTermsViewModel
+
+@{
+  ViewData["Title"] = "Payment Terms - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+@{
+  string headerText = "Payment Terms";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div class="margin-left-20px">
+    <a asp-action="Create" asp-controller="PaymentTerm" class="font-Roboto font-size-16px color-blue">Create Payment Term</a>
+  </div>
+  <div class="margin-left-20px flex-1 text-align-right">
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue">Home</a>
+  </div>
+</div>
+
+<template id="payment-term-action-template">
+  <div class="display-flex padding-top-bottom-2px">
+    <div class="display-flex flex-1">
+      <a href="#" @@click.prevent="toggleAction" class="margin-right-5px">{{ paymentTerm.Description }}</a>
+      <span v-if="isExpanded" class="display-flex">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a :href="'/payment-terms/delete/' + paymentTerm.ID" class="font-size-16px font-Roboto color-white text-decoration-none">
+            delete
+          </a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>
+
+<div id="app">
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left padding-right-20px">Payment Term</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <template v-for="paymentTerm in paymentTerms" :key="paymentTerm.ID">
+        <tr>
+          <td class="padding-right-20px">
+            <payment-term-action :payment-term="paymentTerm"
+                                 :is-expanded="paymentTerm.ID === expandedPaymentTermId"
+                                 @@expand="handlePaymentTermExpand(paymentTerm.ID)">
+            </payment-term-action>
+          </td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  const { createApp } = Vue;
+
+    const PaymentTermAction = {
+    name: 'PaymentTermAction',
+    props: ['paymentTerm', 'isExpanded'],
+    template: '#payment-term-action-template',
+    methods: {
+      toggleAction() {
+        this.$emit('expand');
+      }
+    }
+  };
+
+  const app = createApp({
+    components: {
+      'payment-term-action': PaymentTermAction,
+    },
+    data() {
+      return {
+        paymentTerms: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PaymentTerms)),
+        expandedPaymentTermId: null,
+      };
+    },
+    methods: {
+      handlePaymentTermExpand(id) {
+        this.expandedPaymentTermId = this.expandedPaymentTermId === id ? null : id;
+      }
+    }
+  });
+
+  app.mount("#app");
+</script>

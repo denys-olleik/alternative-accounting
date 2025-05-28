@@ -1,0 +1,354 @@
+﻿@model Accounting.Models.PaginatedViewModel
+
+@{
+  ViewData["Title"] = "Tenants - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+@{
+  string headerText = "Tenants";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div class="margin-left-20px">
+    <a asp-action="ProvisionTenant" asp-controller="Tenant" class="font-Roboto font-size-16px color-blue">
+      Provision tenant
+    </a>
+  </div>
+  <div class="flex-1 text-align-right">
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue">Home</a>
+  </div>
+</div>
+
+<template id="tenant-action-template">
+  <div class="display-flex padding-top-bottom-2px">
+    <div class="display-flex flex-direction-column flex-1">
+      <a href="#" @@click.prevent="toggleAction" class="margin-right-5px filter-blur-5px">{{ tenant.email }}</a>
+      <div>
+        <a href="#" v-if="isExpanded" class="font-size-12px" @@click.prevent="copyFqdn">{{ tenant.fullyQualifiedDomainName }}</a>
+        <span v-if="isExpanded" class="display-flex margin-bottom-2px">
+          <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+            <div class="flex-1"></div>
+            <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+            <div class="flex-1"></div>
+          </div>
+          <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+            <div class="flex-1"></div>
+            <a :href="'/tenant/update/' + tenant.tenantID" class="font-size-16px font-Roboto color-white text-decoration-none">
+              update
+            </a>
+            <div class="flex-1"></div>
+          </div>
+          <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+            <div class="flex-1"></div>
+            <a :href="'/tenant/users/' + tenant.tenantID" class="font-size-16px font-Roboto color-white text-decoration-none">
+              users
+            </a>
+            <div class="flex-1"></div>
+          </div>
+          <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+            <div class="flex-1"></div>
+            <a :href="'/tenant/organizations/' + tenant.tenantID" class="font-size-16px font-Roboto color-white text-decoration-none">
+              organizations
+            </a>
+            <div class="flex-1"></div>
+          </div>
+          <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+            <div class="flex-1"></div>
+            <a :href="'/tenant/delete/' + tenant.tenantID" class="font-size-16px font-Roboto color-white text-decoration-none">
+              delete
+            </a>
+            <div class="flex-1"></div>
+          </div>
+        </span>
+        <span v-if="isExpanded && tenant.databaseName" class="display-flex margin-bottom-2px">
+          <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+            <div class="flex-1"></div>
+            <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">database:</a>
+            <div class="flex-1"></div>
+          </div>
+          <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+            <div class="flex-1"></div>
+            <a :href="'/api/database/download-backup/' + tenant.tenantID" class="font-size-16px font-Roboto color-white text-decoration-none">
+              eject
+            </a>
+            <div class="flex-1"></div>
+          </div>
+          <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+            <div class="flex-1"></div>
+            <a :href="'/database/import/' + tenant.tenantID" class="font-size-16px font-Roboto color-white text-decoration-none">
+              insert
+            </a>
+            <div class="flex-1"></div>
+          </div>
+        </span>
+        <span v-if="isExpanded && tenant.dropletId" class="display-flex margin-bottom-2px">
+          <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+            <div class="flex-1"></div>
+            <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">terminal:</a>
+            <div class="flex-1"></div>
+          </div>
+          <div v-if="!tenant.ipv4" class="display-flex flex-direction-column background-color-lawngreen padding-right-5px padding-left-5px margin-left-2px">
+            <div class="flex-1"></div>
+            <a href="#" @@click.prevent="discover" class="font-size-16px font-Roboto color-darkslategray text-decoration-none font-weight-500">
+              discover
+            </a>
+            <div class="flex-1"></div>
+          </div>
+          <div v-if="tenant.ipv4" class="position-relative display-flex flex-direction-column flex-1 margin-left-2px">
+            <span class="blinking-cursor position-absolute color-lawngreen left-2px">█</span>
+            <input type="text" class="font-size-16px width-100 font-Roboto-Mono background-color-black color-white" @@click.prevent="removeBlinkingCursor" @@keydown="handleKeyDown" />
+          </div>
+        </span>
+        <span v-if="isExpanded && tenant.dropletId" class="display-flex background-color-black color-white font-Roboto-Mono margin-bottom-2px">
+          {{ tenant.terminalResponse }}
+        </span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<div id="app">
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th></th>
+        <th></th>
+        <th colspan="4" class="background-color-lightblue">
+          Local database on shared infrastructure
+        </th>
+      </tr>
+      <tr>
+        <th></th>
+        <th class="text-align-left">
+          <input type="text" v-model="emailFilter" @@input="filterEmail" placeholder="Email" class="font-size-16px width-100" />
+        </th>
+        <th class="text-align-center" colspan="4">
+          or
+        </th>
+      </tr>
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">#</th>
+        <th class="text-align-left padding-right-20px">Email</th>
+        <th class="text-align-left width-1px padding-right-20px white-space-nowrap background-color-lightpink">
+          Droplet ID
+        </th>
+        <th class="text-align-left width-1px padding-right-20px background-color-lightpink">IP</th>
+        <th class="text-align-left width-1px white-space-nowrap background-color-lightpink">Private</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <template v-for="tenant in tenants" :key="tenant.tenantID">
+        <tr>
+          <td class="padding-right-20px">{{ tenant.rowNumber }}</td>
+          @* <td class="padding-right-20px">{{ tenant.fullyQualifiedDomainName }}</td> *@
+          <td class="padding-right-20px">
+            <tenant-action :tenant="tenant" :is-expanded="tenant.tenantID === expandedTenantId" @@expand="handleTenantExpand(tenant.tenantID)"></tenant-action>
+          </td>
+          <td v-if="tenant.databaseName" class="background-color-lightblue text-align-center" colspan="4">
+            {{ tenant.databaseName }}
+          </td>
+          <template v-else>
+            <td class="padding-right-20px background-color-lightpink ">
+              <a style="pointer-events: none;" class="filter-blur-5px">{{ tenant.dropletId }}</a>
+            </td>
+            <td class="padding-right-20px background-color-lightpink ">
+              <a style="pointer-events: none;" class="filter-blur-5px">{{ tenant.ipv4 }}</a>
+            </td>
+            <td class="white-space-nowrap background-color-lightpink">
+              <a :href="'/tenant/download-private-key/' + tenant.tenantID" class="color-blue">get</a>
+            </td>
+          </template>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+  <div class="margin-bottom-5px display-flex font-Roboto font-size-16px background-color-antiquewhite">
+    <div>
+      <a :href="`/tenant/tenants?page=${page - 1}&pageSize=${pageSize}`" v-if="page > 1">prev</a>
+    </div>
+    <div class="flex-1 text-align-center">
+    </div>
+    <div>
+      <a :href="`/tenant/tenants?page=${nextPage}&pageSize=${pageSize}`" v-if="nextPage">next</a>
+    </div>
+  </div>
+  <pre class="color-white">
+    <code>
+      sudo certbot --nginx -d example.com -d www.example.com -n --agree-tos --email admin@example.com
+      or
+      sudo certbot --nginx -d sub.example.com -n --agree-tos --email admin@example.com
+      also...
+      sudo git -C /opt/accounting pull > /var/log/accounting/update.log 2>&1 && sudo dotnet publish /opt/accounting/Accounting/Accounting.csproj -c Release >> /var/log/accounting/update.log 2>&1 && sudo systemctl restart accounting.service &
+    </code>
+  </pre>
+</div>
+
+<script>
+  const { createApp } = Vue;
+
+  const TenantAction = {
+    name: 'TenantAction',
+    props: ['tenant', 'isExpanded'],
+    template: '#tenant-action-template',
+    methods: {
+      copyFqdn() {
+        navigator.clipboard.writeText(this.tenant.fullyQualifiedDomainName);
+      },
+      installNginx() {
+        fetch(`/api/tenant/${this.tenant.tenantID}/install-nginx`, {
+          method: 'POST'
+        })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error installing nginx:', error);
+          });
+      },
+      createLogDirectory() {
+        fetch(`/api/tenant/${this.tenant.tenantID}/create-log-directory`, {
+          method: 'POST'
+        })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error creating log directory:', error);
+          });
+      },
+      cloneRepository() {
+        fetch(`/api/tenant/${this.tenant.tenantID}/clone-repo`, {
+          method: 'POST'
+        })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error cloning repository:', error);
+          });
+      },
+      installDotnet() {
+        fetch(`/api/tenant/${this.tenant.tenantID}/install-dotnet`, {
+          method: 'POST'
+        })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error installing dotnet:', error);
+          });
+      },
+      updateApt() {
+        fetch(`/api/tenant/${this.tenant.tenantID}/update-apt`, {
+          method: 'POST'
+        })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error updating apt:', error);
+          });
+      },
+      handleKeyDown(event) {
+        if (event.key === 'Enter') {
+          fetch(`/api/tenant/${this.tenant.tenantID}/execute-command`, {
+            method: 'POST',
+            body: JSON.stringify({
+              command: event.target.value
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+            .then(response => response.text())
+            .then(data => {
+              this.tenant.terminalResponse = data;
+              event.target.value = '';
+            })
+            .catch(error => {
+              console.error('Error executing command:', error);
+            });
+        }
+      },
+      removeBlinkingCursor() {
+        const blinkingCursor = document.querySelector('.blinking-cursor');
+        if (blinkingCursor) {
+          blinkingCursor.remove();
+        }
+      },
+      discover() {
+        fetch(`/api/tenant/${this.tenant.tenantID}/discover`, {
+          method: 'POST'
+        })
+          .then(response => response.text())
+          .then(data => {
+            this.tenant.ipv4 = data;
+            console.log(data);
+          });
+      },
+      toggleAction() {
+        this.$emit('expand');
+      },
+    }
+  };
+
+  const app = createApp({
+    components: {
+      'tenant-action': TenantAction,
+    },
+    data() {
+      return {
+        tenants: [],
+        expandedTenantId: null,
+        urlFilter: '',
+        emailFilter: '',
+        page: @Model.Page,
+        pageSize: @Model.PageSize,
+        nextPage: null,
+        rememberPageSize: @(Model.RememberPageSize ? "true" : "false")
+      };
+    },
+    methods: {
+      fetchTenants() {
+        const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+        if (storedPageSize) {
+          this.pageSize = storedPageSize;
+        }
+
+        fetch(`/api/tenant/get-all-tenants?page=${this.page}&pageSize=${this.pageSize}`)
+          .then(response => response.json())
+          .then(data => {
+            this.tenants = data.tenants;
+            this.nextPage = data.nextPage;
+          })
+          .catch(error => {
+            console.error('Error fetching tenants:', error);
+          });
+      },
+      filterURL() {
+      },
+      filterEmail() {
+      },
+      handleTenantExpand(id) {
+        this.expandedTenantId = this.expandedTenantId === id ? null : id;
+      }
+    },
+    mounted() {
+      if (this.rememberPageSize) {
+        localStorage.setItem('pageSize', this.pageSize);
+      }
+      this.fetchTenants();
+    }
+  });
+
+  app.mount("#app");
+</script>

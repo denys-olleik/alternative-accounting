@@ -1,0 +1,69 @@
+﻿@model Accounting.Models.TenantViewModels.ProvisionTenantViewModel
+
+@{
+  ViewData["Title"] = "Provision tenant - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+@{
+  string headerText = "Provision tenant";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div class="margin-left-20px flex-1 text-align-right">
+    <a asp-action="Tenants" asp-controller="Tenant" class="font-Roboto font-size-16px color-blue">Tenants</a>
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
+  </div>
+</div>
+
+<form asp-action="ProvisionTenant" asp-controller="Tenant" method="post"
+      class="display-flex flex-direction-column margin-bottom-5px">
+
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Email" class="font-Roboto font-size-20px"></label>
+    <input asp-for="Email" class="font-size-20px" required />
+
+    <span>
+      <input asp-for="Shared" type="checkbox" class="margin-bottom-5px" />
+      <label asp-for="Shared">shared</label>
+    </span>
+    <span>
+      <input asp-for="EnableTenantManagement" type="checkbox" class="margin-bottom-5px" />
+      <label asp-for="EnableTenantManagement">enable tenant management</label>
+    </span>
+  </div>
+
+  <div class="display-flex flex-direction-column margin-bottom-5px">
+    <label asp-for="FullyQualifiedDomainName" class="font-Roboto font-size-20px background-color-antiquewhite">Fully qualified domain name (accounting.example.com). *</label>
+    <input type="text" asp-for="FullyQualifiedDomainName" class="font-size-20px" />
+    <div class="background-color-antiquewhite">
+      * required if not shared
+    </div>
+  </div>
+
+  <div class="display-flex flex-direction-column margin-bottom-5px">
+    <label asp-for="ApplicationName" class="font-Roboto font-size-20px background-color-antiquewhite">Whitelabel*</label>
+    <input type="text" asp-for="ApplicationName" class="font-size-20px" />
+    <div class="background-color-antiquewhite">
+      * overrides all instances of 'Journal BMS'.
+    </div>
+  </div>
+
+  <div class="display-flex flex-direction-column">
+    <button type="submit" class="full-width-regular-button">Provision tenant</button>
+  </div>
+</form>
+
+@if (Model != null && Model.ValidationResult != null)
+{
+  foreach (var error in Model.ValidationResult.Errors)
+  {
+    <div>
+      <small class="color-red">@error.ErrorMessage</small>
+    </div>
+  }
+  <div class="margin-bottom-5px">
+  </div>
+}

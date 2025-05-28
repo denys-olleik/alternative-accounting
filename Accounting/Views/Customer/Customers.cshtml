@@ -1,0 +1,152 @@
+﻿@model Accounting.Models.BusinessEntityViewModels.BusinessEntitiesPaginatedViewModel
+
+@{
+  ViewData["Title"] = "Customers and vendors - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+@{
+  string headerText = "Customers and vendors";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<template id="customer-actions-template">
+  <div class="display-flex">
+    <div class="display-flex flex-1">
+      <a href="#" @@click.prevent="toggleActions" class="margin-right-5px">
+        <business-entity-name-display :business-entity="customer"></business-entity-name-display>
+      </a>
+      <span v-if="isExpanded" class="display-flex margin-left-2px">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a :href="'/c/edit/' + customer.id" class="font-size-16px font-Roboto color-white text-decoration-none">update</a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div>
+    <a asp-action="Create" asp-controller="Customer" class="font-Roboto font-size-16px color-blue margin-left-20px">
+      Create customer and/or vendor
+    </a>
+  </div>
+  <div class="margin-left-20px flex-1 text-align-right">
+    <a asp-action="Invoices" asp-controller="Invoice" class="font-Roboto font-size-16px color-blue margin-left-20px">
+      Invoices
+    </a>
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">
+      Home
+    </a>
+  </div>
+</div>
+
+<div id="app">
+  <table class="border-collapse width-100 background-color-antiquewhite margin-bottom-5px">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left">#</th>
+        <th class="text-align-left">Name</th>
+        <th class="text-align-right">Type</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <template v-for="customer in businessEntities" :key="customer.id">
+        <tr>
+          <td class="padding-right-20px fitwidth">{{customer.rowNumber}}</td>
+          <td>
+            <customer-actions :customer="customer" :is-expanded="customer.id === expandedCustomerId" @@toggle="toggleCustomerActions(customer.id)"></customer-actions>
+          </td>
+          <td class="text-align-right fitwidth">{{customer.customerType}}</td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+  <div class="margin-bottom-5px display-flex font-size-16px background-color-antiquewhite">
+    <div>
+      <a :href="`/c/customers?page=${page - 1}&pageSize=${pageSize}`" v-if="page > 1" class="color-blue">prev</a>
+    </div>
+    <div class="flex-1"></div>
+    <div>
+      <a :href="`/c/customers?page=${nextPage}&pageSize=${pageSize}`" v-if="nextPage" class="color-blue">next</a>
+    </div>
+  </div>
+</div>
+
+@if (Context.RequestServices.GetService<IWebHostEnvironment>()!.IsDevelopment())
+{
+  
+}
+
+<script src="~/js/BusinessEntityNameDisplay.js" asp-append-version="true"></script>
+
+<script>
+  const { createApp } = Vue;
+
+  const CustomerActions = {
+    components: {
+      'business-entity-name-display': BusinessEntityNameDisplay,
+    },
+    name: 'CustomerActions',
+    props: ['customer', 'isExpanded'],
+    template: '#customer-actions-template',
+    methods: {
+      toggleActions() {
+        this.$emit('toggle');
+      }
+    }
+  };
+
+  const app = createApp({
+    components: {
+      'customer-actions': CustomerActions,
+    },
+    data() {
+      return {
+        businessEntities: [],
+        page: @Model.Page,
+        pageSize: @Model.PageSize,
+        expandedCustomerId: null,
+        nextPage: null,
+        rememberPageSize: @(Model.RememberPageSize ? "true" : "false")
+      };
+    },
+    methods: {
+      fetchBusinessEntities() {
+        const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+        if (storedPageSize) {
+          this.pageSize = storedPageSize;
+        }
+
+        const apiUrl = `/api/c/get-customers?page=${this.page}&pageSize=${this.pageSize}`;
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            this.businessEntities = data.businessEntities;
+            this.page = data.page;
+            this.nextPage = data.nextPage;
+          });
+      },
+      toggleCustomerActions(id) {
+        this.expandedCustomerId = this.expandedCustomerId === id ? null : id;
+      },
+    },
+    mounted() {
+      if (this.rememberPageSize) {
+        localStorage.setItem('pageSize', this.pageSize);
+      }
+      this.fetchBusinessEntities();
+    }
+  });
+
+  app.mount('#app');
+</script>
