@@ -135,10 +135,10 @@
     );
   }
 
-  // Start with one cube at (0, 0.5, 0)
+  // Start with one cube at (0.5, 0.5, 0.5) so it aligns with the grid
   (function addInitialCube() {
     const initCube = new THREE.Mesh(cubeGeometry, cubeMaterial.clone());
-    initCube.position.set(0, 0.5, 0);
+    initCube.position.set(0.5, 0.5, 0.5);
     scene.add(initCube);
   })();
 
@@ -161,8 +161,8 @@
 
       if (intersect.object === plane) {
         // Snap to the center of the closest grid cell
-        const x = Math.floor(intersect.point.x + 0.5);
-        const z = Math.floor(intersect.point.z + 0.5);
+        const x = Math.floor(intersect.point.x) + 0.5;
+        const z = Math.floor(intersect.point.z) + 0.5;
         const y = 0.5; // on ground
         pos.set(x, y, z);
       } else {
@@ -170,11 +170,12 @@
         const normal = intersect.face.normal;
         const objectPos = intersect.object.position.clone();
         const newPos = objectPos.add(normal);
-        // Snap to integer grid
+
+        // Snap to integer grid cell centers (e.g., 1.5, 0.5, -2.5)
         pos.set(
-          Math.round(newPos.x),
-          Math.round(newPos.y),
-          Math.round(newPos.z)
+          Math.round(newPos.x - 0.5) + 0.5,
+          Math.round(newPos.y - 0.5) + 0.5,
+          Math.round(newPos.z - 0.5) + 0.5
         );
       }
 
@@ -202,6 +203,7 @@
     renderer.setSize(dims.width, dims.height);
   });
 </script>
+
 
 @if (!User.Identity.IsAuthenticated)
 {
