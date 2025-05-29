@@ -579,8 +579,18 @@ td.fitwidth, th.fitwidth {
   width: 50%;
 }
 
+.width-100px {
+  width: 100px;
+}
+
+.width
+
 .width-100 {
   width: 100%;
+}
+
+.width-25 {
+  width: 25%;
 }
 
 .margin-sides-1px {
