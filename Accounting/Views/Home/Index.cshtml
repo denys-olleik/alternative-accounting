@@ -28,11 +28,13 @@
 
   // Scene, Camera, Renderer
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 1000);
 
   const cubes = document.getElementById('cubes');
   const width = cubes.clientWidth;
   const height = cubes.clientHeight;
+
+  // Use actual aspect ratio
+  const camera = new THREE.PerspectiveCamera(37, width / height, 0.1, 1000);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(width, height);
@@ -72,7 +74,6 @@
     camera.position.y = Math.cos(fixedPolarAngle) * orbitRadius;
     camera.position.z = Math.sin(fixedPolarAngle) * Math.cos(azimuthalAngle) * orbitRadius;
     camera.lookAt(0, 0, 0);
-    camera.updateProjectionMatrix();
   }
   updateCameraPosition();
 
