@@ -25,11 +25,11 @@
 </script>
 <script type="module">
   import * as THREE from 'three';
-  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
   // Scene, Camera, Renderer
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
 
   const cubes = document.getElementById('cubes');
   const width = cubes.clientWidth;
@@ -60,16 +60,42 @@
   directionalLight.position.set(5, 10, 7.5);
   scene.add(directionalLight);
 
-  camera.position.set(3, 3, 5);
-  camera.lookAt(0, 0, 0);
+  // Camera RTS style: high, back, and at 45 degree angle
+  const distance = 10;
+  const angle = Math.PI / 4; // 45 degrees
+  camera.position.set(
+    Math.sin(angle) * distance, // x
+    distance * 0.8,             // y (height above ground)
+    Math.cos(angle) * distance  // z
+  );
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+
+  // PointerLockControls for optional look-around
+  const controls = new PointerLockControls(camera, renderer.domElement);
+
+  let rightMouseDown = false;
+  renderer.domElement.addEventListener('mousedown', function (event) {
+    if (event.button === 2) {
+      rightMouseDown = true;
+      controls.lock();
+    }
+  });
+  document.addEventListener('mouseup', function (event) {
+    if (rightMouseDown && event.button === 2) {
+      rightMouseDown = false;
+      controls.unlock();
+      document.exitPointerLock();
+    }
+  });
+  renderer.domElement.addEventListener('contextmenu', function (event) {
+    event.preventDefault();
+  });
 
   // Animation Loop
   function animate() {
     requestAnimationFrame(animate);
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
     renderer.render(scene, camera);
   }
   animate();
