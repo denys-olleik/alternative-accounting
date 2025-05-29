@@ -543,6 +543,10 @@ td.fitwidth, th.fitwidth {
   justify-content: space-between;
 }
 
+.height-500px {
+  height: 500px;
+}
+
 .max-height-250px {
   max-height: 250px;
 }
