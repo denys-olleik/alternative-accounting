@@ -311,6 +311,10 @@ td.fitwidth, th.fitwidth {
   border: 5px solid red;
 }
 
+.border-5pxsolid-A62626 {
+  border: 5px solid #A62626;
+}
+
 .border-5px-dashed-dodgerblue {
   border: 5px dashed dodgerblue;
 }
@@ -583,7 +587,9 @@ td.fitwidth, th.fitwidth {
   width: 100px;
 }
 
-.width
+.width-150px {
+  width: 150px;
+}
 
 .width-100 {
   width: 100%;
