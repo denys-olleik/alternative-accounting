@@ -40,6 +40,16 @@
   }
   let { width, height } = getDimensions();
 
+  // Camera focus/orbit parameters
+  let orbitTarget = new THREE.Vector3(0, 0, 0); // start targeting the origin
+  let orbitRadius = 14;
+  const minOrbitRadius = 10;
+  const maxOrbitRadius = 20;
+  const fixedPolarAngle = Math.PI / 4;
+  let azimuthalAngle = Math.PI / 4;
+  let isRotating = false;
+  let lastX = 0;
+
   const camera = new THREE.PerspectiveCamera(37, width / height, 0.1, 1000);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -71,21 +81,11 @@
   directionalLight.position.set(5, 10, 7.5);
   scene.add(directionalLight);
 
-  // Camera orbital parameters
-  let orbitRadius = 14;
-  const minOrbitRadius = 10;
-  const maxOrbitRadius = 20;
-  const fixedPolarAngle = Math.PI / 4;
-
-  let azimuthalAngle = Math.PI / 4;
-  let isRotating = false;
-  let lastX = 0;
-
   function updateCameraPosition() {
-    camera.position.x = Math.sin(fixedPolarAngle) * Math.sin(azimuthalAngle) * orbitRadius;
-    camera.position.y = Math.cos(fixedPolarAngle) * orbitRadius;
-    camera.position.z = Math.sin(fixedPolarAngle) * Math.cos(azimuthalAngle) * orbitRadius;
-    camera.lookAt(0, 0, 0);
+    camera.position.x = orbitTarget.x + Math.sin(fixedPolarAngle) * Math.sin(azimuthalAngle) * orbitRadius;
+    camera.position.y = orbitTarget.y + Math.cos(fixedPolarAngle) * orbitRadius;
+    camera.position.z = orbitTarget.z + Math.sin(fixedPolarAngle) * Math.cos(azimuthalAngle) * orbitRadius;
+    camera.lookAt(orbitTarget);
   }
   updateCameraPosition();
 
@@ -142,14 +142,16 @@
     scene.add(initCube);
   })();
 
-  renderer.domElement.addEventListener('click', (event) => {
+  // Left click: add cube. Right click: focus camera on clicked square/cube.
+  renderer.domElement.addEventListener('mousedown', (event) => {
+    if (event.button !== 0 && event.button !== 2) return;
+
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
 
-    // Find intersections with cubes and plane
     const cubeMeshes = scene.children.filter(obj =>
       obj.isMesh && obj.geometry.type === 'BoxGeometry'
     );
@@ -159,31 +161,44 @@
       const intersect = intersects[0];
       let pos = new THREE.Vector3();
 
-      if (intersect.object === plane) {
-        // Snap to the center of the closest grid cell
-        const x = Math.floor(intersect.point.x) + 0.5;
-        const z = Math.floor(intersect.point.z) + 0.5;
-        const y = 0.5; // on ground
-        pos.set(x, y, z);
-      } else {
-        // Clicked on a cube: place cube adjacent, in the direction of the face normal
-        const normal = intersect.face.normal;
-        const objectPos = intersect.object.position.clone();
-        const newPos = objectPos.add(normal);
+      if (event.button === 0) { // Left click: add cube
+        if (intersect.object === plane) {
+          // Snap to the center of the closest grid cell
+          const x = Math.floor(intersect.point.x) + 0.5;
+          const z = Math.floor(intersect.point.z) + 0.5;
+          const y = 0.5; // on ground
+          pos.set(x, y, z);
+        } else {
+          // Clicked on a cube: place cube adjacent, in the direction of the face normal
+          const normal = intersect.face.normal;
+          const objectPos = intersect.object.position.clone();
+          const newPos = objectPos.add(normal);
+          pos.set(
+            Math.round(newPos.x - 0.5) + 0.5,
+            Math.round(newPos.y - 0.5) + 0.5,
+            Math.round(newPos.z - 0.5) + 0.5
+          );
+        }
 
-        // Snap to integer grid cell centers (e.g., 1.5, 0.5, -2.5)
-        pos.set(
-          Math.round(newPos.x - 0.5) + 0.5,
-          Math.round(newPos.y - 0.5) + 0.5,
-          Math.round(newPos.z - 0.5) + 0.5
-        );
-      }
-
-      // Only place if empty
-      if (!getCubeAt(pos.x, pos.y, pos.z)) {
-        const newCube = new THREE.Mesh(cubeGeometry, cubeMaterial.clone());
-        newCube.position.set(pos.x, pos.y, pos.z);
-        scene.add(newCube);
+        // Only place if empty
+        if (!getCubeAt(pos.x, pos.y, pos.z)) {
+          const newCube = new THREE.Mesh(cubeGeometry, cubeMaterial.clone());
+          newCube.position.set(pos.x, pos.y, pos.z);
+          scene.add(newCube);
+        }
+      } else if (event.button === 2) { // Right click: focus camera
+        if (intersect.object === plane) {
+          // On grid: focus on bottom center of grid cell
+          const x = Math.floor(intersect.point.x) + 0.5;
+          const z = Math.floor(intersect.point.z) + 0.5;
+          const y = 0; // bottom
+          orbitTarget.set(x, y, z);
+        } else {
+          // On cube: focus on bottom center of cube
+          const cubePos = intersect.object.position;
+          orbitTarget.set(cubePos.x, cubePos.y - 0.5, cubePos.z);
+        }
+        updateCameraPosition();
       }
     }
   });
