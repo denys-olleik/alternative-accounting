@@ -142,15 +142,6 @@
     scene.add(initCube);
   })();
 
-  // Move plane and grid to align their (0,0) with the new focus
-  function moveGroundTo(targetX, targetZ) {
-    // Center the plane and grid around the target cell
-    plane.position.x = targetX;
-    plane.position.z = targetZ;
-    gridHelper.position.x = targetX;
-    gridHelper.position.z = targetZ;
-  }
-
   // Left click: add cube. Right click: focus camera on clicked square/cube.
   renderer.domElement.addEventListener('mousedown', (event) => {
     if (event.button !== 0 && event.button !== 2) return;
@@ -195,10 +186,7 @@
           newCube.position.set(pos.x, pos.y, pos.z);
           scene.add(newCube);
 
-          // Shift focus and ground to new cube's bottom center
-          orbitTarget.set(pos.x, pos.y - 0.5, pos.z);
-          moveGroundTo(Math.floor(pos.x), Math.floor(pos.z));
-          updateCameraPosition();
+          // Do NOT move the camera or shift the ground/grid on placement
         }
       } else if (event.button === 2) { // Right click: focus camera
         if (intersect.object === plane) {
@@ -207,12 +195,13 @@
           const z = Math.floor(intersect.point.z - plane.position.z + 0.5) + plane.position.z + 0.5;
           const y = 0; // bottom
           orbitTarget.set(x, y, z);
-          moveGroundTo(Math.floor(x), Math.floor(z));
+          // Optionally, shift ground and grid to keep focused position at local origin
+          // But per your latest request, keep them fixed as well
         } else {
           // On cube: focus on bottom center of cube
           const cubePos = intersect.object.position;
           orbitTarget.set(cubePos.x, cubePos.y - 0.5, cubePos.z);
-          moveGroundTo(Math.floor(cubePos.x), Math.floor(cubePos.z));
+          // Same as above, do NOT shift ground/grid
         }
         updateCameraPosition();
       }
