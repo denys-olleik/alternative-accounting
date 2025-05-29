@@ -25,11 +25,10 @@
 </script>
 <script type="module">
   import * as THREE from 'three';
-  import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
   // Scene, Camera, Renderer
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 1000);
 
   const cubes = document.getElementById('cubes');
   const width = cubes.clientWidth;
@@ -60,36 +59,44 @@
   directionalLight.position.set(5, 10, 7.5);
   scene.add(directionalLight);
 
-  // Camera RTS style: high, back, and at 45 degree angle
-  const distance = 10;
-  const angle = Math.PI / 4; // 45 degrees
-  camera.position.set(
-    Math.sin(angle) * distance, // x
-    distance * 0.8,             // y (height above ground)
-    Math.cos(angle) * distance  // z
-  );
-  camera.lookAt(new THREE.Vector3(0, 0, 0));
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
+  // Camera orbital parameters
+  const orbitRadius = 10;
+  const fixedPolarAngle = Math.PI / 4; // 45 degrees
 
-  // PointerLockControls for optional look-around
-  const controls = new PointerLockControls(camera, renderer.domElement);
+  let azimuthalAngle = Math.PI / 4; // Initial horizontal angle
+  let isRotating = false;
+  let lastX = 0;
 
-  let rightMouseDown = false;
-  renderer.domElement.addEventListener('mousedown', function (event) {
+  function updateCameraPosition() {
+    camera.position.x = Math.sin(fixedPolarAngle) * Math.sin(azimuthalAngle) * orbitRadius;
+    camera.position.y = Math.cos(fixedPolarAngle) * orbitRadius;
+    camera.position.z = Math.sin(fixedPolarAngle) * Math.cos(azimuthalAngle) * orbitRadius;
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix();
+  }
+  updateCameraPosition();
+
+  // Mouse controls for right button drag (rotate azimuthally)
+  renderer.domElement.addEventListener('mousedown', (event) => {
     if (event.button === 2) {
-      rightMouseDown = true;
-      controls.lock();
+      isRotating = true;
+      lastX = event.clientX;
     }
   });
-  document.addEventListener('mouseup', function (event) {
-    if (rightMouseDown && event.button === 2) {
-      rightMouseDown = false;
-      controls.unlock();
-      document.exitPointerLock();
+  window.addEventListener('mousemove', (event) => {
+    if (isRotating) {
+      const deltaX = event.clientX - lastX;
+      azimuthalAngle -= deltaX * 0.01;
+      updateCameraPosition();
+      lastX = event.clientX;
     }
   });
-  renderer.domElement.addEventListener('contextmenu', function (event) {
+  window.addEventListener('mouseup', (event) => {
+    if (event.button === 2) {
+      isRotating = false;
+    }
+  });
+  renderer.domElement.addEventListener('contextmenu', (event) => {
     event.preventDefault();
   });
 
