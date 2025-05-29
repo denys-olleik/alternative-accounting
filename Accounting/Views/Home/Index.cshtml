@@ -62,10 +62,12 @@
   scene.add(directionalLight);
 
   // Camera orbital parameters
-  const orbitRadius = 10;
-  const fixedPolarAngle = Math.PI / 4; // 45 degrees
+  let orbitRadius = 10;
+  const minOrbitRadius = 10;
+  const maxOrbitRadius = 20;
+  const fixedPolarAngle = Math.PI / 4;
 
-  let azimuthalAngle = Math.PI / 4; // Initial horizontal angle
+  let azimuthalAngle = Math.PI / 4;
   let isRotating = false;
   let lastX = 0;
 
@@ -100,6 +102,14 @@
   renderer.domElement.addEventListener('contextmenu', (event) => {
     event.preventDefault();
   });
+
+  // Zoom controls with scroll wheel
+  renderer.domElement.addEventListener('wheel', (event) => {
+    event.preventDefault();
+    orbitRadius += event.deltaY * 0.02; 
+    orbitRadius = Math.max(minOrbitRadius, Math.min(maxOrbitRadius, orbitRadius));
+    updateCameraPosition();
+  }, { passive: false });
 
   // Animation Loop
   function animate() {
