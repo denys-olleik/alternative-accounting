@@ -85,9 +85,7 @@ namespace Accounting.Controllers
       _playerService = new PlayerService(
         requestContext.DatabaseName,
         requestContext.DatabasePassword);
-      _secretService = new SecretService(
-        requestContext.DatabaseName,
-        requestContext.DatabasePassword);
+      _secretService = new SecretService();
     }
 
     public class ReportPositionViewModel
@@ -139,7 +137,37 @@ namespace Accounting.Controllers
         return "localhost";
       }
 
-      throw new NotImplementedException();
+      Secret abuseIpDbSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.AbuseIpDb, 1);
+      if (abuseIpDbSecret == null || string.IsNullOrWhiteSpace(abuseIpDbSecret.Value))
+      {
+        return null;
+      }
+
+      using (var httpClient = new HttpClient())
+      {
+        httpClient.DefaultRequestHeaders.Add("Key", abuseIpDbSecret.Value);
+        httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
+        var url = $"https://api.abuseipdb.com/api/v2/check?ipAddress={ipAddress}";
+        HttpResponseMessage response = await httpClient.GetAsync(url);
+
+        if (!response.IsSuccessStatusCode)
+        {
+          return null;
+        }
+
+        var jsonString = await response.Content.ReadAsStringAsync();
+        using (var doc = System.Text.Json.JsonDocument.Parse(jsonString))
+        {
+          var root = doc.RootElement;
+          if (root.TryGetProperty("data", out var data) && data.TryGetProperty("countryCode", out var countryCode))
+          {
+            return countryCode.GetString();
+          }
+        }
+      }
+
+      return null;
     }
   }
 }
