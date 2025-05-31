@@ -8183,6 +8183,34 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public async Task<List<Player>> GetPlayersAsync(int withinLastSeconds)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@WithinLastSeconds", withinLastSeconds);
+
+        IEnumerable<Player> result;
+
+        NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(_connectionString)
+        {
+          Database = DatabaseThing.DatabaseConstants.DatabaseName
+        };
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<Player>("""
+            SELECT * 
+            FROM "Player" 
+            WHERE "Created" > CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL @WithinLastSeconds SECOND
+            """, p);
+        }
+        return result.ToList();
+      }
+
+      public Task ReportPosition(int x, int y)
+      {
+        throw new NotImplementedException();
+      }
+
       public int Update(Player entity)
       {
         throw new NotImplementedException();

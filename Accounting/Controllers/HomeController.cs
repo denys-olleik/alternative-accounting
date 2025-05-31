@@ -81,10 +81,33 @@ namespace Accounting.Controllers
         requestContext.DatabasePassword);
     }
 
-    [HttpPost("report-position")]
-    public IActionResult SendCoordinates(ReportPositionViewModel model)
+    public class ReportPositionViewModel
     {
-      throw new NotImplementedException();
+      public int X { get; set; }
+      public int Y { get; set; }
+      public List<Player>? Players { get; set; }
+
+      public class Player
+      {
+        public int X { get; set; }
+        public int Y { get; set; }
+      }
+    }
+
+    [HttpPost("report-position")]
+    public async Task<IActionResult> ReportPosition(ReportPositionViewModel model)
+    {
+      await _playerService.ReportPosition(model.X, model.Y);
+
+      List<Player> players = await _playerService.GetPlayersAsync(5);
+
+      model.Players = players.Select(p => new ReportPositionViewModel.Player
+      {
+        X = p.X,
+        Y = p.Y
+      }).ToList();
+
+      return Ok(model);
     }
   }
 }
