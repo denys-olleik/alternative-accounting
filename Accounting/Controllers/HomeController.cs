@@ -44,6 +44,12 @@ namespace Accounting.Controllers
       return View(indexHomeViewModel);
     }
 
+    [HttpGet("game")]
+    public IActionResult Game()
+    {
+      return View();
+    }
+
     public IActionResult WhiteLabelIndex()
     {
       return View("WhiteLabelIndex");
@@ -75,10 +81,10 @@ namespace Accounting.Controllers
         requestContext.DatabasePassword);
     }
 
-    [HttpPost("play-250ms")]
-    public async Task<IActionResult> Play250ms(Play250msViewModel model)
+    [HttpPost("send-coordinates")]
+    public IActionResult SendCoordinates(Play250msViewModel model)
     {
-      throw new NotImplementedException();
+      return Ok(new { received = model });
     }
   }
 }

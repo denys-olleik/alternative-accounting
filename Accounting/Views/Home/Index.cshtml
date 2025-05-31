@@ -24,203 +24,68 @@
   }
 </script>
 
-<div id="cubes" class="width-100 height-500px margin-bottom-5px"></div>
+<div id="app" class="width-100 height-500px margin-bottom-5px"></div>
 
 <script type="module">
   import * as THREE from 'three';
 
-  // Scene, Camera, Renderer
+  // Scene
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff); // white background
+  scene.background = new THREE.Color(0xdddddd);
 
-  const cubes = document.getElementById('cubes');
-  function getDimensions() {
-    const rect = cubes.getBoundingClientRect();
-    return { width: rect.width, height: rect.height };
-  }
-  let { width, height } = getDimensions();
+  // Camera
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    document.getElementById('app').clientWidth / 500,
+    0.1,
+    1000
+  );
+  camera.position.set(0, 2, 5);
+  camera.lookAt(0, 1, 0);
 
-  // Camera focus/orbit parameters
-  let orbitTarget = new THREE.Vector3(0, 0, 0); // start targeting the origin
-  let orbitRadius = 14;
-  const minOrbitRadius = 10;
-  const maxOrbitRadius = 20;
-  const fixedPolarAngle = Math.PI / 4;
-  let azimuthalAngle = Math.PI / 4;
-  let isRotating = false;
-  let lastX = 0;
-
-  const camera = new THREE.PerspectiveCamera(37, width / height, 0.1, 1000);
-
+  // Renderer
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(width, height);
-  cubes.appendChild(renderer.domElement);
+  renderer.setSize(document.getElementById('app').clientWidth, 500);
+  document.getElementById('app').appendChild(renderer.domElement);
 
-  // Plane (white, on ground)
+  // Plane
   const planeGeometry = new THREE.PlaneGeometry(10, 10);
-  const planeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+  const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
   const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  plane.rotation.x = -Math.PI / 2; // flat on ground
-  plane.position.y = 0;
-  plane.name = "GroundPlane";
+  plane.rotation.x = -Math.PI / 2;
   scene.add(plane);
 
-  // Grid lines (black, flat on ground)
-  const gridHelper = new THREE.GridHelper(10, 10, 0x000000, 0x000000);
-  gridHelper.position.y = 0.01; // just above plane to avoid z-fighting
-  scene.add(gridHelper);
-
-  // Cube geometry/material
+  // Cube
   const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+  const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0x3366ff });
+  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  cube.position.y = 1;
+  scene.add(cube);
 
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  // Light
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
   scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
   directionalLight.position.set(5, 10, 7.5);
   scene.add(directionalLight);
 
-  function updateCameraPosition() {
-    camera.position.x = orbitTarget.x + Math.sin(fixedPolarAngle) * Math.sin(azimuthalAngle) * orbitRadius;
-    camera.position.y = orbitTarget.y + Math.cos(fixedPolarAngle) * orbitRadius;
-    camera.position.z = orbitTarget.z + Math.sin(fixedPolarAngle) * Math.cos(azimuthalAngle) * orbitRadius;
-    camera.lookAt(orbitTarget);
-  }
-  updateCameraPosition();
-
-  // Mouse controls for right button drag (rotate azimuthally)
-  renderer.domElement.addEventListener('mousedown', (event) => {
-    if (event.button === 2) {
-      isRotating = true;
-      lastX = event.clientX;
-    }
-  });
-  window.addEventListener('mousemove', (event) => {
-    if (isRotating) {
-      const deltaX = event.clientX - lastX;
-      azimuthalAngle -= deltaX * 0.01;
-      updateCameraPosition();
-      lastX = event.clientX;
-    }
-  });
-  window.addEventListener('mouseup', (event) => {
-    if (event.button === 2) {
-      isRotating = false;
-    }
-  });
-  renderer.domElement.addEventListener('contextmenu', (event) => {
-    event.preventDefault();
-  });
-
-  // Zoom controls with scroll wheel
-  renderer.domElement.addEventListener('wheel', (event) => {
-    event.preventDefault();
-    orbitRadius += event.deltaY * 0.02;
-    orbitRadius = Math.max(minOrbitRadius, Math.min(maxOrbitRadius, orbitRadius));
-    updateCameraPosition();
-  }, { passive: false });
-
-  // Add cubes on grid or cube face clicks
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-
-  function getCubeAt(x, y, z) {
-    return scene.children.find(obj =>
-      obj.isMesh &&
-      obj.geometry.type === 'BoxGeometry' &&
-      obj.position.x === x &&
-      obj.position.y === y &&
-      obj.position.z === z
-    );
-  }
-
-  // Start with one cube at (0.5, 0.5, 0.5) so it aligns with the grid
-  (function addInitialCube() {
-    const initCube = new THREE.Mesh(cubeGeometry, cubeMaterial.clone());
-    initCube.position.set(0.5, 0.5, 0.5);
-    scene.add(initCube);
-  })();
-
-  // Left click: add cube. Right click: focus camera on clicked square/cube.
-  renderer.domElement.addEventListener('mousedown', (event) => {
-    if (event.button !== 0 && event.button !== 2) return;
-
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-
-    const cubeMeshes = scene.children.filter(obj =>
-      obj.isMesh && obj.geometry.type === 'BoxGeometry'
-    );
-    const intersects = raycaster.intersectObjects([plane, ...cubeMeshes], false);
-
-    if (intersects.length > 0) {
-      const intersect = intersects[0];
-      let pos = new THREE.Vector3();
-
-      if (event.button === 0) { // Left click: add cube
-        if (intersect.object === plane) {
-          // Snap to the center of the closest grid cell
-          const x = Math.floor(intersect.point.x - plane.position.x + 0.5) + plane.position.x + 0.5;
-          const z = Math.floor(intersect.point.z - plane.position.z + 0.5) + plane.position.z + 0.5;
-          const y = 0.5; // on ground
-          pos.set(x, y, z);
-        } else {
-          // Clicked on a cube: place cube adjacent, in the direction of the face normal
-          const normal = intersect.face.normal;
-          const objectPos = intersect.object.position.clone();
-          const newPos = objectPos.add(normal);
-          pos.set(
-            Math.round(newPos.x - 0.5) + 0.5,
-            Math.round(newPos.y - 0.5) + 0.5,
-            Math.round(newPos.z - 0.5) + 0.5
-          );
-        }
-
-        // Only place if empty
-        if (!getCubeAt(pos.x, pos.y, pos.z)) {
-          const newCube = new THREE.Mesh(cubeGeometry, cubeMaterial.clone());
-          newCube.position.set(pos.x, pos.y, pos.z);
-          scene.add(newCube);
-
-          // Do NOT move the camera or shift the ground/grid on placement
-        }
-      } else if (event.button === 2) { // Right click: focus camera
-        if (intersect.object === plane) {
-          // On grid: focus on bottom center of grid cell
-          const x = Math.floor(intersect.point.x - plane.position.x + 0.5) + plane.position.x + 0.5;
-          const z = Math.floor(intersect.point.z - plane.position.z + 0.5) + plane.position.z + 0.5;
-          const y = 0; // bottom
-          orbitTarget.set(x, y, z);
-          // Optionally, shift ground and grid to keep focused position at local origin
-          // But per your latest request, keep them fixed as well
-        } else {
-          // On cube: focus on bottom center of cube
-          const cubePos = intersect.object.position;
-          orbitTarget.set(cubePos.x, cubePos.y - 0.5, cubePos.z);
-          // Same as above, do NOT shift ground/grid
-        }
-        updateCameraPosition();
-      }
-    }
-  });
-
-  // Animation Loop
+  // Animation loop
   function animate() {
     requestAnimationFrame(animate);
+    cube.rotation.y += 0.01;
+    cube.rotation.x += 0.005;
     renderer.render(scene, camera);
   }
   animate();
 
-  // Responsive
+  // Responsive resizing (optional)
   window.addEventListener('resize', () => {
-    const dims = getDimensions();
-    camera.aspect = dims.width / dims.height;
+    const width = document.getElementById('app').clientWidth;
+    const height = 500;
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    renderer.setSize(dims.width, dims.height);
+    renderer.setSize(width, height);
   });
 </script>
 
