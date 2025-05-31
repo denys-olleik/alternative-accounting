@@ -713,6 +713,8 @@ CREATE TABLE "PlaylistSubmissionTrack"
     UNIQUE ("PlaylistSubmissionID", "TrackID")
 );
 
+
+-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Player";'
 CREATE TABLE "Player"
 (
 		"PlayerID" SERIAL PRIMARY KEY,
