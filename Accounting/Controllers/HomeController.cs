@@ -81,8 +81,8 @@ namespace Accounting.Controllers
         requestContext.DatabasePassword);
     }
 
-    [HttpPost("send-coordinates")]
-    public IActionResult SendCoordinates(Play250msViewModel model)
+    [HttpPost("report-position")]
+    public IActionResult SendCoordinates(ReportPositionViewModel model)
     {
       throw new NotImplementedException();
     }

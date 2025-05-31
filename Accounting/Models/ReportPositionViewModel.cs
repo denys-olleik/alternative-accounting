@@ -1,6 +1,6 @@
 ﻿namespace Accounting.Models
 {
-  public class Play250msViewModel
+  public class ReportPositionViewModel
   {
     public int X { get; set; }
     public int Y { get; set; }
