@@ -75,9 +75,17 @@ namespace Accounting.Controllers
   public class PlayerApiController : BaseController
   {
     private readonly PlayerService _playerService;
-    public PlayerApiController(RequestContext requestContext, PlayerService playerService)
+    private readonly SecretService _secretService;
+
+    public PlayerApiController(
+      RequestContext requestContext, 
+      PlayerService playerService, 
+      SecretService secretService)
     {
       _playerService = new PlayerService(
+        requestContext.DatabaseName,
+        requestContext.DatabasePassword);
+      _secretService = new SecretService(
         requestContext.DatabaseName,
         requestContext.DatabasePassword);
     }
@@ -126,6 +134,11 @@ namespace Accounting.Controllers
 
     private async Task<string?> GetCountryAsync(string ipAddress)
     {
+      if (ipAddress == "::1")
+      {
+        return "localhost";
+      }
+
       throw new NotImplementedException();
     }
   }

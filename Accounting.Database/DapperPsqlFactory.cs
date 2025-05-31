@@ -8209,17 +8209,12 @@ namespace Accounting.Database
 
         IEnumerable<Player> result;
 
-        NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(_connectionString)
-        {
-          Database = DatabaseThing.DatabaseConstants.DatabaseName
-        };
-
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           result = await con.QueryAsync<Player>("""
             SELECT * 
             FROM "Player" 
-            WHERE "Created" > CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL @WithinLastSeconds SECOND
+            WHERE "Created" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - (@WithinLastSeconds || ' seconds')::interval)
             """, p);
         }
         return result.ToList();

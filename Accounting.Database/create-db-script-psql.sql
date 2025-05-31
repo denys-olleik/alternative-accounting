@@ -618,7 +618,7 @@ CREATE TABLE "Secret"
 	"Master" BOOLEAN DEFAULT FALSE,
 	"Value" TEXT NOT NULL,
 	"ValueEncrypted" BOOLEAN NOT NULL DEFAULT FALSE,
-	"Type" VARCHAR(20) CHECK ("Type" IN ('email', 'sms', 'cloud', 'no-reply', 'droplet-limit')) NULL,
+	"Type" VARCHAR(20) CHECK ("Type" IN ('email', 'sms', 'cloud', 'no-reply', 'droplet-limit', 'abuse-ip-db')) NULL,
 	"Purpose" VARCHAR(100) NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NULL,
@@ -717,7 +717,7 @@ CREATE TABLE "Player"
 (
 		"PlayerID" SERIAL PRIMARY KEY,
 		"IpAddress" VARCHAR(50) NOT NULL,
-		"Country" VARCHAR(5) NOT NULL,
+		"Country" VARCHAR(50) NOT NULL,
 		"X" INT NOT NULL,
 		"Y" INT NOT NULL,
 		"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
