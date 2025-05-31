@@ -20,38 +20,91 @@
   // Set up renderer
   const width = 1920, height = 1080;
   const container = document.getElementById('app');
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setSize(width, height);
   renderer.setClearColor(0x20232a);
   container.appendChild(renderer.domElement);
 
-  // Set up scene and camera (note top=height, bottom=0)
+  // Set up scene and camera
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(0, width, height, 0, -1, 1);
 
-  // Crosshair lines
-  const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
+  // --- Draw Grid ---
+  function createGrid(gridSize, color = 0x444444) {
+    const gridLines = [];
+
+    // Vertical lines
+    for (let x = 0; x <= width; x += gridSize) {
+      gridLines.push(
+        new THREE.Vector3(x, 0, 0),
+        new THREE.Vector3(x, height, 0)
+      );
+    }
+    // Horizontal lines
+    for (let y = 0; y <= height; y += gridSize) {
+      gridLines.push(
+        new THREE.Vector3(0, y, 0),
+        new THREE.Vector3(width, y, 0)
+      );
+    }
+    const geometry = new THREE.BufferGeometry().setFromPoints(gridLines);
+    const material = new THREE.LineBasicMaterial({ color: color, linewidth: 1 });
+    return new THREE.LineSegments(geometry, material);
+  }
+
+  const gridSize = 120;
+  const grid = createGrid(gridSize, 0x444444);
+  scene.add(grid);
+
+  // --- Highlight Square ---
+  // Create a glowing rectangle mesh
+  const squareGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
+  const squareMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffff99,
+    transparent: true,
+    opacity: 0.32
+  });
+  const squareGlow = new THREE.Mesh(squareGeometry, squareMaterial);
+
+  // Optional: Add a slightly larger border for a 'glow' effect
+  const borderGeometry = new THREE.PlaneGeometry(gridSize + 8, gridSize + 8);
+  const borderMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffff99,
+    transparent: true,
+    opacity: 0.14
+  });
+  const squareBorder = new THREE.Mesh(borderGeometry, borderMaterial);
+
+  // Initialize position off-screen
+  squareGlow.position.set(-gridSize, -gridSize, 0.1);
+  squareBorder.position.set(-gridSize, -gridSize, 0.09);
+  scene.add(squareBorder);
+  scene.add(squareGlow);
+
+  // --- Crosshair lines ---
+  const crosshairMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
   let verticalLine, horizontalLine;
 
   function createCrosshair(x, y) {
     const flippedY = height - y;
+
     // Remove existing lines if present
     if (verticalLine) scene.remove(verticalLine);
     if (horizontalLine) scene.remove(horizontalLine);
 
     // Vertical line
     const vertGeom = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(x, 0, 0),
-      new THREE.Vector3(x, height, 0)
+      new THREE.Vector3(x, 0, 0.2),
+      new THREE.Vector3(x, height, 0.2)
     ]);
-    verticalLine = new THREE.Line(vertGeom, material);
+    verticalLine = new THREE.Line(vertGeom, crosshairMaterial);
 
     // Horizontal line
     const horizGeom = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, flippedY, 0),
-      new THREE.Vector3(width, flippedY, 0)
+      new THREE.Vector3(0, flippedY, 0.2),
+      new THREE.Vector3(width, flippedY, 0.2)
     ]);
-    horizontalLine = new THREE.Line(horizGeom, material);
+    horizontalLine = new THREE.Line(horizGeom, crosshairMaterial);
 
     scene.add(verticalLine);
     scene.add(horizontalLine);
@@ -61,14 +114,33 @@
   let mouseX = width / 2, mouseY = height / 2;
   createCrosshair(mouseX, mouseY);
 
+  // Helper: Update highlight square position
+  function updateHighlight(x, y) {
+    // Find (column, row) of the square under the mouse
+    const col = Math.floor(x / gridSize);
+    const row = Math.floor(y / gridSize);
+
+    // Calculate top-left of square in Three.js screen space
+    const squareX = col * gridSize + gridSize / 2;
+    // Invert Y for Three.js (as y=0 is at bottom in ortho camera)
+    const squareY = height - (row * gridSize + gridSize / 2);
+
+    squareGlow.position.set(squareX, squareY, 0.1);
+    squareBorder.position.set(squareX, squareY, 0.09);
+  }
+
   // Mouse move handler
   renderer.domElement.addEventListener('mousemove', (e) => {
     const rect = renderer.domElement.getBoundingClientRect();
     mouseX = Math.floor((e.clientX - rect.left) * (width / rect.width));
     mouseY = Math.floor((e.clientY - rect.top) * (height / rect.height));
     createCrosshair(mouseX, mouseY);
+    updateHighlight(mouseX, mouseY);
     render();
   });
+
+  // Initial highlight
+  updateHighlight(mouseX, mouseY);
 
   // Render loop
   function render() {
