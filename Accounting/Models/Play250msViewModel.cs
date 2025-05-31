@@ -2,7 +2,7 @@
 {
   public class Play250msViewModel
   {
-    public int? RequestedX { get; set; }
-    public int? RequestedY { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }
   }
 }

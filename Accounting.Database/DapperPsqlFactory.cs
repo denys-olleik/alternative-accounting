@@ -8168,11 +8168,6 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task<Player> CreateWithinBoundingBoxOfExistingPlayers(Guid guid, string country, string ipAddress)
-      {
-        throw new NotImplementedException();
-      }
-
       public int Delete(int id)
       {
         throw new NotImplementedException();
@@ -8183,59 +8178,9 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task<List<Player>> GetActivePlayersAsync()
-      {
-        using (var con = new NpgsqlConnection(_connectionString))
-        {
-          var fiveMinutesAgo = DateTime.UtcNow.AddMinutes(-5);
-
-          var players = await con.QueryAsync<Player>("""
-            SELECT "CurrentX", "CurrentY", "Country"
-            FROM "Player"
-            WHERE "Updated" > @FiveMinutesAgo
-            """,
-            new { FiveMinutesAgo = fiveMinutesAgo });
-
-          return players.ToList();
-        }
-      }
-
       public IEnumerable<Player> GetAll()
       {
         throw new NotImplementedException();
-      }
-
-      public Player GetAsync(Guid guid)
-      {
-        throw new NotImplementedException();
-      }
-
-      //CREATE TABLE "Player"
-      //(
-      //		"PlayerID" SERIAL PRIMARY KEY,
-      //		"Guid" UUID NOT NULL,
-      //		"Country" VARCHAR(5) NOT NULL,
-      //		"CurrentX" INT NOT NULL,
-      //		"CurrentY" INT NOT NULL,
-      //		"RequestedX" INT NOT NULL,
-      //		"RequestedY" INT NOT NULL,
-      //		"Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
-      //);
-
-      public async Task<Player?> GetParticipatingPlayerAsync(Guid guid)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@Guid", guid);
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          var result = await con.QueryAsync<Player>("""
-            SELECT * 
-            FROM "Player" 
-            WHERE "Guid" = @Guid
-            AND "Created" > CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - INTERVAL '1 hour'
-            """, p);
-          return result.SingleOrDefault(); // Returns null if not found
-        }
       }
 
       public int Update(Player entity)

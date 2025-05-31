@@ -84,7 +84,7 @@ namespace Accounting.Controllers
     [HttpPost("send-coordinates")]
     public IActionResult SendCoordinates(Play250msViewModel model)
     {
-      return Ok(new { received = model });
+      throw new NotImplementedException();
     }
   }
 }
