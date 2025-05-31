@@ -265,7 +265,7 @@ sudo systemctl restart postgresql
 sudo apt-get install -y postgis > /var/log/accounting/postgis-install.log 2>&1
 
 # Clone repository
-git clone https://github.com/denys-olleik/accounting /opt/accounting > /var/log/accounting/git-clone.log 2>&1
+git clone https://github.com/denys-olleik/alternative-accounting /opt/accounting > /var/log/accounting/git-clone.log 2>&1
 git -C /opt/accounting config core.fileMode false
 
 # Adjust directory permissions and group access
