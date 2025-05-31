@@ -17,6 +17,13 @@ namespace Accounting.Service
 
     }
 
+    public async Task<string?> GetCountryAsync(string ipAddress, int withinLastDays)
+    {
+      FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      string? country = await factoryManager.GetPlayerManager().GetCountryAsync(ipAddress, withinLastDays);
+      return country;
+    }
+
     public async Task<List<Player>> GetPlayersAsync(int withinLastSeconds)
     {
       FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
@@ -25,10 +32,10 @@ namespace Accounting.Service
       return players;
     }
 
-    public async Task ReportPosition(int x, int y)
+    public async Task ReportPosition(int x, int y, string ipAddress, string country)
     {
       FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      await factoryManager.GetPlayerManager().ReportPosition(x, y);
+      await factoryManager.GetPlayerManager().ReportPosition(x, y, ipAddress, country);
     }
   }
 }

@@ -130,6 +130,7 @@
   }
 
   // Mouse move handler
+  let mouseOverCanvas = false;
   renderer.domElement.addEventListener('mousemove', (e) => {
     const rect = renderer.domElement.getBoundingClientRect();
     mouseX = Math.floor((e.clientX - rect.left) * (width / rect.width));
@@ -137,6 +138,13 @@
     createCrosshair(mouseX, mouseY);
     updateHighlight(mouseX, mouseY);
     render();
+  });
+
+  renderer.domElement.addEventListener('mouseenter', () => {
+    mouseOverCanvas = true;
+  });
+  renderer.domElement.addEventListener('mouseleave', () => {
+    mouseOverCanvas = false;
   });
 
   // Initial highlight
@@ -147,4 +155,35 @@
     renderer.render(scene, camera);
   }
   render();
+
+  // --- Send coordinates to backend every second if mouse is over canvas ---
+  let lastSentX = null, lastSentY = null;
+
+  async function sendCoordinates(x, y) {
+    try {
+      const response = await fetch('/api/player/report-position', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ x, y })
+      });
+      // Optionally, handle response data here if needed
+      // const data = await response.json();
+    } catch (err) {
+      // Optionally, handle errors here
+      // console.error('Failed to send coordinates:', err);
+    }
+  }
+
+  setInterval(() => {
+    if (mouseOverCanvas) {
+      // Only send if coordinates changed since last send
+      if (mouseX !== lastSentX || mouseY !== lastSentY) {
+        sendCoordinates(mouseX, mouseY);
+        lastSentX = mouseX;
+        lastSentY = mouseY;
+      }
+    }
+  }, 1000);
 </script>

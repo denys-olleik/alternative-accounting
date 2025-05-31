@@ -5,6 +5,7 @@ using Accounting.Models;
 using Accounting.Models.HomeViewModels;
 using Accounting.Service;
 using Ganss.Xss;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounting.Controllers
@@ -94,10 +95,23 @@ namespace Accounting.Controllers
       }
     }
 
+    [AllowAnonymous]
     [HttpPost("report-position")]
     public async Task<IActionResult> ReportPosition(ReportPositionViewModel model)
     {
-      await _playerService.ReportPosition(model.X, model.Y);
+      string ipAddress = GetClientIpAddress();
+
+      string? country = await _playerService.GetCountryAsync(ipAddress, 5);
+
+      if (string.IsNullOrWhiteSpace(country))
+      {
+        country = await GetCountryAsync(ipAddress);
+      }
+
+      if (!string.IsNullOrWhiteSpace(country))
+      {
+        await _playerService.ReportPosition(model.X, model.Y, ipAddress, country);
+      }
 
       List<Player> players = await _playerService.GetPlayersAsync(5);
 
@@ -108,6 +122,11 @@ namespace Accounting.Controllers
       }).ToList();
 
       return Ok(model);
+    }
+
+    private async Task<string?> GetCountryAsync(string ipAddress)
+    {
+      throw new NotImplementedException();
     }
   }
 }

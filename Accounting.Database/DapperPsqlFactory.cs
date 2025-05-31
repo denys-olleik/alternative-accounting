@@ -8183,6 +8183,25 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public async Task<string?> GetCountryAsync(string ipAddress, int withinLastDays)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@IpAddress", ipAddress);
+        p.Add("@WithinLastDays", withinLastDays);
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          return await con.QueryFirstOrDefaultAsync<string>("""
+            SELECT "Country"
+            FROM "Player"
+            WHERE "IpAddress" = @IpAddress
+              AND "Created" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - (@WithinLastDays || ' days')::interval)
+            ORDER BY "Created" DESC
+            LIMIT 1
+            """, p);
+        }
+      }
+
       public async Task<List<Player>> GetPlayersAsync(int withinLastSeconds)
       {
         DynamicParameters p = new DynamicParameters();
@@ -8206,9 +8225,21 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      public Task ReportPosition(int x, int y)
+      public async Task ReportPosition(int x, int y, string ipAddress, string country)
       {
-        throw new NotImplementedException();
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@X", x);
+        p.Add("@Y", y);
+        p.Add("@IpAddress", ipAddress);
+        p.Add("@Country", country);
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          await con.ExecuteAsync("""
+            INSERT INTO "Player" ("X", "Y", "IpAddress", "Country") 
+            VALUES (@X, @Y, @IpAddress, @Country);
+            """, p);
+        }
       }
 
       public int Update(Player entity)
