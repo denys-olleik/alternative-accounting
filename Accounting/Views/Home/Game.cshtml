@@ -6,8 +6,7 @@
 <script type="importmap">
   {
     "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/"
+      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js"
     }
   }
 </script>
@@ -15,7 +14,11 @@
 <div id="app" class="width-100 height-500px margin-bottom-5px"></div>
 
 <script type="module">
-  // --- UserId ---
+  // --- Config ---
+  const width = 1920, height = 1080;
+  const pixelSize = 1;
+
+  // --- User ID ---
   let userId = localStorage.getItem('userId');
   if (!userId) {
     userId = crypto.randomUUID();
@@ -24,10 +27,9 @@
 
   import * as THREE from 'three';
 
-  // --- Scene setup ---
-  const width = 1920, height = 1080;
+  // --- Scene Setup ---
   const container = document.getElementById('app');
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
   renderer.setSize(width, height);
   renderer.setClearColor(0x20232a);
   container.appendChild(renderer.domElement);
@@ -80,7 +82,7 @@
   scene.add(squareBorder);
   scene.add(squareGlow);
 
-  // --- Crosshair lines ---
+  // --- Crosshairs ---
   const crosshairMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
   let verticalLine, horizontalLine;
 
@@ -105,8 +107,10 @@
     scene.add(horizontalLine);
   }
 
-  // Initial crosshair in center
+  // --- User Interaction State ---
   let mouseX = width / 2, mouseY = height / 2;
+  let mouseOverCanvas = false;
+
   createCrosshair(mouseX, mouseY);
 
   function updateHighlight(x, y) {
@@ -118,8 +122,6 @@
     squareBorder.position.set(squareX, squareY, 0.09);
   }
 
-  // Mouse move handler
-  let mouseOverCanvas = false;
   renderer.domElement.addEventListener('mousemove', (e) => {
     const rect = renderer.domElement.getBoundingClientRect();
     mouseX = Math.floor((e.clientX - rect.left) * (width / rect.width));
@@ -128,7 +130,6 @@
     updateHighlight(mouseX, mouseY);
     needsRender = true;
   });
-
   renderer.domElement.addEventListener('mouseenter', () => {
     mouseOverCanvas = true;
   });
@@ -138,40 +139,19 @@
 
   updateHighlight(mouseX, mouseY);
 
-  // --- Player "pixels" (animated) ---
-  // Each player is mapped by a key (userId or index)
-  // Each has: { mesh, lastPos: {x, y}, targetPos: {x, y}, animStart: timestamp }
+  // --- Player Data Structures ---
+  // userId -> { mesh, anim: {from:{x,y}, to:{x,y}, start:timestamp, duration:ms} }
   const playerPixels = new Map();
 
-  // Customize pixel appearance
-  function createPlayerPixelMesh(isSelf) {
-    const size = gridSize * 0.65;
-    return new THREE.Mesh(
-      new THREE.PlaneGeometry(size, size),
-      new THREE.MeshBasicMaterial({
-        color: isSelf ? 0x44ff44 : 0xffffff,
-        opacity: 1,
-        transparent: false,
-        depthTest: false
-      })
-    );
-  }
-
-  // --- Animation/interpolation helpers ---
+  // --- Helpers ---
   function lerp(a, b, t) {
     return a + (b - a) * t;
   }
 
-  // --- Rendering control ---
-  let needsRender = true;
-
-  // --- Backend polling and animation state ---
+  // --- Player Polling ---
+  let latestPlayersFromServer = [];
   let lastSentX = null, lastSentY = null;
 
-  // Store latest full player list from backend
-  let latestPlayersFromServer = [];
-
-  // --- Send coordinates to backend every second if mouse is over canvas and changed ---
   async function sendCoordinates(x, y) {
     try {
       const response = await fetch('/api/player/report-position', {
@@ -181,18 +161,17 @@
       });
       if (response.ok) {
         const data = await response.json();
-        if (Array.isArray(data.players) || Array.isArray(data.Players)) {
-          // Accept either lowercase or uppercase property
-          latestPlayersFromServer = (data.players || data.Players).map(p => ({
+        let list = data.players || data.Players;
+        if (Array.isArray(list)) {
+          latestPlayersFromServer = list.map((p, i) => ({
             x: p.x ?? p.X,
-            y: p.y ?? p.Y
+            y: p.y ?? p.Y,
+            userId: p.userId || p.UserId || null
           }));
           needsRender = true;
         }
       }
-    } catch (err) {
-      // Ignore for now
-    }
+    } catch (err) {}
   }
 
   setInterval(() => {
@@ -205,92 +184,105 @@
     }
   }, 1000);
 
-  // --- Animation loop ---
+  setInterval(() => {
+    if (lastSentX !== null && lastSentY !== null) {
+      sendCoordinates(lastSentX, lastSentY);
+    }
+  }, 1200);
+
+  // --- Animation Loop ---
+  let needsRender = true;
+
   function animate(now) {
     now = now || performance.now();
 
-    // -- Synchronize playerPixels map to latestPlayersFromServer --
-    // Make a new Map of "wanted" keys: for now, use 'x:y' as key
-    // (If backend returns userId in future, use that)
-    const presentKeys = new Set();
+    // 1. Remove pixels not in latest player list
+    const keepIds = new Set();
+    for (let i = 0; i < latestPlayersFromServer.length; ++i) {
+      const p = latestPlayersFromServer[i];
+      let id = p.userId || (p.x + ':' + p.y + ':' + i);
+      keepIds.add(id);
+    }
+    for (const [id, pixel] of playerPixels) {
+      if (!keepIds.has(id)) {
+        scene.remove(pixel.mesh);
+        playerPixels.delete(id);
+        needsRender = true;
+      }
+    }
 
-    for (const player of latestPlayersFromServer) {
-      const key = `${player.x}:${player.y}`;
-      presentKeys.add(key);
+    // 2. Update/create player pixels and animation targets
+    for (let i = 0; i < latestPlayersFromServer.length; ++i) {
+      const p = latestPlayersFromServer[i];
+      const id = p.userId || (p.x + ':' + p.y + ':' + i);
+      const isSelf = (id === userId);
+      const targetAbsPos = {
+        x: p.x + 0.5, // center of pixel
+        y: height - p.y - 0.5 // flip Y, center of pixel
+      };
 
-      // Check if pixel exists at this key
-      let pixelData = playerPixels.get(key);
+      let pixel = playerPixels.get(id);
 
-      // If not present, create one (with initial lastPos = targetPos)
-      if (!pixelData) {
-        // Is this the local player?
-        const isSelf =
-          Math.abs(player.x - lastSentX) < 1 &&
-          Math.abs(player.y - lastSentY) < 1 &&
-          mouseOverCanvas; // Simple heuristic
-
-        const mesh = createPlayerPixelMesh(isSelf);
-        mesh.position.set(
-          Math.floor(player.x / gridSize) * gridSize + gridSize / 2,
-          height - (Math.floor(player.y / gridSize) * gridSize + gridSize / 2),
-          isSelf ? 0.25 : 0.2
+      if (!pixel) {
+        // Create mesh at target (no animation on first appearance)
+        const mesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(pixelSize, pixelSize),
+          new THREE.MeshBasicMaterial({
+            color: isSelf ? 0x44ff44 : 0xffffff,
+            opacity: 1,
+            transparent: false,
+            depthTest: false
+          })
         );
+        mesh.position.set(targetAbsPos.x, targetAbsPos.y, isSelf ? 0.25 : 0.2);
         scene.add(mesh);
-
-        playerPixels.set(key, {
+        playerPixels.set(id, {
           mesh,
-          lastPos: { x: player.x, y: player.y },
-          targetPos: { x: player.x, y: player.y },
-          animStart: now
+          anim: {
+            from: { x: targetAbsPos.x, y: targetAbsPos.y },
+            to: { x: targetAbsPos.x, y: targetAbsPos.y },
+            start: now,
+            duration: 1000
+          }
         });
         needsRender = true;
       } else {
-        // Animate to new position if different
-        if (
-          pixelData.targetPos.x !== player.x ||
-          pixelData.targetPos.y !== player.y
-        ) {
-          // Interrupt current animation and start to new target
-          const mesh = pixelData.mesh;
-          // Compute current position (interpolate between lastPos and old target)
-          let t =
-            Math.min(
-              1,
-              (now - pixelData.animStart) / 1000
-            );
-          const curX = lerp(pixelData.lastPos.x, pixelData.targetPos.x, t);
-          const curY = lerp(pixelData.lastPos.y, pixelData.targetPos.y, t);
+        // Only start new animation if destination changed
+        const prevTo = pixel.anim.to;
+        if (prevTo.x !== targetAbsPos.x || prevTo.y !== targetAbsPos.y) {
+          // Continue from wherever it is (even if in the middle of anim)
+          let t = Math.min(1, (now - pixel.anim.start) / pixel.anim.duration);
+          const curX = lerp(pixel.anim.from.x, pixel.anim.to.x, t);
+          const curY = lerp(pixel.anim.from.y, pixel.anim.to.y, t);
 
-          pixelData.lastPos = { x: curX, y: curY };
-          pixelData.targetPos = { x: player.x, y: player.y };
-          pixelData.animStart = now;
+          pixel.anim = {
+            from: { x: curX, y: curY },
+            to: { x: targetAbsPos.x, y: targetAbsPos.y },
+            start: now,
+            duration: 1000
+          };
           needsRender = true;
         }
       }
     }
 
-    // Remove pixels that are no longer present
-    for (const [key, pixelData] of playerPixels) {
-      if (!presentKeys.has(key)) {
-        scene.remove(pixelData.mesh);
-        playerPixels.delete(key);
+    // 3. Animate all player pixels
+    for (const [id, pixel] of playerPixels) {
+      let t = Math.min(1, (now - pixel.anim.start) / pixel.anim.duration);
+      if (t < 1) {
+        const curX = lerp(pixel.anim.from.x, pixel.anim.to.x, t);
+        const curY = lerp(pixel.anim.from.y, pixel.anim.to.y, t);
+        pixel.mesh.position.set(curX, curY, pixel.mesh.position.z);
         needsRender = true;
+      } else {
+        pixel.mesh.position.set(pixel.anim.to.x, pixel.anim.to.y, pixel.mesh.position.z);
       }
-    }
-
-    // --- Animate movement ---
-    for (const pixelData of playerPixels.values()) {
-      const { mesh, lastPos, targetPos, animStart } = pixelData;
-
-      let t = Math.min(1, (now - animStart) / 1000);
-      const curX = lerp(lastPos.x, targetPos.x, t);
-      const curY = lerp(lastPos.y, targetPos.y, t);
-
-      mesh.position.set(
-        Math.floor(curX / gridSize) * gridSize + gridSize / 2,
-        height - (Math.floor(curY / gridSize) * gridSize + gridSize / 2),
-        mesh.position.z // Already set for self/other
-      );
+      // Color for self vs others
+      if (id === userId) {
+        pixel.mesh.material.color.setHex(0x44ff44);
+      } else {
+        pixel.mesh.material.color.setHex(0xffffff);
+      }
     }
 
     if (needsRender) {
@@ -301,14 +293,5 @@
     requestAnimationFrame(animate);
   }
 
-  // --- Request player list at regular intervals even if not moving ---
-  setInterval(() => {
-    // Use last sent position if available
-    if (lastSentX !== null && lastSentY !== null) {
-      sendCoordinates(lastSentX, lastSentY);
-    }
-  }, 1200);
-
   animate();
-
 </script>
