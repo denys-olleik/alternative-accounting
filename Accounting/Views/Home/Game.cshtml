@@ -15,7 +15,7 @@
 <div id="app" class="width-100 height-500px margin-bottom-5px"></div>
 
 <script type="module">
-  // Generate or retrieve unique UserId for this player
+  // --- UserId ---
   let userId = localStorage.getItem('userId');
   if (!userId) {
     userId = crypto.randomUUID();
@@ -24,7 +24,7 @@
 
   import * as THREE from 'three';
 
-  // Set up renderer
+  // --- Scene setup ---
   const width = 1920, height = 1080;
   const container = document.getElementById('app');
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -32,22 +32,18 @@
   renderer.setClearColor(0x20232a);
   container.appendChild(renderer.domElement);
 
-  // Set up scene and camera
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(0, width, height, 0, -1, 1);
 
-  // --- Draw Grid ---
+  // --- Grid ---
   function createGrid(gridSize, color = 0x444444) {
     const gridLines = [];
-
-    // Vertical lines
     for (let x = 0; x <= width; x += gridSize) {
       gridLines.push(
         new THREE.Vector3(x, 0, 0),
         new THREE.Vector3(x, height, 0)
       );
     }
-    // Horizontal lines
     for (let y = 0; y <= height; y += gridSize) {
       gridLines.push(
         new THREE.Vector3(0, y, 0),
@@ -58,13 +54,11 @@
     const material = new THREE.LineBasicMaterial({ color: color, linewidth: 1 });
     return new THREE.LineSegments(geometry, material);
   }
-
   const gridSize = 36;
   const grid = createGrid(gridSize, 0x444444);
   scene.add(grid);
 
   // --- Highlight Square ---
-  // Create a glowing rectangle mesh
   const squareGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
   const squareMaterial = new THREE.MeshBasicMaterial({
     color: 0xffff99,
@@ -73,7 +67,6 @@
   });
   const squareGlow = new THREE.Mesh(squareGeometry, squareMaterial);
 
-  // Optional: Add a slightly larger border for a 'glow' effect
   const borderGeometry = new THREE.PlaneGeometry(gridSize + 8, gridSize + 8);
   const borderMaterial = new THREE.MeshBasicMaterial({
     color: 0xffff99,
@@ -82,7 +75,6 @@
   });
   const squareBorder = new THREE.Mesh(borderGeometry, borderMaterial);
 
-  // Initialize position off-screen
   squareGlow.position.set(-gridSize, -gridSize, 0.1);
   squareBorder.position.set(-gridSize, -gridSize, 0.09);
   scene.add(squareBorder);
@@ -94,19 +86,15 @@
 
   function createCrosshair(x, y) {
     const flippedY = height - y;
-
-    // Remove existing lines if present
     if (verticalLine) scene.remove(verticalLine);
     if (horizontalLine) scene.remove(horizontalLine);
 
-    // Vertical line
     const vertGeom = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(x, 0, 0.2),
       new THREE.Vector3(x, height, 0.2)
     ]);
     verticalLine = new THREE.Line(vertGeom, crosshairMaterial);
 
-    // Horizontal line
     const horizGeom = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, flippedY, 0.2),
       new THREE.Vector3(width, flippedY, 0.2)
@@ -121,17 +109,11 @@
   let mouseX = width / 2, mouseY = height / 2;
   createCrosshair(mouseX, mouseY);
 
-  // Helper: Update highlight square position
   function updateHighlight(x, y) {
-    // Find (column, row) of the square under the mouse
     const col = Math.floor(x / gridSize);
     const row = Math.floor(y / gridSize);
-
-    // Calculate top-left of square in Three.js screen space
     const squareX = col * gridSize + gridSize / 2;
-    // Invert Y for Three.js (as y=0 is at bottom in ortho camera)
     const squareY = height - (row * gridSize + gridSize / 2);
-
     squareGlow.position.set(squareX, squareY, 0.1);
     squareBorder.position.set(squareX, squareY, 0.09);
   }
@@ -144,7 +126,7 @@
     mouseY = Math.floor((e.clientY - rect.top) * (height / rect.height));
     createCrosshair(mouseX, mouseY);
     updateHighlight(mouseX, mouseY);
-    render();
+    needsRender = true;
   });
 
   renderer.domElement.addEventListener('mouseenter', () => {
@@ -154,38 +136,67 @@
     mouseOverCanvas = false;
   });
 
-  // Initial highlight
   updateHighlight(mouseX, mouseY);
 
-  // Render loop
-  function render() {
-    renderer.render(scene, camera);
-  }
-  render();
+  // --- Player "pixels" (animated) ---
+  // Each player is mapped by a key (userId or index)
+  // Each has: { mesh, lastPos: {x, y}, targetPos: {x, y}, animStart: timestamp }
+  const playerPixels = new Map();
 
-  // --- Send coordinates to backend every second if mouse is over canvas ---
+  // Customize pixel appearance
+  function createPlayerPixelMesh(isSelf) {
+    const size = gridSize * 0.65;
+    return new THREE.Mesh(
+      new THREE.PlaneGeometry(size, size),
+      new THREE.MeshBasicMaterial({
+        color: isSelf ? 0x44ff44 : 0xffffff,
+        opacity: 1,
+        transparent: false,
+        depthTest: false
+      })
+    );
+  }
+
+  // --- Animation/interpolation helpers ---
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+
+  // --- Rendering control ---
+  let needsRender = true;
+
+  // --- Backend polling and animation state ---
   let lastSentX = null, lastSentY = null;
 
+  // Store latest full player list from backend
+  let latestPlayersFromServer = [];
+
+  // --- Send coordinates to backend every second if mouse is over canvas and changed ---
   async function sendCoordinates(x, y) {
     try {
       const response = await fetch('/api/player/report-position', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ x, y, userId })
       });
-      // Optionally, handle response data here if needed
-      // const data = await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data.players) || Array.isArray(data.Players)) {
+          // Accept either lowercase or uppercase property
+          latestPlayersFromServer = (data.players || data.Players).map(p => ({
+            x: p.x ?? p.X,
+            y: p.y ?? p.Y
+          }));
+          needsRender = true;
+        }
+      }
     } catch (err) {
-      // Optionally, handle errors here
-      // console.error('Failed to send coordinates:', err);
+      // Ignore for now
     }
   }
 
   setInterval(() => {
     if (mouseOverCanvas) {
-      // Only send if coordinates changed since last send
       if (mouseX !== lastSentX || mouseY !== lastSentY) {
         sendCoordinates(mouseX, mouseY);
         lastSentX = mouseX;
@@ -193,4 +204,111 @@
       }
     }
   }, 1000);
+
+  // --- Animation loop ---
+  function animate(now) {
+    now = now || performance.now();
+
+    // -- Synchronize playerPixels map to latestPlayersFromServer --
+    // Make a new Map of "wanted" keys: for now, use 'x:y' as key
+    // (If backend returns userId in future, use that)
+    const presentKeys = new Set();
+
+    for (const player of latestPlayersFromServer) {
+      const key = `${player.x}:${player.y}`;
+      presentKeys.add(key);
+
+      // Check if pixel exists at this key
+      let pixelData = playerPixels.get(key);
+
+      // If not present, create one (with initial lastPos = targetPos)
+      if (!pixelData) {
+        // Is this the local player?
+        const isSelf =
+          Math.abs(player.x - lastSentX) < 1 &&
+          Math.abs(player.y - lastSentY) < 1 &&
+          mouseOverCanvas; // Simple heuristic
+
+        const mesh = createPlayerPixelMesh(isSelf);
+        mesh.position.set(
+          Math.floor(player.x / gridSize) * gridSize + gridSize / 2,
+          height - (Math.floor(player.y / gridSize) * gridSize + gridSize / 2),
+          isSelf ? 0.25 : 0.2
+        );
+        scene.add(mesh);
+
+        playerPixels.set(key, {
+          mesh,
+          lastPos: { x: player.x, y: player.y },
+          targetPos: { x: player.x, y: player.y },
+          animStart: now
+        });
+        needsRender = true;
+      } else {
+        // Animate to new position if different
+        if (
+          pixelData.targetPos.x !== player.x ||
+          pixelData.targetPos.y !== player.y
+        ) {
+          // Interrupt current animation and start to new target
+          const mesh = pixelData.mesh;
+          // Compute current position (interpolate between lastPos and old target)
+          let t =
+            Math.min(
+              1,
+              (now - pixelData.animStart) / 1000
+            );
+          const curX = lerp(pixelData.lastPos.x, pixelData.targetPos.x, t);
+          const curY = lerp(pixelData.lastPos.y, pixelData.targetPos.y, t);
+
+          pixelData.lastPos = { x: curX, y: curY };
+          pixelData.targetPos = { x: player.x, y: player.y };
+          pixelData.animStart = now;
+          needsRender = true;
+        }
+      }
+    }
+
+    // Remove pixels that are no longer present
+    for (const [key, pixelData] of playerPixels) {
+      if (!presentKeys.has(key)) {
+        scene.remove(pixelData.mesh);
+        playerPixels.delete(key);
+        needsRender = true;
+      }
+    }
+
+    // --- Animate movement ---
+    for (const pixelData of playerPixels.values()) {
+      const { mesh, lastPos, targetPos, animStart } = pixelData;
+
+      let t = Math.min(1, (now - animStart) / 1000);
+      const curX = lerp(lastPos.x, targetPos.x, t);
+      const curY = lerp(lastPos.y, targetPos.y, t);
+
+      mesh.position.set(
+        Math.floor(curX / gridSize) * gridSize + gridSize / 2,
+        height - (Math.floor(curY / gridSize) * gridSize + gridSize / 2),
+        mesh.position.z // Already set for self/other
+      );
+    }
+
+    if (needsRender) {
+      renderer.render(scene, camera);
+      needsRender = false;
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  // --- Request player list at regular intervals even if not moving ---
+  setInterval(() => {
+    // Use last sent position if available
+    if (lastSentX !== null && lastSentY !== null) {
+      sendCoordinates(lastSentX, lastSentY);
+    }
+  }, 1200);
+
+  animate();
+
 </script>
