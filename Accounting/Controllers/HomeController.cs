@@ -97,6 +97,7 @@ namespace Accounting.Controllers
 
       public class Player
       {
+        public string? UserId { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
       }
@@ -125,7 +126,8 @@ namespace Accounting.Controllers
       model.Players = players.Select(p => new ReportPositionViewModel.Player
       {
         X = p.X,
-        Y = p.Y
+        Y = p.Y,
+        UserId = p.UserId
       }).ToList();
 
       return Ok(model);
