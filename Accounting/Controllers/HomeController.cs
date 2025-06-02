@@ -92,6 +92,7 @@ namespace Accounting.Controllers
     {
       public int X { get; set; }
       public int Y { get; set; }
+      public string UserId { get; set; } = null!;
       public List<Player>? Players { get; set; }
 
       public class Player
@@ -116,10 +117,10 @@ namespace Accounting.Controllers
 
       if (!string.IsNullOrWhiteSpace(country))
       {
-        await _playerService.ReportPosition(model.X, model.Y, ipAddress, country);
+        await _playerService.ReportPosition(model.UserId, model.X, model.Y, ipAddress, country);
       }
 
-      List<Player> players = await _playerService.GetPlayersAsync(5);
+      List<Player> players = await _playerService.GetPlayersAsync(300);
 
       model.Players = players.Select(p => new ReportPositionViewModel.Player
       {

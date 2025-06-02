@@ -15,6 +15,13 @@
 <div id="app" class="width-100 height-500px margin-bottom-5px"></div>
 
 <script type="module">
+  // Generate or retrieve unique UserId for this player
+  let userId = localStorage.getItem('userId');
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem('userId', userId);
+  }
+
   import * as THREE from 'three';
 
   // Set up renderer
@@ -166,7 +173,7 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ x, y })
+        body: JSON.stringify({ x, y, userId })
       });
       // Optionally, handle response data here if needed
       // const data = await response.json();

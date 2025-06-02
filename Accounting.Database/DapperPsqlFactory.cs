@@ -8212,17 +8212,19 @@ namespace Accounting.Database
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           result = await con.QueryAsync<Player>("""
-            SELECT * 
-            FROM "Player" 
+            SELECT DISTINCT ON ("UserId") *
+            FROM "Player"
             WHERE "Created" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - (@WithinLastSeconds || ' seconds')::interval)
+            ORDER BY "UserId", "Created" DESC
             """, p);
         }
         return result.ToList();
       }
 
-      public async Task ReportPosition(int x, int y, string ipAddress, string country)
+      public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country)
       {
         DynamicParameters p = new DynamicParameters();
+        p.Add("@UserId", userId);
         p.Add("@X", x);
         p.Add("@Y", y);
         p.Add("@IpAddress", ipAddress);
@@ -8231,8 +8233,8 @@ namespace Accounting.Database
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           await con.ExecuteAsync("""
-            INSERT INTO "Player" ("X", "Y", "IpAddress", "Country") 
-            VALUES (@X, @Y, @IpAddress, @Country);
+            INSERT INTO "Player" ("UserId", "X", "Y", "IpAddress", "Country") 
+            VALUES (@UserId, @X, @Y, @IpAddress, @Country);
             """, p);
         }
       }
