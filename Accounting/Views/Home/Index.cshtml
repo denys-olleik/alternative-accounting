@@ -15,7 +15,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
 <script>hljs.highlightAll();</script>
 
-<script type="importmap">
+@if (!User.Identity.IsAuthenticated)
+{
+  <script type="importmap">
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
@@ -88,6 +90,7 @@
     renderer.setSize(width, height);
   });
 </script>
+}
 
 @if (!User.Identity.IsAuthenticated)
 {
