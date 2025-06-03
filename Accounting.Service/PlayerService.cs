@@ -32,10 +32,10 @@ namespace Accounting.Service
       return players;
     }
 
-    public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country)
+    public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool vote)
     {
       FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      await factoryManager.GetPlayerManager().ReportPosition(userId, x, y, ipAddress, country);
+      await factoryManager.GetPlayerManager().ReportPosition(userId, x, y, ipAddress, country, vote);
     }
   }
 }

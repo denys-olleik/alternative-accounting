@@ -719,6 +719,7 @@ CREATE TABLE "Player"
 (
   "PlayerID" SERIAL PRIMARY KEY,
   "UserId" VARCHAR(36) NOT NULL, -- Client-generated UUID or random string
+	"Vote" INT NULL,
   "IpAddress" VARCHAR(50) NOT NULL,
   "Country" VARCHAR(50) NOT NULL,
   "X" INT NOT NULL,

@@ -8221,20 +8221,21 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country)
+      public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool vote)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@UserId", userId);
         p.Add("@X", x);
         p.Add("@Y", y);
+        p.Add("@Vote", vote);
         p.Add("@IpAddress", ipAddress);
         p.Add("@Country", country);
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           await con.ExecuteAsync("""
-            INSERT INTO "Player" ("UserId", "X", "Y", "IpAddress", "Country") 
-            VALUES (@UserId, @X, @Y, @IpAddress, @Country);
+            INSERT INTO "Player" ("UserId", "X", "Y", "IpAddress", "Country", "Vote") 
+            VALUES (@UserId, @X, @Y, @IpAddress, @Country, @Vote);
             """, p);
         }
       }

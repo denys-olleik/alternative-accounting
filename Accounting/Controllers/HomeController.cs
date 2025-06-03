@@ -92,6 +92,7 @@ namespace Accounting.Controllers
     {
       public int X { get; set; }
       public int Y { get; set; }
+      public int Vote { get; set; }
       public string UserId { get; set; } = null!;
       public List<Player>? Players { get; set; }
 
@@ -100,6 +101,7 @@ namespace Accounting.Controllers
         public string? UserId { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+        public string? Country { get; set; }
       }
     }
 
@@ -118,7 +120,7 @@ namespace Accounting.Controllers
 
       if (!string.IsNullOrWhiteSpace(country))
       {
-        await _playerService.ReportPosition(model.UserId, model.X, model.Y, ipAddress, country);
+        await _playerService.ReportPosition(model.UserId, model.X, model.Y, ipAddress, country, model.Vote);
       }
 
       List<Player> players = await _playerService.GetPlayersAsync(300);
@@ -127,7 +129,8 @@ namespace Accounting.Controllers
       {
         X = p.X,
         Y = p.Y,
-        UserId = p.UserId
+        UserId = p.UserId,
+        Country = p.Country
       }).ToList();
 
       return Ok(model);
