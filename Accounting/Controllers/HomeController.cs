@@ -92,7 +92,7 @@ namespace Accounting.Controllers
     {
       public int X { get; set; }
       public int Y { get; set; }
-      public int Vote { get; set; }
+      public bool Vote { get; set; }
       public string UserId { get; set; } = null!;
       public List<Player>? Players { get; set; }
 
