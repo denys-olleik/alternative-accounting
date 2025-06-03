@@ -1,11 +1,11 @@
 ﻿@model Accounting.Models.BlogViewModels.BlogsPaginatedViewModel
 
 @{
-  ViewData["Title"] = "Public blogs - " + ConfigurationSingleton.Instance.ApplicationName;
+  ViewData["Title"] = "Blog - " + ConfigurationSingleton.Instance.ApplicationName;
 }
 
 @{
-  string headerText = "Public blogs";
+  string headerText = "Blog";
 }
 <partial name="_H1HeaderPartial" model="@headerText" />
 
