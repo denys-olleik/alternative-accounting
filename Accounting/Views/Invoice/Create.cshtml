@@ -515,11 +515,12 @@
 				});
 				this.selectedIndex = this.filteredCustomers.length > 0 ? 0 : -1;
 			},
-			selectCustomer(customer) {
+				selectCustomer(customer) {
 				this.$emit('update:selected-customer', customer);
 				this.filteredCustomers = [];
 				this.selectedIndex = -1;
 				this.updateSearchQuery();
+				this.$emit('focus-billing-address');
 			},
 			handleKeyDown(event) {
 				if (this.selectedCustomer) return; // Don't handle key events if a customer is selected
