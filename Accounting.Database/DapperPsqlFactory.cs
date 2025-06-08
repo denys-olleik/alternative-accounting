@@ -8221,18 +8221,25 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      //-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Player";'
-      //CREATE TABLE "Player"
-      //(
-      //  "PlayerID" SERIAL PRIMARY KEY,
-      //  "UserId" VARCHAR(36) NOT NULL, -- Client-generated UUID or random string
-      //	"Vote" INT NULL,
-      //  "IpAddress" VARCHAR(50) NOT NULL,
-      //  "Country" VARCHAR(50) NOT NULL,
-      //  "X" INT NOT NULL,
-      //  "Y" INT NOT NULL,
-      //  "Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
-      //);
+      public async Task<List<Player>> GetVotesAsync(int withinLastSeconds)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@WithinLastSeconds", withinLastSeconds);
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          var result = await con.QueryAsync<Player>("""
+            SELECT *
+            FROM "Player"
+            WHERE "Vote" = 1
+              AND "Created" BETWEEN (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - (@WithinLastSeconds || ' seconds')::interval)
+                                  AND (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' + (@WithinLastSeconds || ' seconds')::interval)
+            ORDER BY "Created" DESC
+            """, p);
+
+          return result.ToList();
+        }
+      }
 
       public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool vote)
       {

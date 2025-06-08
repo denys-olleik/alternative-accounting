@@ -95,6 +95,7 @@ namespace Accounting.Controllers
       public bool Vote { get; set; }
       public string UserId { get; set; } = null!;
       public List<Player>? Players { get; set; }
+      public List<Player>? Votes { get; set; }
 
       public class Player
       {
@@ -102,6 +103,7 @@ namespace Accounting.Controllers
         public int X { get; set; }
         public int Y { get; set; }
         public string? Country { get; set; }
+        public DateTime Created { get; set; }
       }
     }
 
@@ -117,6 +119,8 @@ namespace Accounting.Controllers
       {
         country = await GetCountryAsync(ipAddress);
       }
+
+      List<Player> votes = await _playerService.GetVotesAsync(300);
 
       if (!string.IsNullOrWhiteSpace(country))
       {

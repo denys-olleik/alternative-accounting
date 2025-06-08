@@ -32,6 +32,12 @@ namespace Accounting.Service
       return players;
     }
 
+    public async Task<List<Player>> GetVotesAsync(int withinLastSeconds)
+    {
+      FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetPlayerManager().GetVotesAsync(withinLastSeconds);
+    }
+
     public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool vote)
     {
       FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);

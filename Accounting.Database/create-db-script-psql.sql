@@ -719,10 +719,10 @@ CREATE TABLE "Player"
 (
   "PlayerID" SERIAL PRIMARY KEY,
   "UserId" VARCHAR(36) NOT NULL, -- Client-generated UUID or random string
-	"Vote" INT NULL,
+	"OccupyUntil" TIMESTAMPTZ NULL,
   "IpAddress" VARCHAR(50) NOT NULL,
   "Country" VARCHAR(50) NOT NULL,
-  "X" INT NOT NULL,
-  "Y" INT NOT NULL,
+  "X" INT NULL,
+  "Y" INT NULL,
   "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
 );
