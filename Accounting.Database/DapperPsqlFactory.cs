@@ -8202,21 +8202,6 @@ namespace Accounting.Database
         }
       }
 
-//-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Player";'
-//CREATE TABLE "Player"
-//(
-//  "PlayerID" SERIAL PRIMARY KEY,
-//  "UserId" VARCHAR(36) NOT NULL, -- Client-generated UUID or random string
-//	"OccupyUntil" TIMESTAMPTZ NULL,
-//  "IpAddress" VARCHAR(50) NOT NULL,
-//  "Country" VARCHAR(50) NOT NULL,
-//  "X" INT NULL,
-//  "Y" INT NULL,
-//	"SectorX" INT NULL,
-//	"SectorY" INT NULL,
-//  "Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
-//);
-
       public async Task<List<Player>> GetPlayersAsync(int withinLastSeconds)
       {
         DynamicParameters p = new DynamicParameters();
@@ -8251,12 +8236,27 @@ namespace Accounting.Database
         }
       }
 
+      public async Task<Player?> GetCurrentOccupantAsync(int sectorX, int sectorY)
+      {
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          return await con.QueryFirstOrDefaultAsync<Player>("""
+            SELECT *
+            FROM "Player"
+            WHERE "SectorX" = @SectorX AND "SectorY" = @SectorY
+              AND "OccupyUntil" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+            ORDER BY "OccupyUntil" DESC
+            LIMIT 1
+            """, new { SectorX = sectorX, SectorY = sectorY });
+        }
+      }
+
       public async Task ReportPosition(
-        string userId, 
-        int x, 
-        int y, 
-        string ipAddress, 
-        string country, 
+        string userId,
+        int x,
+        int y,
+        string ipAddress,
+        string country,
         bool claim)
       {
         int sectorSize = 60;
@@ -8276,13 +8276,31 @@ namespace Accounting.Database
         {
           if (claim)
           {
-            p.Add("@OccupyUntil", DateTime.UtcNow.AddMinutes(1));
-            await con.ExecuteAsync("""
-              INSERT INTO "Player"
-                ("UserId", "X", "Y", "SectorX", "SectorY", "IpAddress", "Country", "OccupyUntil")
-              VALUES
-                (@UserId, @X, @Y, @SectorX, @SectorY, @IpAddress, @Country, @OccupyUntil);
-              """, p);
+            var occupant = await GetCurrentOccupantAsync(sectorX, sectorY);
+            if (occupant == null)
+            {
+              // No one occupying, create new with OccupyUntil 1 minute from now
+              p.Add("@OccupyUntil", DateTime.UtcNow.AddMinutes(1));
+              await con.ExecuteAsync("""
+                INSERT INTO "Player"
+                  ("UserId", "X", "Y", "SectorX", "SectorY", "IpAddress", "Country", "OccupyUntil")
+                VALUES
+                  (@UserId, @X, @Y, @SectorX, @SectorY, @IpAddress, @Country, @OccupyUntil);
+                """, p);
+            }
+            else if (occupant.Country == country)
+            {
+              // Same country, extend occupancy by 1 minute from latest OccupyUntil
+              var newUntil = occupant.OccupyUntil.HasValue ? occupant.OccupyUntil.Value.AddMinutes(1) : DateTime.UtcNow.AddMinutes(1);
+              p.Add("@OccupyUntil", newUntil);
+              await con.ExecuteAsync("""
+                INSERT INTO "Player"
+                  ("UserId", "X", "Y", "SectorX", "SectorY", "IpAddress", "Country", "OccupyUntil")
+                VALUES
+                  (@UserId, @X, @Y, @SectorX, @SectorY, @IpAddress, @Country, @OccupyUntil);
+                """, p);
+            }
+            // If occupied by different country, do nothing
           }
           else
           {
