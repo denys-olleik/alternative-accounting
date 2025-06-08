@@ -32,10 +32,10 @@ namespace Accounting.Service
       return players;
     }
 
-    public async Task<List<Player>> GetVotesAsync(int withinLastSeconds)
+    public async Task<List<Player>> GetSectorClaims(int withinLastSeconds)
     {
       FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetPlayerManager().GetVotesAsync(withinLastSeconds);
+      return await factoryManager.GetPlayerManager().GetSectorClaims();
     }
 
     public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool claim)

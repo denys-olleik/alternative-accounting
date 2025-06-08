@@ -8202,6 +8202,21 @@ namespace Accounting.Database
         }
       }
 
+//-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Player";'
+//CREATE TABLE "Player"
+//(
+//  "PlayerID" SERIAL PRIMARY KEY,
+//  "UserId" VARCHAR(36) NOT NULL, -- Client-generated UUID or random string
+//	"OccupyUntil" TIMESTAMPTZ NULL,
+//  "IpAddress" VARCHAR(50) NOT NULL,
+//  "Country" VARCHAR(50) NOT NULL,
+//  "X" INT NULL,
+//  "Y" INT NULL,
+//	"SectorX" INT NULL,
+//	"SectorY" INT NULL,
+//  "Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+//);
+
       public async Task<List<Player>> GetPlayersAsync(int withinLastSeconds)
       {
         DynamicParameters p = new DynamicParameters();
@@ -8221,38 +8236,20 @@ namespace Accounting.Database
         }
       }
 
-      public async Task<List<Player>> GetVotesAsync(int withinLastSeconds)
+      // the row for that sector which occupyUntil set in the 
+      public async Task<List<Player>> GetSectorClaims()
       {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@WithinLastSeconds", withinLastSeconds);
-
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           var result = await con.QueryAsync<Player>("""
-            SELECT *
+            SELECT DISTINCT ON ("SectorX", "SectorY") *
             FROM "Player"
-            WHERE "Vote" = 1
-              AND "Created" BETWEEN (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - (@WithinLastSeconds || ' seconds')::interval)
-                                  AND (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' + (@WithinLastSeconds || ' seconds')::interval)
-            ORDER BY "Created" DESC
-            """, p);
-
+            WHERE "OccupyUntil" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+            ORDER BY "SectorX", "SectorY", "PlayerID" DESC
+            """);
           return result.ToList();
         }
       }
-
-      //-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Player";'
-      //CREATE TABLE "Player"
-      //(
-      //  "PlayerID" SERIAL PRIMARY KEY,
-      //  "UserId" VARCHAR(36) NOT NULL, -- Client-generated UUID or random string
-      //	"OccupyUntil" TIMESTAMPTZ NULL,
-      //  "IpAddress" VARCHAR(50) NOT NULL,
-      //  "Country" VARCHAR(50) NOT NULL,
-      //  "X" INT NULL,
-      //  "Y" INT NULL,
-      //  "Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
-      //);
 
       public async Task ReportPosition(
         string userId, 

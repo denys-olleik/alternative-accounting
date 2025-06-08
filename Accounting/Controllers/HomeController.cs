@@ -96,7 +96,7 @@ namespace Accounting.Controllers
       public string UserId { get; set; } = null!;
       public List<Player>? Players { get; set; }
       public List<Player>? Votes { get; set; }
-      public List<Player> Claims { get; internal set; }
+      public List<Player>? Claims { get; set; }
 
       public class Player
       {
@@ -127,7 +127,7 @@ namespace Accounting.Controllers
       List<Player> players = await _playerService.GetPlayersAsync(300);
 
       // Get currently occupied sectors (claims with OccupyUntil in the future)
-      List<Player> gridClaims = await _playerService.GetVotesAsync(5);
+      List<Player> gridClaims = await _playerService.GetSectorClaims(5);
 
       model.Players = players.Select(p => new ReportPositionViewModel.Player
       {
