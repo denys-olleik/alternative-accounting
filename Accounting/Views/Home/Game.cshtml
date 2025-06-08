@@ -139,12 +139,12 @@
     mouseOverCanvas = false;
   });
 
-  // --- Click to Vote ---
+  // --- Click to Claim ---
   renderer.domElement.addEventListener('click', async (e) => {
     const rect = renderer.domElement.getBoundingClientRect();
     const clickX = Math.floor((e.clientX - rect.left) * (width / rect.width));
     const clickY = Math.floor((e.clientY - rect.top) * (height / rect.height));
-    // Send position with vote: true
+    // Send position with claim: true
     await sendCoordinates(clickX, clickY, true);
     lastSentX = clickX;
     lastSentY = clickY;
@@ -165,13 +165,13 @@
   let latestPlayersFromServer = [];
   let lastSentX = null, lastSentY = null;
 
-  // Modified: vote parameter (default false)
-  async function sendCoordinates(x, y, vote = false) {
+  // Modified: claim parameter (default false)
+  async function sendCoordinates(x, y, claim = false) {
     try {
       const response = await fetch('/api/player/report-position', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ x, y, userId, vote })
+        body: JSON.stringify({ x, y, userId, claim })
       });
       if (response.ok) {
         const data = await response.json();
@@ -188,7 +188,7 @@
     } catch (err) {}
   }
 
-  // Movement reporting (vote: false)
+  // Movement reporting (claim: false)
   setInterval(() => {
     if (mouseOverCanvas) {
       if (mouseX !== lastSentX || mouseY !== lastSentY) {
