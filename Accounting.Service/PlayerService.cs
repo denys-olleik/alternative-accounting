@@ -38,10 +38,10 @@ namespace Accounting.Service
       return await factoryManager.GetPlayerManager().GetVotesAsync(withinLastSeconds);
     }
 
-    public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool vote)
+    public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool claim)
     {
       FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      await factoryManager.GetPlayerManager().ReportPosition(userId, x, y, ipAddress, country, vote);
+      await factoryManager.GetPlayerManager().ReportPosition(userId, x, y, ipAddress, country, claim);
     }
   }
 }

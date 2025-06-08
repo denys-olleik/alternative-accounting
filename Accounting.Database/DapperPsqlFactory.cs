@@ -8207,18 +8207,18 @@ namespace Accounting.Database
         DynamicParameters p = new DynamicParameters();
         p.Add("@WithinLastSeconds", withinLastSeconds);
 
-        IEnumerable<Player> result;
-
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          result = await con.QueryAsync<Player>("""
+          var result = await con.QueryAsync<Player>("""
             SELECT DISTINCT ON ("UserId") *
             FROM "Player"
             WHERE "Created" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' - (@WithinLastSeconds || ' seconds')::interval)
+              AND "OccupyUntil" IS NULL
             ORDER BY "UserId", "Created" DESC
             """, p);
+
+          return result.ToList();
         }
-        return result.ToList();
       }
 
       public async Task<List<Player>> GetVotesAsync(int withinLastSeconds)
@@ -8241,22 +8241,61 @@ namespace Accounting.Database
         }
       }
 
-      public async Task ReportPosition(string userId, int x, int y, string ipAddress, string country, bool vote)
+      //-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Player";'
+      //CREATE TABLE "Player"
+      //(
+      //  "PlayerID" SERIAL PRIMARY KEY,
+      //  "UserId" VARCHAR(36) NOT NULL, -- Client-generated UUID or random string
+      //	"OccupyUntil" TIMESTAMPTZ NULL,
+      //  "IpAddress" VARCHAR(50) NOT NULL,
+      //  "Country" VARCHAR(50) NOT NULL,
+      //  "X" INT NULL,
+      //  "Y" INT NULL,
+      //  "Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+      //);
+
+      public async Task ReportPosition(
+        string userId, 
+        int x, 
+        int y, 
+        string ipAddress, 
+        string country, 
+        bool claim)
       {
+        int sectorSize = 60;
+        int sectorX = x / sectorSize;
+        int sectorY = y / sectorSize;
+
         DynamicParameters p = new DynamicParameters();
         p.Add("@UserId", userId);
         p.Add("@X", x);
         p.Add("@Y", y);
-        p.Add("@Vote", vote ? 1 : 0); // Convert bool to int
+        p.Add("@SectorX", sectorX);
+        p.Add("@SectorY", sectorY);
         p.Add("@IpAddress", ipAddress);
         p.Add("@Country", country);
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          await con.ExecuteAsync("""
-            INSERT INTO "Player" ("UserId", "X", "Y", "IpAddress", "Country", "Vote") 
-            VALUES (@UserId, @X, @Y, @IpAddress, @Country, @Vote);
-            """, p);
+          if (claim)
+          {
+            p.Add("@OccupyUntil", DateTime.UtcNow.AddMinutes(1));
+            await con.ExecuteAsync("""
+              INSERT INTO "Player"
+                ("UserId", "X", "Y", "SectorX", "SectorY", "IpAddress", "Country", "OccupyUntil")
+              VALUES
+                (@UserId, @X, @Y, @SectorX, @SectorY, @IpAddress, @Country, @OccupyUntil);
+              """, p);
+          }
+          else
+          {
+            await con.ExecuteAsync("""
+              INSERT INTO "Player"
+                ("UserId", "X", "Y", "SectorX", "SectorY", "IpAddress", "Country")
+              VALUES
+                (@UserId, @X, @Y, @SectorX, @SectorY, @IpAddress, @Country);
+              """, p);
+          }
         }
       }
 

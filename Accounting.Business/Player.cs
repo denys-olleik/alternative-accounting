@@ -6,6 +6,7 @@ namespace Accounting.Business
   {
     public int PlayerID { get; set; }
     public string UserId { get; set; } = null!;
+    public DateTime? OccupyUntil { get; set; }
     public string? IpAddress { get; set; }
     public string? Country { get; set; }
     public int X { get; set; }

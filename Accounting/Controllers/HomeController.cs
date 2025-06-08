@@ -78,8 +78,8 @@ namespace Accounting.Controllers
     private readonly SecretService _secretService;
 
     public PlayerApiController(
-      RequestContext requestContext, 
-      PlayerService playerService, 
+      RequestContext requestContext,
+      PlayerService playerService,
       SecretService secretService)
     {
       _playerService = new PlayerService(
@@ -92,14 +92,16 @@ namespace Accounting.Controllers
     {
       public int X { get; set; }
       public int Y { get; set; }
-      public bool Vote { get; set; }
+      public bool Claim { get; set; }
       public string UserId { get; set; } = null!;
       public List<Player>? Players { get; set; }
       public List<Player>? Votes { get; set; }
+      public List<Player> Claims { get; internal set; }
 
       public class Player
       {
         public string? UserId { get; set; }
+        public DateTime? OccupyUntil { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public string? Country { get; set; }
@@ -112,7 +114,6 @@ namespace Accounting.Controllers
     public async Task<IActionResult> ReportPosition(ReportPositionViewModel model)
     {
       string ipAddress = GetClientIpAddress();
-
       string? country = await _playerService.GetCountryAsync(ipAddress, 5);
 
       if (string.IsNullOrWhiteSpace(country))
@@ -120,14 +121,13 @@ namespace Accounting.Controllers
         country = await GetCountryAsync(ipAddress);
       }
 
-      List<Player> votes = await _playerService.GetVotesAsync(300);
+      await _playerService.ReportPosition(model.UserId, model.X, model.Y, ipAddress, country, model.Claim);
 
-      if (!string.IsNullOrWhiteSpace(country))
-      {
-        await _playerService.ReportPosition(model.UserId, model.X, model.Y, ipAddress, country, model.Vote);
-      }
-
+      // Get latest player positions (movement, not claims)
       List<Player> players = await _playerService.GetPlayersAsync(300);
+
+      // Get currently occupied sectors (claims with OccupyUntil in the future)
+      List<Player> gridClaims = await _playerService.GetVotesAsync(5);
 
       model.Players = players.Select(p => new ReportPositionViewModel.Player
       {
@@ -135,6 +135,15 @@ namespace Accounting.Controllers
         Y = p.Y,
         UserId = p.UserId,
         Country = p.Country
+      }).ToList();
+
+      model.Claims = gridClaims.Select(p => new ReportPositionViewModel.Player
+      {
+        X = p.X,
+        Y = p.Y,
+        UserId = p.UserId,
+        Country = p.Country,
+        OccupyUntil = p.OccupyUntil
       }).ToList();
 
       return Ok(model);
