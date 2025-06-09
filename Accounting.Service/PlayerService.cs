@@ -32,7 +32,7 @@ namespace Accounting.Service
       return players;
     }
 
-    public async Task<List<Player>> GetSectorClaims(int withinLastSeconds)
+    public async Task<List<Player>> GetSectorClaims()
     {
       FactoryManager factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetPlayerManager().GetSectorClaims();
