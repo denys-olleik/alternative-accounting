@@ -8228,7 +8228,7 @@ namespace Accounting.Database
           var result = await con.QueryAsync<Player>("""
             SELECT DISTINCT ON ("SectorX", "SectorY") *
             FROM "Player"
-            WHERE "OccupyUntil" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+            WHERE "OccupyUntil" > NOW()
             ORDER BY "SectorX", "SectorY", "PlayerID" DESC
             """);
           return result.ToList();
@@ -8243,7 +8243,7 @@ namespace Accounting.Database
             SELECT *
             FROM "Player"
             WHERE "SectorX" = @SectorX AND "SectorY" = @SectorY
-              AND "OccupyUntil" > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+              AND "OccupyUntil" > NOW()
             ORDER BY "OccupyUntil" DESC
             LIMIT 1
             """, new { SectorX = sectorX, SectorY = sectorY });
@@ -8290,7 +8290,7 @@ namespace Accounting.Database
             else if (occupant.Country == country)
             {
               // Same country, extend occupancy by 1 minute from latest OccupyUntil
-              var newUntil = occupant.OccupyUntil.HasValue ? occupant.OccupyUntil.Value.AddMinutes(1) : DateTime.UtcNow.AddMinutes(1);
+              var newUntil = occupant.OccupyUntil!.Value.AddMinutes(1);
               p.Add("@OccupyUntil", newUntil);
               await con.ExecuteAsync("""
                 INSERT INTO "Player"
