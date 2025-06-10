@@ -8221,7 +8221,6 @@ namespace Accounting.Database
         }
       }
 
-      // the row for that sector which occupyUntil set in the 
       public async Task<List<Player>> GetSectorClaims()
       {
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
