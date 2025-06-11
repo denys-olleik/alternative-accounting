@@ -1,6 +1,6 @@
 ﻿// js/player.js
 // -- Player module for Game.cshtml --
-// Exports: initPlayers, updatePlayers, handlePlayerClick, handlePlayerMove
+// Exports: initPlayers, updatePlayers, handlePlayerClick, handlePlayerMove, getPlayerPixels
 
 export function initPlayers({
   THREE,
@@ -174,8 +174,8 @@ export function initPlayers({
     updatePlayers,
     handlePlayerClick,
     handlePlayerMove,
-    // for animation loop to force render
     setNeedsRender: (v) => { needsRender = v; },
-    getNeedsRender: () => needsRender
+    getNeedsRender: () => needsRender,
+    getPlayerPixels: () => playerPixels
   };
 }

@@ -167,17 +167,106 @@
 
   updateHighlight(mouseX, mouseY);
 
+  // ==== Radar Scan Logic ====
+
+  // Radar constants
+  const radarDuration = 5000; // ms per sweep (5 seconds)
+  const radarLineColor = 0xff2222;
+  const radarLineWidth = 1; // 1 pixel
+
+  // Radar state
+  let radarLineMesh = null;
+  let radarLastSweepId = 0;
+
+  // For bump effect
+  // Map: pixelId => { bumpStart: timestamp }
+  const pixelBumps = new Map();
+
+  // Create the radar line mesh (vertical line)
+  function createRadarLine() {
+    if (radarLineMesh) scene.remove(radarLineMesh);
+    const geom = new THREE.PlaneGeometry(radarLineWidth, height);
+    const mat = new THREE.MeshBasicMaterial({
+      color: radarLineColor,
+      transparent: true,
+      opacity: 0.5,
+      depthTest: false
+    });
+    radarLineMesh = new THREE.Mesh(geom, mat);
+    radarLineMesh.position.set(-100, height / 2, 0.4); // Start offscreen
+    scene.add(radarLineMesh);
+  }
+  createRadarLine();
+
   // --- Animation Loop ---
   function animate(now) {
     let needsRender = playerAPI.updatePlayers(now);
+
+    // --- Radar effect ---
+    const t = performance.now();
+    const cycleTime = t % radarDuration;
+    const sweepId = Math.floor(t / radarDuration);
+    const radarX = Math.floor((cycleTime / radarDuration) * width);
+
+    // Move radar line
+    if (radarLineMesh) {
+      radarLineMesh.position.set(radarX + 0.5, height / 2, 0.4); // +0.5 center
+      needsRender = true;
+    }
+
+    // Get playerPixels from player.js cleanly
+    const playerPixels = playerAPI.getPlayerPixels();
+
+    // Bump logic: for each pixel, if its X matches radarX, bump it (once per sweep)
+    if (playerPixels) {
+      for (const [id, pixel] of playerPixels) {
+        // Each pixel's mesh position.x is in scene units (float, centered)
+        // But pixels are at integer X
+        const meshX = Math.round(pixel.mesh.position.x - 0.5);
+        if (meshX === radarX) {
+          if (!pixelBumps.has(id) || pixelBumps.get(id).lastSweepId !== sweepId) {
+            pixelBumps.set(id, { bumpStart: t, lastSweepId: sweepId });
+          }
+        }
+      }
+    }
+
+    // --- Animate bumps ---
+    const bumpDuration = 1000; // ms
+    if (playerPixels) {
+      for (const [id, pixel] of playerPixels) {
+        const bump = pixelBumps.get(id);
+        if (bump) {
+          const dt = t - bump.bumpStart;
+          if (dt < bumpDuration) {
+            // Bump scale: ease out from 2.5x down to 1x over 1s
+            const scale = 1 + 1.5 * (1 - dt / bumpDuration);
+            pixel.mesh.scale.set(scale, scale, 1);
+            needsRender = true;
+          } else {
+            // Reset scale after bump
+            pixel.mesh.scale.set(1, 1, 1);
+            pixelBumps.delete(id);
+            needsRender = true;
+          }
+        } else {
+          // Ensure scale is normal if not bumping
+          if (pixel.mesh.scale.x !== 1 || pixel.mesh.scale.y !== 1) {
+            pixel.mesh.scale.set(1, 1, 1);
+            needsRender = true;
+          }
+        }
+      }
+    }
+
+    requestAnimationFrame(animate);
 
     if (needsRender) {
       renderer.render(scene, camera);
       playerAPI.setNeedsRender(false);
     }
-
-    requestAnimationFrame(animate);
   }
 
+  // --- Start Animation ---
   animate();
 </script>
