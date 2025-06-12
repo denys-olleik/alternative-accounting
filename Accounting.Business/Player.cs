@@ -11,6 +11,8 @@ namespace Accounting.Business
     public string? Country { get; set; }
     public int X { get; set; }
     public int Y { get; set; }
+    public int SectorX { get; set; }
+    public int SectorY { get; set; }
     public int Identifiable => PlayerID;
   }
 }

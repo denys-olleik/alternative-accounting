@@ -94,15 +94,17 @@ namespace Accounting.Controllers
       public int Y { get; set; }
       public bool Claim { get; set; }
       public string UserId { get; set; } = null!;
-      public List<Player>? Players { get; set; }
-      public List<Player>? SectorClaims { get; set; }
+      public List<PlayerViewModel>? Players { get; set; }
+      public List<PlayerViewModel>? SectorClaims { get; set; }
 
-      public class Player
+      public class PlayerViewModel
       {
         public string? UserId { get; set; }
         public DateTime? OccupyUntil { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+        public int SectorX { get; set; }
+        public int SectorY { get; set; }
         public string? Country { get; set; }
         public DateTime Created { get; set; }
       }
@@ -128,18 +130,22 @@ namespace Accounting.Controllers
       // Get currently occupied sectors (claims with OccupyUntil in the future)
       List<Player> sectorClaims = await _playerService.GetSectorClaims();
 
-      model.Players = players.Select(p => new ReportPositionViewModel.Player
+      model.Players = players.Select(p => new ReportPositionViewModel.PlayerViewModel
       {
         X = p.X,
         Y = p.Y,
+        SectorX = p.SectorX,
+        SectorY = p.SectorY,
         UserId = p.UserId,
         Country = p.Country
       }).ToList();
 
-      model.SectorClaims = sectorClaims.Select(p => new ReportPositionViewModel.Player
+      model.SectorClaims = sectorClaims.Select(p => new ReportPositionViewModel.PlayerViewModel
       {
         X = p.X,
         Y = p.Y,
+        SectorX = p.SectorX,
+        SectorY = p.SectorY,
         UserId = p.UserId,
         Country = p.Country,
         OccupyUntil = p.OccupyUntil
