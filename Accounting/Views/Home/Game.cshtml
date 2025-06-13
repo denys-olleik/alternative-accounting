@@ -31,7 +31,6 @@
 
   import * as THREE from 'three';
   import { initPlayers } from '/js/player.js'; // Adjust path if needed
-  import { initRadar } from '/js/radar.js';   // Adjust path if needed
   import { initSectors } from '/js/sectors.js'; // Import your new sectors.js
 
   // --- Scene Setup ---
@@ -153,19 +152,6 @@
     userId
   });
 
-  // --- Radar Logic via radar.js ---
-  const radarAPI = initRadar({
-    THREE,
-    scene,
-    width,
-    height,
-    scanWidth: 500,   // 200px wide radar band
-    duration: 5000,   // 5 seconds for full sweep
-    color: 0xff2222,
-    opacity: 0.3,
-    z: 0.4
-  });
-
   // --- Sector Claims Logic via sectors.js ---
   const sectorsAPI = initSectors({
     THREE,
@@ -222,12 +208,9 @@
   function animate(now) {
     let needsRender = playerAPI.updatePlayers(now);
 
-    // Radar: animate and apply bump effect
-    radarAPI.updateRadar(playerAPI.getPlayerPixels(), now);
-
     // Sectors: updateSectors is called from fetch, meshes are persistent
 
-    // Always re-render since radar/pixels or sectors may animate
+    // Always re-render since pixels or sectors may animate
     renderer.render(scene, camera);
     playerAPI.setNeedsRender(false);
 
