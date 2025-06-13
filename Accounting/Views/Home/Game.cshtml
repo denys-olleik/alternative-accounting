@@ -203,7 +203,10 @@
 
   // --- Animation Loop ---
   function animate(now) {
+    now = now || performance.now();
+
     let needsRender = playerAPI.updatePlayers(now);
+
     renderer.render(scene, camera);
     playerAPI.setNeedsRender(false);
     requestAnimationFrame(animate);
