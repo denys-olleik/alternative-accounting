@@ -32,7 +32,6 @@
   import * as THREE from 'three';
   import { initPlayers } from '/js/player.js';
   import { initSectors } from '/js/sectors.js';
-  import { initRadar } from '/js/radar.js';
 
   // --- Scene Setup ---
   const container = document.getElementById('app');
@@ -65,17 +64,6 @@
   }
   const grid = createGrid(gridSize, 0x444444);
   scene.add(grid);
-
-  // --- Radar (static rectangle for now) ---
-  const radarAPI = initRadar({
-    THREE,
-    scene,
-    width,
-    height,
-    z: 0.18,
-    color: 0x22ffcc,
-    opacity: 0.23
-  });
 
   // --- Highlight Square ---
   const squareGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
