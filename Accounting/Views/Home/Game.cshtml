@@ -112,6 +112,22 @@
     scene.add(horizontalLine);
   }
 
+  // --- Scanning Vertical Line ---
+  const scanLineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 2 });
+  let scanLineX = 0;
+  const scanSpeed = 2; // pixels per frame
+  let scanLine;
+
+  function createScanLine(x) {
+    if (scanLine) scene.remove(scanLine);
+    const scanGeom = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x, 0, 0.3),
+      new THREE.Vector3(x, height, 0.3)
+    ]);
+    scanLine = new THREE.Line(scanGeom, scanLineMaterial);
+    scene.add(scanLine);
+  }
+
   // --- User Interaction State ---
   let mouseX = width / 2, mouseY = height / 2;
   let mouseOverCanvas = false;
@@ -206,6 +222,11 @@
     now = now || performance.now();
 
     let needsRender = playerAPI.updatePlayers(now);
+
+    // --- Scanning Vertical Line Logic ---
+    scanLineX += scanSpeed;
+    if (scanLineX > width) scanLineX = 0;
+    createScanLine(scanLineX);
 
     renderer.render(scene, camera);
     playerAPI.setNeedsRender(false);
