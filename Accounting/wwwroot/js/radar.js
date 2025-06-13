@@ -1,7 +1,4 @@
-﻿// js/radar.js
-// Radar scan module for multiplayer grid game, with right (50% opacity) to left (0%) red gradient
-
-export function initRadar({
+﻿export function initRadar({
   THREE,
   scene,
   width,
@@ -18,10 +15,9 @@ export function initRadar({
     canvas.width = size;
     canvas.height = 1;
     const ctx = canvas.getContext('2d');
-    // Gradient: left (transparent) -> right (50% opacity red)
     const grad = ctx.createLinearGradient(0, 0, size, 0);
-    grad.addColorStop(0, 'rgba(255,34,34,0.0)');  // Left: fully transparent
-    grad.addColorStop(1, 'rgba(255,34,34,0.5)');  // Right: 50% opacity
+    grad.addColorStop(0, 'rgba(255,34,34,0.0)');
+    grad.addColorStop(1, 'rgba(255,34,34,0.5)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, size, 1);
     const texture = new THREE.Texture(canvas);
@@ -34,7 +30,6 @@ export function initRadar({
   }
 
   let radarMesh = null;
-  let lastSweepId = -1;
   const pixelRadarStates = new Map();
 
   function createRadarMesh() {
@@ -49,20 +44,27 @@ export function initRadar({
       depthTest: false
     });
     radarMesh = new THREE.Mesh(geom, mat);
-    radarMesh.position.set(-100, height / 2, z);
+    radarMesh.position.set(-scanWidth * 1.5, height / 2, z); // Start fully off left
     scene.add(radarMesh);
   }
-
   createRadarMesh();
+
+  // New: Sweep from center at -scanWidth*1.5 (fully off left), to center at width + scanWidth*1.5 (fully off right)
+  const sweepStart = -scanWidth * 1.5;
+  const sweepEnd = width + scanWidth * 1.5;
+  const sweepSpan = sweepEnd - sweepStart;
 
   function updateRadar(playerPixels, now = performance.now()) {
     const t = now;
     const cycleTime = t % duration;
-    const sweepId = Math.floor(t / duration);
-    const radarX = (cycleTime / duration) * width;
+    const frac = cycleTime / duration;
+    const radarX = sweepStart + frac * sweepSpan;
+
+    radarMesh.position.set(radarX, height / 2, z);
+
     const left = radarX - scanWidth / 2;
     const right = radarX + scanWidth / 2;
-    radarMesh.position.set(radarX, height / 2, z);
+    radarMesh.visible = (right > 0) && (left < width);
 
     for (const [id, pixel] of playerPixels) {
       const meshX = pixel.mesh.position.x;
