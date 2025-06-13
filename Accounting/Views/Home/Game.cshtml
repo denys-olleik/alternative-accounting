@@ -30,8 +30,9 @@
   }
 
   import * as THREE from 'three';
-  import { initPlayers } from '/js/player.js'; // Adjust path if needed
-  import { initSectors } from '/js/sectors.js'; // Import your new sectors.js
+  import { initPlayers } from '/js/player.js';
+  import { initSectors } from '/js/sectors.js';
+  import { initRadar } from '/js/radar.js';
 
   // --- Scene Setup ---
   const container = document.getElementById('app');
@@ -64,6 +65,17 @@
   }
   const grid = createGrid(gridSize, 0x444444);
   scene.add(grid);
+
+  // --- Radar (static rectangle for now) ---
+  const radarAPI = initRadar({
+    THREE,
+    scene,
+    width,
+    height,
+    z: 0.18,
+    color: 0x22ffcc,
+    opacity: 0.23
+  });
 
   // --- Highlight Square ---
   const squareGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
@@ -159,7 +171,7 @@
     gridSize,
     width,
     height,
-    color: 0x99ccff,   // Light blue for claimed sectors
+    color: 0x99ccff,
     opacity: 0.25,
     z: 0.05
   });
@@ -169,7 +181,6 @@
 
   // Fetch and update sector claims from API periodically
   async function fetchAndUpdateSectorClaims() {
-    // Note: relies on backend sending SectorClaims array
     const response = await fetch('/api/player/report-position', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -178,7 +189,6 @@
     if (response.ok) {
       const data = await response.json();
       latestSectorClaims = (data.sectorClaims || data.SectorClaims) || [];
-      // Update the visual sectors
       sectorsAPI.updateSectors(latestSectorClaims);
     }
   }
@@ -193,7 +203,6 @@
     const clickX = Math.floor((e.clientX - rect.left) * (width / rect.width));
     const clickY = Math.floor((e.clientY - rect.top) * (height / rect.height));
     await playerAPI.handlePlayerClick(clickX, clickY);
-    // Immediately refresh claims after a claim
     fetchAndUpdateSectorClaims();
   });
 
@@ -207,16 +216,10 @@
   // --- Animation Loop ---
   function animate(now) {
     let needsRender = playerAPI.updatePlayers(now);
-
-    // Sectors: updateSectors is called from fetch, meshes are persistent
-
-    // Always re-render since pixels or sectors may animate
     renderer.render(scene, camera);
     playerAPI.setNeedsRender(false);
-
     requestAnimationFrame(animate);
   }
 
-  // --- Start Animation ---
   animate();
 </script>
