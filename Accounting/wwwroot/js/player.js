@@ -11,7 +11,7 @@ export function initPlayers({
   userId
 }) {
   // -- Player Data Structures --
-  // userId -> { mesh, anim: {from:{x,y}, to:{x,y}, start:timestamp, duration:ms} }
+  // userId -> { mesh, label, anim: {from:{x,y}, to:{x,y}, start:timestamp, duration:ms} }
   const playerPixels = new Map();
   let latestPlayersFromServer = [];
   let lastSentX = null, lastSentY = null;
@@ -20,6 +20,63 @@ export function initPlayers({
   // -- Helpers --
   function lerp(a, b, t) {
     return a + (b - a) * t;
+  }
+
+  // --- Label helpers ---
+  function createLabel(text) {
+    // Create a canvas for the label
+    const fontSize = 18;
+    const padding = 6;
+    const font = `${fontSize}px Arial`;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = font;
+    const textWidth = Math.ceil(ctx.measureText(text).width);
+    const textHeight = fontSize + 2;
+    canvas.width = textWidth + padding * 2;
+    canvas.height = textHeight + padding * 2;
+
+    // Draw background
+    ctx.fillStyle = 'rgba(32,32,32,0.85)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw border
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+    // Draw text
+    ctx.font = font;
+    ctx.fillStyle = '#fff';
+    ctx.textBaseline = 'top';
+    ctx.fillText(text, padding, padding);
+
+    // Create texture and mesh
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(material);
+
+    // Set scale to match canvas size (1:1 pixel)
+    sprite.scale.set(canvas.width, canvas.height, 1);
+
+    // Store label dimensions for positioning
+    sprite.userData = {
+      labelWidth: canvas.width,
+      labelHeight: canvas.height
+    };
+
+    return sprite;
+  }
+
+  // Always anchor: bottom right of label to top left of pixel, offset 2px up and left
+  function positionLabel(label, pixelPos, labelDims) {
+    const offset = 2;
+    // The label's bottom right corner is at (pixelPos.x - offset, pixelPos.y - offset)
+    // So the label's center is:
+    const labelX = pixelPos.x - offset - labelDims.labelWidth / 2;
+    const labelY = pixelPos.y - offset - labelDims.labelHeight / 2;
+    label.position.set(labelX, labelY, pixelPos.z + 0.01);
   }
 
   // --- API communication ---
@@ -77,7 +134,7 @@ export function initPlayers({
   function updatePlayers(now) {
     now = now || performance.now();
 
-    // 1. Remove pixels not in latest player list
+    // 1. Remove pixels/labels not in latest player list
     const keepIds = new Set();
     for (let i = 0; i < latestPlayersFromServer.length; ++i) {
       const p = latestPlayersFromServer[i];
@@ -87,6 +144,7 @@ export function initPlayers({
     for (const [id, pixel] of playerPixels) {
       if (!keepIds.has(id)) {
         scene.remove(pixel.mesh);
+        if (pixel.label) scene.remove(pixel.label);
         playerPixels.delete(id);
         needsRender = true;
       }
@@ -99,7 +157,8 @@ export function initPlayers({
       const isSelf = (id === userId);
       const targetAbsPos = {
         x: p.x + 0.5, // center of pixel
-        y: height - p.y - 0.5 // flip Y, center of pixel
+        y: height - p.y - 0.5, // flip Y, center of pixel
+        z: isSelf ? 0.25 : 0.2
       };
 
       let pixel = playerPixels.get(id);
@@ -115,10 +174,20 @@ export function initPlayers({
             depthTest: false
           })
         );
-        mesh.position.set(targetAbsPos.x, targetAbsPos.y, isSelf ? 0.25 : 0.2);
+        mesh.position.set(targetAbsPos.x, targetAbsPos.y, targetAbsPos.z);
         scene.add(mesh);
+
+        // Create label (show only for self and maybe a few others)
+        let label = null;
+        if (isSelf || i < 5) { // Show for self and first 5 others
+          const labelText = isSelf ? "You" : (p.userId ? p.userId.slice(0, 6) : "Player");
+          label = createLabel(labelText);
+          scene.add(label);
+        }
+
         playerPixels.set(id, {
           mesh,
+          label,
           anim: {
             from: { x: targetAbsPos.x, y: targetAbsPos.y },
             to: { x: targetAbsPos.x, y: targetAbsPos.y },
@@ -147,22 +216,34 @@ export function initPlayers({
       }
     }
 
-    // 3. Animate all player pixels
+    // 3. Animate all player pixels and update label positions
     for (const [id, pixel] of playerPixels) {
       let t = Math.min(1, (now - pixel.anim.start) / pixel.anim.duration);
+      let curX, curY;
       if (t < 1) {
-        const curX = lerp(pixel.anim.from.x, pixel.anim.to.x, t);
-        const curY = lerp(pixel.anim.from.y, pixel.anim.to.y, t);
+        curX = lerp(pixel.anim.from.x, pixel.anim.to.x, t);
+        curY = lerp(pixel.anim.from.y, pixel.anim.to.y, t);
         pixel.mesh.position.set(curX, curY, pixel.mesh.position.z);
         needsRender = true;
       } else {
-        pixel.mesh.position.set(pixel.anim.to.x, pixel.anim.to.y, pixel.mesh.position.z);
+        curX = pixel.anim.to.x;
+        curY = pixel.anim.to.y;
+        pixel.mesh.position.set(curX, curY, pixel.mesh.position.z);
       }
       // Color for self vs others
       if (id === userId) {
         pixel.mesh.material.color.setHex(0x44ff44);
       } else {
         pixel.mesh.material.color.setHex(0xffffff);
+      }
+
+      // Update label position if exists
+      if (pixel.label) {
+        positionLabel(
+          pixel.label,
+          { x: curX, y: curY, z: pixel.mesh.position.z },
+          pixel.label.userData
+        );
       }
     }
 
