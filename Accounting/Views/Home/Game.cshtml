@@ -144,13 +144,15 @@
     mouseY = Math.floor((e.clientY - rect.top) * (height / rect.height));
     createCrosshair(mouseX, mouseY);
     updateHighlight(mouseX, mouseY);
+    playerAPI.handlePlayerMove(mouseX, mouseY, mouseOverCanvas);
     playerAPI.setNeedsRender(true);
   });
   renderer.domElement.addEventListener('mouseenter', () => {
     mouseOverCanvas = true;
   });
-  renderer.domElement.addEventListener('mouseleave', () => {
+  renderer.domElement.addEventListener('mouseleave', async () => {
     mouseOverCanvas = false;
+    await playerAPI.handleMouseLeave(mouseX, mouseY);
   });
 
   // --- Sector Claims Logic via sectors.js ---
@@ -191,9 +193,9 @@
     await playerAPI.handlePlayerClick(clickX, clickY);
   });
 
-  // Movement reporting (claim: false)
+  // --- Throttled reporting loop ---
   setInterval(() => {
-    playerAPI.handlePlayerMove(mouseX, mouseY, mouseOverCanvas);
+    playerAPI.processPendingReport(performance.now());
   }, 1000);
 
   updateHighlight(mouseX, mouseY);

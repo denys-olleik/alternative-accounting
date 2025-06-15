@@ -18,6 +18,12 @@ export function initPlayers({
   let lastSentX = null, lastSentY = null;
   let needsRender = true;
 
+  // --- Throttle logic for reporting position ---
+  let pendingX = null, pendingY = null;
+  let isMouseOverCanvas = false;
+  let lastReportTime = 0;
+  const REPORT_INTERVAL = 1000; // 1 second
+
   // -- Helpers --
   function lerp(a, b, t) {
     return a + (b - a) * t;
@@ -52,6 +58,27 @@ export function initPlayers({
     } catch (err) { }
   }
 
+  // -- Throttled movement reporting --
+  function scheduleThrottledReport(x, y) {
+    pendingX = x;
+    pendingY = y;
+  }
+
+  // Call this every frame or at a regular interval from outside
+  async function processPendingReport(now) {
+    if (!isMouseOverCanvas) return;
+    if (pendingX === null || pendingY === null) return;
+    if (pendingX === lastSentX && pendingY === lastSentY) return;
+    if (now - lastReportTime < REPORT_INTERVAL) return;
+
+    await sendCoordinates(pendingX, pendingY, false);
+    lastSentX = pendingX;
+    lastSentY = pendingY;
+    lastReportTime = now;
+    pendingX = null;
+    pendingY = null;
+  }
+
   // -- Public Functions --
 
   // Handle player click to claim (sector claims will update via onSectorClaims)
@@ -59,16 +86,31 @@ export function initPlayers({
     await sendCoordinates(clickX, clickY, true);
     lastSentX = clickX;
     lastSentY = clickY;
+    lastReportTime = performance.now();
+    pendingX = null;
+    pendingY = null;
   }
 
-  // Handle player movement (report only if moved)
-  async function handlePlayerMove(mouseX, mouseY, mouseOverCanvas) {
+  // Handle player movement (throttled)
+  function handlePlayerMove(mouseX, mouseY, mouseOverCanvas) {
+    isMouseOverCanvas = mouseOverCanvas;
     if (mouseOverCanvas) {
       if (mouseX !== lastSentX || mouseY !== lastSentY) {
-        await sendCoordinates(mouseX, mouseY, false);
-        lastSentX = mouseX;
-        lastSentY = mouseY;
+        scheduleThrottledReport(mouseX, mouseY);
       }
+    }
+  }
+
+  // Call this on mouseleave to immediately report last position if needed
+  async function handleMouseLeave(mouseX, mouseY) {
+    isMouseOverCanvas = false;
+    if (mouseX !== lastSentX || mouseY !== lastSentY) {
+      await sendCoordinates(mouseX, mouseY, false);
+      lastSentX = mouseX;
+      lastSentY = mouseY;
+      lastReportTime = performance.now();
+      pendingX = null;
+      pendingY = null;
     }
   }
 
@@ -178,6 +220,8 @@ export function initPlayers({
     updatePlayers,
     handlePlayerClick,
     handlePlayerMove,
+    handleMouseLeave,
+    processPendingReport,
     setNeedsRender: (v) => { needsRender = v; },
     getNeedsRender: () => needsRender,
     getPlayerPixels: () => playerPixels
