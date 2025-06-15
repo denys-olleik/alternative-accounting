@@ -193,10 +193,7 @@
     await playerAPI.handlePlayerClick(clickX, clickY);
   });
 
-  // --- Throttled reporting loop ---
-  setInterval(() => {
-    playerAPI.processPendingReport(performance.now());
-  }, 1000);
+  // No setInterval for reporting; debounce is handled in player.js
 
   updateHighlight(mouseX, mouseY);
 

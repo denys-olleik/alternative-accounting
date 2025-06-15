@@ -18,11 +18,11 @@ export function initPlayers({
   let lastSentX = null, lastSentY = null;
   let needsRender = true;
 
-  // --- Throttle logic for reporting position ---
+  // --- Debounce logic for reporting position ---
+  let debounceTimer = null;
   let pendingX = null, pendingY = null;
   let isMouseOverCanvas = false;
-  let lastReportTime = 0;
-  const REPORT_INTERVAL = 1000; // 1 second
+  const DEBOUNCE_DELAY = 1000; // 1 second
 
   // -- Helpers --
   function lerp(a, b, t) {
@@ -58,45 +58,42 @@ export function initPlayers({
     } catch (err) { }
   }
 
-  // -- Throttled movement reporting --
-  function scheduleThrottledReport(x, y) {
+  // -- Debounced movement reporting --
+  function scheduleDebouncedReport(x, y) {
     pendingX = x;
     pendingY = y;
-  }
-
-  // Call this every frame or at a regular interval from outside
-  async function processPendingReport(now) {
-    if (!isMouseOverCanvas) return;
-    if (pendingX === null || pendingY === null) return;
-    if (pendingX === lastSentX && pendingY === lastSentY) return;
-    if (now - lastReportTime < REPORT_INTERVAL) return;
-
-    await sendCoordinates(pendingX, pendingY, false);
-    lastSentX = pendingX;
-    lastSentY = pendingY;
-    lastReportTime = now;
-    pendingX = null;
-    pendingY = null;
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      if (isMouseOverCanvas && (pendingX !== lastSentX || pendingY !== lastSentY)) {
+        await sendCoordinates(pendingX, pendingY, false);
+        lastSentX = pendingX;
+        lastSentY = pendingY;
+      }
+      debounceTimer = null;
+    }, DEBOUNCE_DELAY);
   }
 
   // -- Public Functions --
 
   // Handle player click to claim (sector claims will update via onSectorClaims)
   async function handlePlayerClick(clickX, clickY) {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+    }
     await sendCoordinates(clickX, clickY, true);
     lastSentX = clickX;
     lastSentY = clickY;
-    lastReportTime = performance.now();
     pendingX = null;
     pendingY = null;
   }
 
-  // Handle player movement (throttled)
+  // Handle player movement (debounced)
   function handlePlayerMove(mouseX, mouseY, mouseOverCanvas) {
     isMouseOverCanvas = mouseOverCanvas;
     if (mouseOverCanvas) {
       if (mouseX !== lastSentX || mouseY !== lastSentY) {
-        scheduleThrottledReport(mouseX, mouseY);
+        scheduleDebouncedReport(mouseX, mouseY);
       }
     }
   }
@@ -104,11 +101,14 @@ export function initPlayers({
   // Call this on mouseleave to immediately report last position if needed
   async function handleMouseLeave(mouseX, mouseY) {
     isMouseOverCanvas = false;
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+    }
     if (mouseX !== lastSentX || mouseY !== lastSentY) {
       await sendCoordinates(mouseX, mouseY, false);
       lastSentX = mouseX;
       lastSentY = mouseY;
-      lastReportTime = performance.now();
       pendingX = null;
       pendingY = null;
     }
@@ -221,7 +221,6 @@ export function initPlayers({
     handlePlayerClick,
     handlePlayerMove,
     handleMouseLeave,
-    processPendingReport,
     setNeedsRender: (v) => { needsRender = v; },
     getNeedsRender: () => needsRender,
     getPlayerPixels: () => playerPixels
