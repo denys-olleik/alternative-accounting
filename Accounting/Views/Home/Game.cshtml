@@ -194,7 +194,6 @@
 
   // Initial fetch and then poll periodically
   fetchAndUpdateSectorClaims();
-  setInterval(fetchAndUpdateSectorClaims, 1200);
 
   // Click to claim
   renderer.domElement.addEventListener('click', async (e) => {
