@@ -72,13 +72,6 @@ export function initPlayers({
     }
   }
 
-  // Periodic keepalive to report last position
-  setInterval(() => {
-    if (lastSentX !== null && lastSentY !== null) {
-      sendCoordinates(lastSentX, lastSentY, false);
-    }
-  }, 1200);
-
   // Update player pixels and handle animation
   function updatePlayers(now) {
     now = now || performance.now();
