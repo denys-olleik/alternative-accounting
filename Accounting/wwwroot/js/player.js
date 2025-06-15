@@ -8,7 +8,8 @@ export function initPlayers({
   width,
   height,
   pixelSize,
-  userId
+  userId,
+  onSectorClaims = null // Callback to receive latest sector claims after every position report
 }) {
   // -- Player Data Structures --
   // userId -> { mesh, anim: {from:{x,y}, to:{x,y}, start:timestamp, duration:ms} }
@@ -42,13 +43,18 @@ export function initPlayers({
           }));
           needsRender = true;
         }
+        // Always call onSectorClaims with latest claims if provided
+        if (typeof onSectorClaims === "function") {
+          const claims = data.sectorClaims || data.SectorClaims || [];
+          onSectorClaims(claims);
+        }
       }
     } catch (err) { }
   }
 
   // -- Public Functions --
 
-  // Handle player click to claim
+  // Handle player click to claim (sector claims will update via onSectorClaims)
   async function handlePlayerClick(clickX, clickY) {
     await sendCoordinates(clickX, clickY, true);
     lastSentX = clickX;

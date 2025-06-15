@@ -153,16 +153,6 @@
     mouseOverCanvas = false;
   });
 
-  // --- Player Logic via player.js ---
-  const playerAPI = initPlayers({
-    THREE,
-    scene,
-    width,
-    height,
-    pixelSize,
-    userId
-  });
-
   // --- Sector Claims Logic via sectors.js ---
   const sectorsAPI = initSectors({
     THREE,
@@ -175,33 +165,30 @@
     z: 0.05
   });
 
-  // Store latest sector claims
-  let latestSectorClaims = [];
-
-  // Fetch and update sector claims from API periodically
-  async function fetchAndUpdateSectorClaims() {
-    const response = await fetch('/api/player/report-position', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ x: mouseX, y: mouseY, userId, claim: false })
-    });
-    if (response.ok) {
-      const data = await response.json();
-      latestSectorClaims = (data.sectorClaims || data.SectorClaims) || [];
-      sectorsAPI.updateSectors(latestSectorClaims);
+  // --- Player Logic via player.js ---
+  const playerAPI = initPlayers({
+    THREE,
+    scene,
+    width,
+    height,
+    pixelSize,
+    userId,
+    onSectorClaims: (claims) => {
+      sectorsAPI.updateSectors(claims);
     }
-  }
+  });
 
-  // Initial fetch and then poll periodically
-  fetchAndUpdateSectorClaims();
+  // Initial sector claims update by sending a position report (claim: false)
+  (async () => {
+    await playerAPI.handlePlayerMove(mouseX, mouseY, true);
+  })();
 
-  // Click to claim
+  // Click to claim (sector claims will update via onSectorClaims callback)
   renderer.domElement.addEventListener('click', async (e) => {
     const rect = renderer.domElement.getBoundingClientRect();
     const clickX = Math.floor((e.clientX - rect.left) * (width / rect.width));
     const clickY = Math.floor((e.clientY - rect.top) * (height / rect.height));
     await playerAPI.handlePlayerClick(clickX, clickY);
-    fetchAndUpdateSectorClaims();
   });
 
   // Movement reporting (claim: false)
