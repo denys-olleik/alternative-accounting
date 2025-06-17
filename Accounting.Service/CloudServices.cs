@@ -118,7 +118,6 @@ namespace Accounting.Service
         string ownerFirst,
         string ownerLast,
         bool tenantManagement,
-        string emailApiKey,
         string fullyQualifiedDomainName,
         string cloudApiKey = null,
         string noReplyEmailAddress = null,
@@ -140,11 +139,6 @@ namespace Accounting.Service
         };
 
         var sshKeyResponse = await client.Keys.Create(sshKeyRequest);
-
-        string emailApiKeyScript =
-            @"
-sudo -i -u postgres psql -d ""Accounting"" -c ""INSERT INTO \""Secret\"" (\""Master\"", \""Value\"", \""Type\"", \""CreatedById\"", \""OrganizationId\"", \""TenantId\"") VALUES (false, '${EmailApiKey}', 'email', 1, 1, 1);"" > /var/log/accounting/email-api-key-insert.log 2>&1
-";
 
         string cloudApiKeyScript =
             @"
@@ -206,7 +200,6 @@ echo 'OwnerEmail={ownerEmail}' | sudo tee -a /etc/environment >> /var/log/accoun
 echo 'OwnerPassword={ownerPassword}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 echo 'OwnerFirst={ownerFirst}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 echo 'OwnerLast={ownerLast}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
-echo 'EmailApiKey={emailApiKey}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 echo 'NoReplyEmailAddress={noReplyEmailAddress}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 [ -n '{cloudApiKey}' ] && echo 'CloudApiKey={cloudApiKey}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 [ -n '{whitelabel}' ] && echo 'Whitelabel={whitelabel}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
@@ -311,9 +304,6 @@ sudo -i -u postgres psql -d "Accounting" -f /opt/accounting/Accounting.Database/
 
 # Load sample claims data - /opt/accounting/Accounting.Database/sample-data-production-claims.sql
 sudo -i -u postgres psql -d "Accounting" -f /opt/accounting/Accounting.Database/sample-data-production-claims.sql > /var/log/accounting/sample-data-claims.log 2>&1
-
-# Create email API key
-""" + emailApiKeyScript + """
 
 # Create cloud API key
 

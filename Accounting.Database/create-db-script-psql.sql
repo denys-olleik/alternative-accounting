@@ -61,16 +61,16 @@ CREATE TABLE "UserOrganization"
 	UNIQUE ("UserId", "OrganizationId")
 );
 
--- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "LoginWithoutPassword";'
-CREATE TABLE "LoginWithoutPassword"
-(
-	"LoginWithoutPasswordID" SERIAL PRIMARY KEY NOT NULL,
-	"Code" VARCHAR(100) NOT NULL,
-	"Email" VARCHAR(100) NOT NULL,
-	"Expires" TIMESTAMPTZ NOT NULL,
-	"Completed" TIMESTAMPTZ NULL,
-	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
-);
+---- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "LoginWithoutPassword";'
+--CREATE TABLE "LoginWithoutPassword"
+--(
+--	"LoginWithoutPasswordID" SERIAL PRIMARY KEY NOT NULL,
+--	"Code" VARCHAR(100) NOT NULL,
+--	"Email" VARCHAR(100) NOT NULL,
+--	"Expires" TIMESTAMPTZ NOT NULL,
+--	"Completed" TIMESTAMPTZ NULL,
+--	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+--);
 
 -- CREATE TABLE "Cloud"
 -- (
@@ -618,7 +618,7 @@ CREATE TABLE "Secret"
 	"Master" BOOLEAN DEFAULT FALSE,
 	"Value" TEXT NOT NULL,
 	"ValueEncrypted" BOOLEAN NOT NULL DEFAULT FALSE,
-	"Type" VARCHAR(20) CHECK ("Type" IN ('email', 'sms', 'cloud', 'no-reply', 'droplet-limit', 'abuse-ip-db')) NULL,
+	"Type" VARCHAR(20) CHECK ("Type" IN ('cloud', 'no-reply', 'droplet-limit', 'abuse-ip-db')) NULL,
 	"Purpose" VARCHAR(100) NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NULL,
@@ -735,5 +735,5 @@ CREATE TABLE "Wallet"
 	"PublicId" VARCHAR(36) NOT NULL UNIQUE, -- Client-generated UUID or random string
 	"Password" VARCHAR(255),
 	"Balance" DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
-	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
 )

@@ -147,29 +147,29 @@ namespace Accounting.Models.RegistrationViewModels
           .Must(DoesNotContainDisallowedCharacters)
           .WithMessage("Fully qualified domain name contains disallowed characters.");
 
-        RuleFor(x => x)
-          .Must(x => string.IsNullOrEmpty(x.CloudKey) == string.IsNullOrEmpty(x.EmailKey))
-          .WithMessage("'Cloud key' and 'Email key' must both be provided or both be empty.");
+        //RuleFor(x => x)
+        //  .Must(x => string.IsNullOrEmpty(x.CloudKey) == string.IsNullOrEmpty(x.EmailKey))
+        //  .WithMessage("'Cloud key' and 'Email key' must both be provided or both be empty.");
 
-        RuleFor(x => x.NoReplyEmailAddress)
-          .NotEmpty()
-          .When(x => !string.IsNullOrEmpty(x.EmailKey))
-          .WithMessage("'No reply email address' is required when 'Email key' is provided.")
-          .Must(DoesNotContainDisallowedCharacters)
-          .WithMessage("No reply email address contains disallowed characters.");
+        //RuleFor(x => x.NoReplyEmailAddress)
+        //  .NotEmpty()
+        //  .When(x => !string.IsNullOrEmpty(x.EmailKey))
+        //  .WithMessage("'No reply email address' is required when 'Email key' is provided.")
+        //  .Must(DoesNotContainDisallowedCharacters)
+        //  .WithMessage("No reply email address contains disallowed characters.");
 
-        RuleFor(x => x.DefaultNoReplyEmailAddress)
-          .NotEmpty()
-          .When(x => string.IsNullOrEmpty(x.NoReplyEmailAddress) && string.IsNullOrEmpty(x.EmailKey))
-          .WithMessage("'Default no reply email address' is required if 'No reply email address' and 'Email key' are not provided.")
-          .EmailAddress()
-          .WithMessage("Valid 'default no reply email address' is required.")
-          .Must(DoesNotContainDisallowedCharacters)
-          .WithMessage("Default no reply email address contains disallowed characters.");
+        //RuleFor(x => x.DefaultNoReplyEmailAddress)
+        //  .NotEmpty()
+        //  .When(x => string.IsNullOrEmpty(x.NoReplyEmailAddress) && string.IsNullOrEmpty(x.EmailKey))
+        //  .WithMessage("'Default no reply email address' is required if 'No reply email address' and 'Email key' are not provided.")
+        //  .EmailAddress()
+        //  .WithMessage("Valid 'default no reply email address' is required.")
+        //  .Must(DoesNotContainDisallowedCharacters)
+        //  .WithMessage("Default no reply email address contains disallowed characters.");
 
-        RuleFor(x => x.EmailKey)
-          .Must(DoesNotContainDisallowedCharacters)
-          .WithMessage("Email key contains disallowed characters.");
+        //RuleFor(x => x.EmailKey)
+        //  .Must(DoesNotContainDisallowedCharacters)
+        //  .WithMessage("Email key contains disallowed characters.");
 
         RuleFor(x => x.CloudKey)
           .Must(DoesNotContainDisallowedCharacters)

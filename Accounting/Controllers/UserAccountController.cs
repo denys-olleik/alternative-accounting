@@ -21,7 +21,7 @@ namespace Accounting.Controllers
     private readonly OrganizationService _organizationService;
     private readonly UserOrganizationService _userOrganizationService;
     private readonly UserService _userService;
-    private readonly LoginWithoutPasswordService _loginWithoutPasswordService;
+    //private readonly LoginWithoutPasswordService _loginWithoutPasswordService;
     private readonly EmailService _emailService;
     private readonly SecretService _secretService;
     private readonly TenantService _tenantService;
@@ -32,7 +32,7 @@ namespace Accounting.Controllers
       OrganizationService organizationService,
       UserOrganizationService userOrganizationService,
       UserService userService,
-      LoginWithoutPasswordService loginWithoutPasswordService,
+      //LoginWithoutPasswordService loginWithoutPasswordService,
       EmailService emailService,
       SecretService secretService,
       TenantService tenantService,
@@ -41,7 +41,7 @@ namespace Accounting.Controllers
       _organizationService = new OrganizationService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _userOrganizationService = new UserOrganizationService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _userService = new UserService(requestContext.DatabaseName, requestContext.DatabasePassword);
-      _loginWithoutPasswordService = new LoginWithoutPasswordService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      //_loginWithoutPasswordService = new LoginWithoutPasswordService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _secretService = new SecretService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _emailService = new EmailService(_secretService);
       _tenantService = new TenantService(requestContext.DatabaseName, requestContext.DatabasePassword);
@@ -140,37 +140,12 @@ namespace Accounting.Controllers
 
         return RedirectToAction("ChooseOrganization", "UserAccount");
       }
-      else if (existingUser != null && string.IsNullOrEmpty(model.Password))
-      {
-        Secret? emailApiKeySecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Email, 1);
-        Secret? noReplySecret = await _secretService.GetAsync(Secret.SecretTypeConstants.NoReply, 1);
-
-        if (emailApiKeySecret == null || noReplySecret == null)
-        {
-          model.ValidationResult = new ValidationResult(new List<ValidationFailure>()
-      {
-          new ValidationFailure("Email", "Password-less login requires an API key and 'no-reply' secrets to be set up.")
-      });
-          return View(model);
-        }
-
-        LoginWithoutPassword loginWithoutPassword;
-
-        using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-        {
-          await _loginWithoutPasswordService.DeleteAsync(model.Email);
-          loginWithoutPassword = await _loginWithoutPasswordService.CreateAsync(model.Email!);
-          await _emailService.SendLoginWithoutPasswordAsync(loginWithoutPassword);
-          scope.Complete();
-          return RedirectToAction("LoginWithoutPassword", "UserAccount", new { Email = model.Email });
-        }
-      }
       else
       {
         model.ValidationResult = new ValidationResult(new List<ValidationFailure>()
-      {
-        new ValidationFailure("Email", "'Email' or 'password' is incorrect.")
-      });
+        {
+          new ValidationFailure("Email", "'Email' or 'password' is incorrect.")
+        });
         return View(model);
       }
     }
@@ -184,43 +159,43 @@ namespace Accounting.Controllers
       return View();
     }
 
-    [AllowAnonymous]
-    [Route("login-without-password/{email}")]
-    [HttpPost]
-    public async Task<IActionResult> LoginWithoutPassword(LoginWithoutPasswordViewModel model, string email)
-    {
-      LoginWithoutPasswordViewModelValidator validator
-        = new LoginWithoutPasswordViewModelValidator(_loginWithoutPasswordService);
-      ValidationResult validationResult = await validator.ValidateAsync(model);
+    //[AllowAnonymous]
+    //[Route("login-without-password/{email}")]
+    //[HttpPost]
+    //public async Task<IActionResult> LoginWithoutPassword(LoginWithoutPasswordViewModel model, string email)
+    //{
+    //  LoginWithoutPasswordViewModelValidator validator
+    //    = new LoginWithoutPasswordViewModelValidator(_loginWithoutPasswordService);
+    //  ValidationResult validationResult = await validator.ValidateAsync(model);
 
-      if (!validationResult.IsValid)
-      {
-        model.ValidationResult = validationResult;
-        return View(model);
-      }
+    //  if (!validationResult.IsValid)
+    //  {
+    //    model.ValidationResult = validationResult;
+    //    return View(model);
+    //  }
 
-      var (existingUser, tenantExistingUserBelongsTo) = await _userService.GetFirstOfAnyTenantAsync(model.Email!);
+    //  var (existingUser, tenantExistingUserBelongsTo) = await _userService.GetFirstOfAnyTenantAsync(model.Email!);
 
-      ClaimsPrincipal claimsPrincipal = AuthenticationHelper.CreateClaimsPrincipal(
-        existingUser,
-        tenantExistingUserBelongsTo.TenantID,
-        await GetRolesAsync(),
-        null,
-        null,
-        tenantExistingUserBelongsTo.DatabaseName,
-        tenantExistingUserBelongsTo.DatabasePassword);
+    //  ClaimsPrincipal claimsPrincipal = AuthenticationHelper.CreateClaimsPrincipal(
+    //    existingUser,
+    //    tenantExistingUserBelongsTo.TenantID,
+    //    await GetRolesAsync(),
+    //    null,
+    //    null,
+    //    tenantExistingUserBelongsTo.DatabaseName,
+    //    tenantExistingUserBelongsTo.DatabasePassword);
 
-      await HttpContext.SignInAsync(
-        CookieAuthenticationDefaults.AuthenticationScheme,
-        claimsPrincipal,
-        new AuthenticationProperties() { IsPersistent = true }
-      );
+    //  await HttpContext.SignInAsync(
+    //    CookieAuthenticationDefaults.AuthenticationScheme,
+    //    claimsPrincipal,
+    //    new AuthenticationProperties() { IsPersistent = true }
+    //  );
 
-      LoginWithoutPassword loginWithoutPassword = await _loginWithoutPasswordService.GetAsync(model.Email)!;
-      await _loginWithoutPasswordService.DeleteAsync(loginWithoutPassword);
+    //  LoginWithoutPassword loginWithoutPassword = await _loginWithoutPasswordService.GetAsync(model.Email)!;
+    //  await _loginWithoutPasswordService.DeleteAsync(loginWithoutPassword);
 
-      return RedirectToAction("ChooseOrganization", "UserAccount");
-    }
+    //  return RedirectToAction("ChooseOrganization", "UserAccount");
+    //}
 
     [HttpGet]
     [Route("choose-organization")]

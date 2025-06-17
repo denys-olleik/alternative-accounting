@@ -68,7 +68,7 @@ builder.Services.AddScoped<SecretService>();
 builder.Services.AddScoped<CloudServices>();
 builder.Services.AddScoped<DatabaseService>();
 builder.Services.AddScoped<EmailService>();
-builder.Services.AddScoped<LoginWithoutPasswordService>();
+//builder.Services.AddScoped<LoginWithoutPasswordService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<UserTaskService>();
 builder.Services.AddScoped<ToDoService>();

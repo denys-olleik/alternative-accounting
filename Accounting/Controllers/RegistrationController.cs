@@ -364,19 +364,19 @@ namespace Accounting.Controllers
           }
         }
 
-        if (!string.IsNullOrWhiteSpace(model.EmailKey))
-        {
-          emailSecretValue = model.EmailKey;
-        }
-        else
-        {
-          emailSecretValue = await GetEmailSecretAsync(defaultTenant.TenantID);
-          if (string.IsNullOrEmpty(emailSecretValue))
-          {
-            model.ValidationResult.Errors.Add(new ValidationFailure("EmailKey", "Email secret not found or invalid."));
-            return View(model);
-          }
-        }
+        //if (!string.IsNullOrWhiteSpace(model.EmailKey))
+        //{
+        //  emailSecretValue = model.EmailKey;
+        //}
+        //else
+        //{
+        //  //emailSecretValue = await GetEmailSecretAsync(defaultTenant.TenantID);
+        //  if (string.IsNullOrEmpty(emailSecretValue))
+        //  {
+        //    model.ValidationResult.Errors.Add(new ValidationFailure("EmailKey", "Email secret not found or invalid."));
+        //    return View(model);
+        //  }
+        //}
 
         using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -415,11 +415,11 @@ namespace Accounting.Controllers
       return RedirectToAction("RegistrationComplete", "Registration");
     }
 
-    private async Task<string?> GetEmailSecretAsync(int defaultTenantId)
-    {
-      Secret? emailSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Email, defaultTenantId);
-      return emailSecret?.Value;
-    }
+    //private async Task<string?> GetEmailSecretAsync(int defaultTenantId)
+    //{
+    //  Secret? emailSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Email, defaultTenantId);
+    //  return emailSecret?.Value;
+    //}
 
     [AllowAnonymous]
     [HttpGet]

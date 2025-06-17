@@ -658,7 +658,7 @@ namespace Accounting.Controllers
       else
       {
         Secret cloudSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Cloud, 1);
-        Secret emailSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Email, 1);
+        //Secret emailSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Email, 1);
 
         Tenant defaultTenant = await _tenantService.GetByDatabaseNameAsync(DatabaseThing.DatabaseConstants.DatabaseName);
         Secret noReplySecret = await _secretService.GetAsync(Secret.SecretTypeConstants.NoReply, defaultTenant.TenantID);
@@ -689,8 +689,7 @@ namespace Accounting.Controllers
               tenant.DatabasePassword, 
               tenant.Email, null!, null!, null!, 
               model.EnableTenantManagement, 
-              emailSecret.Value, 
-              model.FullyQualifiedDomainName, 
+              model.FullyQualifiedDomainName,
               cloudSecret.Value,
               noReplySecret.Value, whitelabel: model.ApplicationName);
           }

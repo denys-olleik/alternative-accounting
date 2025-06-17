@@ -22,8 +22,6 @@ namespace Accounting.Business
 
     public static class SecretTypeConstants
     {
-      public const string Email = "email";
-      public const string SMS = "sms";
       public const string Cloud = "cloud";
       public const string NoReply = "no-reply";
       public const string DropletLimit = "droplet-limit";
