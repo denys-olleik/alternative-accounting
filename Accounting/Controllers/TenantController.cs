@@ -687,7 +687,7 @@ namespace Accounting.Controllers
             await cloudServices.GetDigitalOceanService().CreateDropletAsync(
               tenant,
               tenant.DatabasePassword, 
-              tenant.Email, null!, null!, null!, 
+              tenant.Email, model.Password, null!, null!, 
               model.EnableTenantManagement, 
               model.FullyQualifiedDomainName,
               cloudSecret.Value,
