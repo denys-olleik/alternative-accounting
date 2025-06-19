@@ -8324,6 +8324,111 @@ namespace Accounting.Database
       return new UserTaskManager(_connectionString);
     }
 
+    public IWalletManager GetWalletManager()
+    {
+      return new WalletManager(_connectionString);
+    }
+
+    public class WalletManager : IWalletManager
+    {
+      private readonly string _connectionString;
+
+      public WalletManager(string connectionString)
+      {
+        _connectionString = connectionString;
+      }
+
+      public Wallet Create(Wallet entity)
+      {
+        throw new NotImplementedException();
+      }
+
+      public Task<Wallet> CreateAsync(Wallet entity)
+      {
+        throw new NotImplementedException();
+      }
+
+      public int Delete(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public Wallet Get(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public IEnumerable<Wallet> GetAll()
+      {
+        throw new NotImplementedException();
+      }
+
+      public async Task<Wallet> TransferAsync(string sourcePublicId, string destinationPublicId, decimal amount, string password)
+      {
+        using (var con = new NpgsqlConnection(_connectionString))
+        {
+          //await con.OpenAsync();
+          using (var tx = await con.BeginTransactionAsync(System.Data.IsolationLevel.Serializable))
+          {
+            DynamicParameters p = new DynamicParameters();
+            p.Add("@SourcePublicId", sourcePublicId);
+            p.Add("@DestinationPublicId", destinationPublicId);
+            p.Add("@Amount", amount);
+
+            // Lock source wallet
+            var sourceWallet = await con.QuerySingleAsync<Wallet>("""
+        SELECT * FROM "Wallet"
+        WHERE "PublicId" = @SourcePublicId
+        FOR UPDATE
+        """, p, tx);
+
+            // Check password
+            if (!PasswordStorage.VerifyPassword(password, sourceWallet.Password))
+              throw new UnauthorizedAccessException("Invalid password for source wallet.");
+
+            // Lock destination wallet
+            var destWallet = await con.QuerySingleAsync<Wallet>("""
+        SELECT * FROM "Wallet"
+        WHERE "PublicId" = @DestinationPublicId
+        FOR UPDATE
+        """, p, tx);
+
+            // Debit source
+            await con.ExecuteAsync("""
+        UPDATE "Wallet"
+        SET "Balance" = "Balance" - @Amount
+        WHERE "WalletID" = @SourceWalletID
+        """,
+              new { Amount = amount, SourceWalletID = sourceWallet.WalletID }, tx);
+
+            // Credit destination
+            await con.ExecuteAsync("""
+        UPDATE "Wallet"
+        SET "Balance" = "Balance" + @Amount
+        WHERE "WalletID" = @DestWalletID
+        """,
+              new { Amount = amount, DestWalletID = destWallet.WalletID }, tx);
+
+            // Get updated source wallet
+            var updatedSourceWallet = await con.QuerySingleAsync<Wallet>("""
+        SELECT * FROM "Wallet"
+        WHERE "WalletID" = @SourceWalletID
+        """,
+              new { SourceWalletID = sourceWallet.WalletID }, tx);
+
+            await tx.CommitAsync();
+
+            return updatedSourceWallet;
+          }
+        }
+      }
+
+      public int Update(Wallet entity)
+      {
+        throw new NotImplementedException();
+      }
+    }
+
     public class UserTaskManager : IUserToDoManager
     {
       private readonly string _connectionString;

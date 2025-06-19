@@ -216,5 +216,10 @@ namespace Accounting.Database
     {
       return databaseFactoryDefinition.GetPlayerManager();
     }
+
+    public IWalletManager GetWalletManager()
+    {
+      return databaseFactoryDefinition.GetWalletManager();
+    }
   }
 }
