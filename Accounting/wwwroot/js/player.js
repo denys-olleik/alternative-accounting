@@ -12,7 +12,7 @@ export function initPlayers({
   onSectorClaims = null // Callback to receive latest sector claims after every position report
 }) {
   // -- Player Data Structures --
-  // userId -> { mesh, anim: {from:{x,y}, to:{x,y}, start:timestamp, duration:ms} }
+  // userId -> { mesh, anim: {from:{x,y}, to:{x,y}, start:timestamp, duration:ms}, scaleState }
   const playerPixels = new Map();
   let latestPlayersFromServer = [];
   let lastSentX = null, lastSentY = null;
@@ -114,8 +114,9 @@ export function initPlayers({
     }
   }
 
-  // Update player pixels and handle animation
-  function updatePlayers(now) {
+  // --- Radar sweep illumination logic ---
+  // Called each frame from game.cshtml, passing {gradientLeft, gradientRight}
+  function updatePlayers(now, gradientRect = null) {
     now = now || performance.now();
 
     // 1. Remove pixels not in latest player list
@@ -167,6 +168,13 @@ export function initPlayers({
             to: { x: targetAbsPos.x, y: targetAbsPos.y },
             start: now,
             duration: 1000
+          },
+          scaleState: {
+            scale: 1,
+            targetScale: 1,
+            lastIlluminated: false,
+            shrinking: false,
+            shrinkStart: 0
           }
         });
         needsRender = true;
@@ -190,7 +198,75 @@ export function initPlayers({
       }
     }
 
-    // 3. Animate all player pixels
+    // 3. Radar illumination logic
+    if (gradientRect && typeof gradientRect.gradientLeft === "number" && typeof gradientRect.gradientRight === "number") {
+      const { gradientLeft, gradientRight } = gradientRect;
+
+      for (const [id, pixel] of playerPixels) {
+        // Get pixel's X position in canvas coordinates
+        // Find the corresponding player data
+        let p = latestPlayersFromServer.find(pp => (pp.userId || (pp.x + ':' + pp.y + ':' + id)) === id);
+        if (!p) continue;
+        const px = p.x + 0.5;
+
+        // Is pixel under the gradient rectangle?
+        const illuminated = (px >= gradientLeft && px <= gradientRight);
+
+        if (illuminated) {
+          if (!pixel.scaleState.lastIlluminated) {
+            // Instantly grow to 5x size
+            pixel.scaleState.scale = 5;
+            pixel.scaleState.targetScale = 5;
+            pixel.scaleState.lastIlluminated = true;
+            pixel.scaleState.shrinking = false;
+            pixel.scaleState.shrinkStart = 0;
+            needsRender = true;
+          }
+        } else {
+          // If was illuminated last frame, start shrinking
+          if (pixel.scaleState.lastIlluminated) {
+            pixel.scaleState.lastIlluminated = false;
+            pixel.scaleState.shrinking = true;
+            pixel.scaleState.shrinkStart = now;
+            pixel.scaleState.startScale = pixel.scaleState.scale;
+            needsRender = true;
+          }
+        }
+
+        // Animate shrinking if needed
+        if (pixel.scaleState.shrinking) {
+          const elapsed = (now - pixel.scaleState.shrinkStart) / 1000.0;
+          if (elapsed >= 1.0) {
+            pixel.scaleState.scale = 1;
+            pixel.scaleState.targetScale = 1;
+            pixel.scaleState.shrinking = false;
+            needsRender = true;
+          } else {
+            // Linear interpolation from startScale to 1 over 1 second
+            pixel.scaleState.scale = lerp(pixel.scaleState.startScale, 1, elapsed / 1.0);
+            pixel.scaleState.targetScale = 1;
+            needsRender = true;
+          }
+        }
+
+        // Apply scale to mesh
+        pixel.mesh.scale.set(pixel.scaleState.scale, pixel.scaleState.scale, 1);
+      }
+    } else {
+      // If radar info not provided, ensure all pixels are normal size
+      for (const [id, pixel] of playerPixels) {
+        if (pixel.scaleState.scale !== 1) {
+          pixel.scaleState.scale = 1;
+          pixel.scaleState.targetScale = 1;
+          pixel.scaleState.lastIlluminated = false;
+          pixel.scaleState.shrinking = false;
+          pixel.mesh.scale.set(1, 1, 1);
+          needsRender = true;
+        }
+      }
+    }
+
+    // 4. Animate all player pixels (position)
     for (const [id, pixel] of playerPixels) {
       let t = Math.min(1, (now - pixel.anim.start) / pixel.anim.duration);
       let curX, curY;

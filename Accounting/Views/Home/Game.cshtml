@@ -11,9 +11,6 @@
   }
 </script>
 
-<p>Requires 51% vote of active IPs within any 5 minutes. Composite IP votes require 51% for that IP.</p>
-<a href="/Home/StartWar" class="">Declare War</a>
-<a href="/Home/Alliance" class="">Form Alliance</a>
 <div id="app" class="width-100 height-500px margin-bottom-5px"></div>
 
 <script type="module">
@@ -201,10 +198,16 @@
   function animate(now) {
     now = now || performance.now();
 
-    let needsRender = playerAPI.updatePlayers(now);
-
     // --- Radar update (scanning line and gradient) ---
     radar.update();
+
+    // --- Radar sweep illumination for players ---
+    const scanLineX = radar.getScanLineX();
+    const gradientWidth = 500; // Must match radar's gradientWidth
+    const gradientLeft = scanLineX - gradientWidth;
+    const gradientRight = scanLineX;
+
+    let needsRender = playerAPI.updatePlayers(now, {gradientLeft, gradientRight});
 
     renderer.render(scene, camera);
     playerAPI.setNeedsRender(false);
