@@ -21,6 +21,14 @@
     <label asp-for="Email" class="background-color-antiquewhite"></label>
     <input asp-for="Email" class="margin-bottom-5px font-size-20px" />
   </div>
+
+  <div class="display-flex flex-direction-column margin-bottom-5px">
+    <label asp-for="Password" class="background-color-antiquewhite">Password</label>
+    <input asp-for="Password"
+           class="font-size-20px"
+           maxlength="100" autocomplete="off" type="password" />
+  </div>
+
   <button type="submit" class="full-width-regular-button">Create user</button>
 </form>
 

@@ -273,9 +273,9 @@ namespace Accounting.Controllers
 
     [HttpPost]
     [Route("create")]
-    public async Task<ActionResult> Create(Models.UserViewModels.CreateUserViewModel model)
+    public async Task<ActionResult> Create(CreateUserViewModel model)
     {
-      Models.UserViewModels.CreateUserViewModel.CreateUserViewModelValidator validator = new();
+      CreateUserViewModel.CreateUserViewModelValidator validator = new();
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
       if (!validationResult.IsValid)

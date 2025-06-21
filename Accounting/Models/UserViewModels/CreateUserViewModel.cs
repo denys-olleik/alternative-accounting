@@ -6,6 +6,7 @@ namespace Accounting.Models.UserViewModels
   public class CreateUserViewModel
   {
     public string? Email { get; set; }
+    public string? Password { get; set; }
 
     public ValidationResult ValidationResult { get; set; } = new();
 
@@ -17,6 +18,10 @@ namespace Accounting.Models.UserViewModels
           .Cascade(CascadeMode.Stop)
           .NotEmpty()
           .EmailAddress();
+
+        RuleFor(x => x.Password)
+          .Cascade(CascadeMode.Stop)
+          .NotEmpty();
       }
     }
   }
