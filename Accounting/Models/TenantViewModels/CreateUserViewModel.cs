@@ -47,6 +47,9 @@ namespace Accounting.Models.TenantViewModels
           RuleFor(x => x.LastName)
               .NotEmpty().WithMessage("Last name is required.");
 
+          RuleFor(x => x.Password)
+              .NotEmpty().WithMessage("Password is required.");
+
           When(x => !string.IsNullOrEmpty(x.Password) || !string.IsNullOrEmpty(x.ConfirmPassword), () =>
           {
             RuleFor(x => x.Password)
