@@ -304,7 +304,7 @@ namespace Accounting.Controllers
           Email = model.Email,
           FirstName = existingUser2?.FirstName,
           LastName = existingUser2?.LastName,
-          Password = existingUser2?.Password,
+          Password = existingUser2?.Password ?? model.Password,
           CreatedById = GetUserId()
         });
 
