@@ -434,8 +434,8 @@ namespace Accounting.Controllers
     [Route("create-user/{tenantId}")]
     [HttpPost]
     public async Task<IActionResult> CreateUser(
-    CreateUserViewModel model,
-    string tenantId)
+      CreateUserViewModel model,
+      string tenantId)
     {
       Tenant tenant = await _tenantService.GetAsync(int.Parse(tenantId));
 
@@ -502,12 +502,18 @@ namespace Accounting.Controllers
           Password = hashedPassword
         }, tenant.DatabaseName, tenant.DatabasePassword);
 
+        var claimTenant = tenantExistingUserBelongsTo ?? tenant;
+        var claimService = new ClaimService(claimTenant.DatabaseName, claimTenant.DatabasePassword);
+
         if (!string.IsNullOrEmpty(model.SelectedOrganizationIdsCsv))
         {
           var selectedOrganizationIds = model.SelectedOrganizationIdsCsv.Split(',').Select(int.Parse);
           foreach (var organizationId in selectedOrganizationIds)
           {
             await _userOrganizationService.CreateAsync(user.UserID, organizationId, tenant.DatabaseName!, tenant.DatabasePassword);
+
+            await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.RoleManager);
+            await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.OrganizationManager);
           }
         }
 
