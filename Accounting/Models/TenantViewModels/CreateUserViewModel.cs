@@ -14,7 +14,9 @@ namespace Accounting.Models.TenantViewModels
     public string SelectedOrganizationIdsCsv { get; set; }
     public ValidationResult ValidationResult { get; set; } = new ValidationResult();
     public UserViewModel? ExistingUser { get; set; }
-    public List<OrganizationViewModel> AvailableOrganizations { get; internal set; }
+    public List<OrganizationViewModel> AvailableOrganizations { get; set; } = new();
+    public List<string> AvailableRoles { get; set; } = new();
+    public List<string> SelectedRoles { get; set; } = new();
 
     public class OrganizationViewModel
     {
