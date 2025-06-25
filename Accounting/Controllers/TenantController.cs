@@ -406,36 +406,10 @@ namespace Accounting.Controllers
     }
 
     [Route("create-user/{tenantId}")]
-    [HttpGet]
-    public async Task<IActionResult> CreateUser(string tenantId)
-    {
-      Tenant tenant = await _tenantService.GetAsync(int.Parse(tenantId));
-
-      if (tenant == null)
-      {
-        return NotFound();
-      }
-
-      var organizations = await _organizationService.GetAllAsync(tenant.DatabaseName!, tenant.DatabasePassword);
-
-      CreateUserViewModel model = new CreateUserViewModel
-      {
-        TenantId = tenant.TenantID,
-        AvailableOrganizations = organizations.Select(x => new CreateUserViewModel.OrganizationViewModel
-        {
-          OrganizationID = x.OrganizationID,
-          Name = x.Name
-        }).ToList()
-      };
-
-      return View(model);
-    }
-
-    [Route("create-user/{tenantId}")]
     [HttpPost]
     public async Task<IActionResult> CreateUser(
-      CreateUserViewModel model,
-      string tenantId)
+  CreateUserViewModel model,
+  string tenantId)
     {
       Tenant tenant = await _tenantService.GetAsync(int.Parse(tenantId));
 
@@ -489,6 +463,20 @@ namespace Accounting.Controllers
         return View(model);
       }
 
+      // --- Begin: Ensure user can only assign roles they have ---
+      if (model.SelectedRoles != null)
+      {
+        foreach (var role in model.SelectedRoles)
+        {
+          if (!User.IsInRole(role))
+          {
+            model.ValidationResult.Errors.Add(new ValidationFailure("SelectedRoles", $"You cannot assign the {role} role because you do not have it."));
+            return View(model);
+          }
+        }
+      }
+      // --- End: Ensure user can only assign roles they have ---
+
       string? hashedPassword = model.ExistingUser?.Password ??
                                (model.Password != null ? PasswordStorage.CreateHash(model.Password) : null);
 
@@ -514,6 +502,15 @@ namespace Accounting.Controllers
 
             await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.RoleManager);
             await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.OrganizationManager);
+
+            // Assign additional roles if provided and permitted
+            if (model.SelectedRoles != null)
+            {
+              foreach (var role in model.SelectedRoles)
+              {
+                await claimService.CreateRoleAsync(user.UserID, organizationId, role);
+              }
+            }
           }
         }
 
