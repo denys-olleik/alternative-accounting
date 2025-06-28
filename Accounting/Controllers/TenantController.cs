@@ -347,32 +347,6 @@ namespace Accounting.Controllers
       return View(model);
     }
 
-    [Route("create-user/{tenantId}")]
-    [HttpGet]
-    public async Task<IActionResult> CreateUser(string tenantId)
-    {
-      Tenant tenant = await _tenantService.GetAsync(int.Parse(tenantId));
-
-      if (tenant == null)
-      {
-        return NotFound();
-      }
-
-      var organizations = await _organizationService.GetAllAsync(tenant.DatabaseName!, tenant.DatabasePassword);
-
-      CreateUserViewModel model = new CreateUserViewModel
-      {
-        TenantId = tenant.TenantID,
-        AvailableOrganizations = organizations.Select(x => new CreateUserViewModel.OrganizationViewModel
-        {
-          OrganizationID = x.OrganizationID,
-          Name = x.Name
-        }).ToList()
-      };
-
-      return View(model);
-    }
-
     [Route("update-user/{tenantId}/{userId}")]
     [HttpPost]
     public async Task<IActionResult> UpdateUser(
@@ -429,6 +403,32 @@ namespace Accounting.Controllers
       );
 
       return RedirectToAction("TenantUsers", new { tenantId });
+    }
+
+    [Route("create-user/{tenantId}")]
+    [HttpGet]
+    public async Task<IActionResult> CreateUser(string tenantId)
+    {
+      Tenant tenant = await _tenantService.GetAsync(int.Parse(tenantId));
+
+      if (tenant == null)
+      {
+        return NotFound();
+      }
+
+      var organizations = await _organizationService.GetAllAsync(tenant.DatabaseName!, tenant.DatabasePassword);
+
+      CreateUserViewModel model = new CreateUserViewModel
+      {
+        TenantId = tenant.TenantID,
+        AvailableOrganizations = organizations.Select(x => new CreateUserViewModel.OrganizationViewModel
+        {
+          OrganizationID = x.OrganizationID,
+          Name = x.Name
+        }).ToList()
+      };
+
+      return View(model);
     }
 
     [Route("create-user/{tenantId}")]
