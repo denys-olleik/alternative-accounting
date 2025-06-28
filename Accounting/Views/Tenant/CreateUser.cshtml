@@ -115,7 +115,9 @@
     data() {
       return {
         organizations: @Html.Raw(Json.Serialize(Model.AvailableOrganizations)),
-        selectedOrganizationIds: @Html.Raw(Json.Serialize(Model.SelectedOrganizationIdsCsv?.Split(',') ?? []))
+        roles: @Html.Raw(Json.Serialize(Model.AvailableRoles)),
+        selectedOrganizationIds: @Html.Raw(Json.Serialize(Model.SelectedOrganizationIdsCsv?.Split(',') ?? [])),
+        selectedRoles: @Html.Raw(Json.Serialize(Model.SelectedRoles ?? new List<string>()))
       };
     },
     methods: {

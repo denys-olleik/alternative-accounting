@@ -428,6 +428,16 @@ namespace Accounting.Controllers
         }).ToList()
       };
 
+      // Set available roles
+      model.AvailableRoles = new List<string>
+      {
+        UserRoleClaimConstants.TenantManager,
+        UserRoleClaimConstants.RoleManager,
+        UserRoleClaimConstants.OrganizationManager
+      };
+
+      model.SelectedRoles = new List<string>();
+
       return View(model);
     }
 
