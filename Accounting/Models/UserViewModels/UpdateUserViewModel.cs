@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Accounting.Models.UserViewModels
 {
@@ -28,13 +30,16 @@ namespace Accounting.Models.UserViewModels
       set => lastName = value?.Trim();
     }
 
-    public List<OrganizationViewModel> AvailableOrganizations { get; set; } = new ();
-    public List<string> AvailableRoles { get; set; } = new ();
-    public List<string> SelectedRoles { get; set; } = new ();
+    public List<OrganizationViewModel> AvailableOrganizations { get; set; } = new();
+    public List<string> AvailableRoles { get; set; } = new();
+    public List<string> SelectedRoles { get; set; } = new();
     public string? SelectedOrganizationIdsCsv { get; set; }
 
     public int CurrentRequestingUserId { get; set; }
     public ValidationResult ValidationResult { get; set; } = new();
+
+    // roles as they are in the database
+    public List<string> OriginalRoles { get; set; } = new();
 
     public class OrganizationViewModel
     {
@@ -46,35 +51,7 @@ namespace Accounting.Models.UserViewModels
     {
       public UpdateUserViewModelValidator()
       {
-        RuleFor(x => x.UserID).GreaterThan(0);
-        RuleFor(x => x.Email).EmailAddress().NotEmpty();
-
-        RuleFor(x => x)
-          .Custom((model, context) =>
-          {
-            var selectedRoles = model.SelectedRoles ?? new List<string>();
-
-            // If TenantManager is selected, at least one organization must be selected
-            if (selectedRoles.Contains(Common.UserRoleClaimConstants.TenantManager))
-            {
-              var orgIds = (model.SelectedOrganizationIdsCsv ?? "")
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(id => id.Trim())
-                .Where(id => !string.IsNullOrEmpty(id))
-                .ToList();
-
-              if (orgIds.Count == 0)
-              {
-                context.AddFailure("SelectedOrganizationIdsCsv", "At least one organization must be selected when assigning the TenantManager role.");
-              }
-
-              // If TenantManager is selected, RoleManager must also be selected
-              if (!selectedRoles.Contains(Common.UserRoleClaimConstants.RoleManager))
-              {
-                context.AddFailure("SelectedRoles", "RoleManager role must also be assigned when assigning the TenantManager role.");
-              }
-            }
-          });
+        RuleFor(x => x.Email).EmailAddress().NotEmpty();        
       }
     }
   }

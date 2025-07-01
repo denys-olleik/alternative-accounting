@@ -27,6 +27,7 @@
 
   <input type="hidden" asp-for="SelectedOrganizationIdsCsv" :value="selectedOrganizationIds.join(',')" />
   <input type="hidden" name="Email" value="@Model.Email" id="HiddenEmail" />
+  <input type="hidden" name="OriginalRoles" :value="originalRoles.join(',')" />
 
   <div v-for="role in selectedRoles" :key="'hidden-role-' + role">
     <input type="hidden" name="SelectedRoles" :value="role" />
@@ -113,6 +114,7 @@
         roles: @Html.Raw(Json.Serialize(Model.AvailableRoles)),
         selectedOrganizationIds: @Html.Raw(Json.Serialize(Model.SelectedOrganizationIdsCsv?.Split(',') ?? [])),
         selectedRoles: @Html.Raw(Json.Serialize(Model.SelectedRoles ?? new List<string>())),
+        originalRoles: @Html.Raw(Json.Serialize(Model.OriginalRoles ?? new List<string>())),
         isRoleManager: @User.IsInRole(Accounting.Common.UserRoleClaimConstants.RoleManager).ToString().ToLower(),
         isOrganizationManager: @User.IsInRole(Accounting.Common.UserRoleClaimConstants.OrganizationManager).ToString().ToLower()
       };
