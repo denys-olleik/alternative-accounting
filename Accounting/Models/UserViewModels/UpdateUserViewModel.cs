@@ -52,7 +52,10 @@ namespace Accounting.Models.UserViewModels
         RuleFor(x => x)
           .Custom((model, context) =>
           {
-            if (model.SelectedRoles != null && model.SelectedRoles.Contains(Common.UserRoleClaimConstants.TenantManager))
+            var selectedRoles = model.SelectedRoles ?? new List<string>();
+
+            // If TenantManager is selected, at least one organization must be selected
+            if (selectedRoles.Contains(Common.UserRoleClaimConstants.TenantManager))
             {
               var orgIds = (model.SelectedOrganizationIdsCsv ?? "")
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -63,6 +66,12 @@ namespace Accounting.Models.UserViewModels
               if (orgIds.Count == 0)
               {
                 context.AddFailure("SelectedOrganizationIdsCsv", "At least one organization must be selected when assigning the TenantManager role.");
+              }
+
+              // If TenantManager is selected, RoleManager must also be selected
+              if (!selectedRoles.Contains(Common.UserRoleClaimConstants.RoleManager))
+              {
+                context.AddFailure("SelectedRoles", "RoleManager role must also be assigned when assigning the TenantManager role.");
               }
             }
           });
