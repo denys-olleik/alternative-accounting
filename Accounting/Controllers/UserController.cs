@@ -176,7 +176,8 @@ namespace Accounting.Controllers
 
           if (model.SelectedRoles.Contains(role) && roleClaim == null)
           {
-            await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
+            if(User.IsInRole(role))
+              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
           }
           else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
           {
