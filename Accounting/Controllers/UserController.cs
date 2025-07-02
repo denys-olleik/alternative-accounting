@@ -128,20 +128,6 @@ namespace Accounting.Controllers
         model.SelectedRoles = await claimService.GetUserRolesAsync(model.UserID, GetOrganizationId(), Claim.CustomClaimTypeConstants.Role);
       }
 
-      // Set OriginalRoles from OriginalRolesCsv if available and non-empty, else from SelectedRoles
-      if (!string.IsNullOrWhiteSpace(model.OriginalRolesCsv))
-      {
-        model.OriginalRoles = model.OriginalRolesCsv
-            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(r => r.Trim())
-            .Where(r => !string.IsNullOrEmpty(r))
-            .ToList();
-      }
-      else
-      {
-        model.OriginalRoles = model.SelectedRoles?.ToList() ?? new List<string>();
-      }
-
       // Set current requesting user id
       model.CurrentRequestingUserId = GetUserId();
     }
@@ -180,30 +166,6 @@ namespace Accounting.Controllers
         if (user.UserID == GetUserId())
         {
           await _tenantService.UpdateUserAsync(user.Email!, model.FirstName!, model.LastName!);
-        }
-
-        // Add new roles
-        foreach (var role in model.SelectedRoles ?? new List<string>())
-        {
-          if (!(model.OriginalRoles?.Contains(role) ?? false))
-          {
-            if (User.IsInRole(role))
-            {
-              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
-            }
-          }
-        }
-
-        // Remove roles that are no longer selected
-        foreach (var role in model.OriginalRoles ?? new List<string>())
-        {
-          if (!(model.SelectedRoles?.Contains(role) ?? false))
-          {
-            if (User.IsInRole(role))
-            {
-              await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId(), role);
-            }
-          }
         }
 
         scope.Complete();
