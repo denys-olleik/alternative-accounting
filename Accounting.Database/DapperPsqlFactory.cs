@@ -8031,6 +8031,30 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public async Task<int> DeleteClaimAsync(int userID, string key, string value, int organizationId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@UserId", userID);
+        p.Add("@ClaimType", key);
+        p.Add("@ClaimValue", value);
+        p.Add("@OrganizationId", organizationId);
+
+        int rowsAffected;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          rowsAffected = await con.ExecuteAsync("""
+            DELETE FROM "Claim" 
+            WHERE "UserId" = @UserId
+            AND "ClaimType" = @ClaimType
+            AND "ClaimValue" = @ClaimValue
+            AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return rowsAffected;
+      }
+
       public async Task<int> DeleteRoles(int userId, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();

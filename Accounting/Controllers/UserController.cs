@@ -128,6 +128,11 @@ namespace Accounting.Controllers
         model.SelectedRoles = await claimService.GetUserRolesAsync(model.UserID, GetOrganizationId(), Claim.CustomClaimTypeConstants.Role);
       }
 
+      // Set OriginalRoles to a copy of SelectedRoles (as they exist in DB)
+      model.OriginalRoles = model.SelectedRoles != null
+        ? new List<string>(model.SelectedRoles)
+        : new List<string>();
+
       // Set current requesting user id
       model.CurrentRequestingUserId = GetUserId();
     }
@@ -156,7 +161,45 @@ namespace Accounting.Controllers
     [Route("update/{userId}")]
     public async Task<IActionResult> UpdateUser(UpdateUserViewModel model)
     {
-      throw new NotImplementedException();
+      User existingUser = await _userService.GetAsync(model.Email);
+
+      if (existingUser == null) return NotFound();
+
+      using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+      {
+        if (existingUser.UserID == GetUserId())
+        {
+          await _tenantService.UpdateUserAsync(existingUser.Email!, model.FirstName!, model.LastName!);
+        }
+
+        // if sequence is different it means roles were added or removed.
+        if (!model.SelectedRoles.OrderBy(r => r).SequenceEqual(model.OriginalRoles.OrderBy(r => r)))
+        {
+          // Add new roles
+          foreach (var role in model.SelectedRoles)
+          {
+            if (!model.OriginalRoles.Contains(role))
+            {
+              // Role was added
+              await _claimService.CreateRoleAsync(existingUser.UserID, GetOrganizationId(), role);
+            }
+          }
+
+          // Remove roles that are no longer selected
+          foreach (var role in model.OriginalRoles)
+          {
+            if (!model.SelectedRoles.Contains(role))
+            {
+              // Role was removed
+              await _claimService.RemoveRoleAsync(existingUser.UserID, GetOrganizationId(), role);
+            }
+          }
+        }
+
+        scope.Complete();
+      }
+
+      return Ok();
     }
 
     [Route("users")]

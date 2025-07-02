@@ -27,7 +27,7 @@
 
   <input type="hidden" asp-for="SelectedOrganizationIdsCsv" :value="selectedOrganizationIds.join(',')" />
   <input type="hidden" name="Email" value="@Model.Email" id="HiddenEmail" />
-  <input type="hidden" name="OriginalRoles" :value="originalRoles.join(',')" />
+  <input type="hidden" name="OriginalRolesCsv" :value="originalRoles.join(',')" />
 
   <div v-for="role in selectedRoles" :key="'hidden-role-' + role">
     <input type="hidden" name="SelectedRoles" :value="role" />

@@ -45,6 +45,13 @@ namespace Accounting.Service
       }
     }
 
+    public async Task RemoveRoleAsync(int userID, int organizationId, string role)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      var claimManager = factoryManager.GetClaimManager();
+      await claimManager.DeleteClaimAsync(userID, Claim.CustomClaimTypeConstants.Role, role, organizationId);
+    }
+
     public async Task<int> UpdateUserRolesAsync(int userID, List<string> selectedRoles, int organizationId, int createdById)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);

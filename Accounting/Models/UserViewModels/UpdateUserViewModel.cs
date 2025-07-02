@@ -33,13 +33,13 @@ namespace Accounting.Models.UserViewModels
     public List<OrganizationViewModel> AvailableOrganizations { get; set; } = new();
     public List<string> AvailableRoles { get; set; } = new();
     public List<string> SelectedRoles { get; set; } = new();
+    // roles as they are in the database
+    public List<string> OriginalRoles { get; set; } = new();
+    public string? OriginalRolesCsv { get; set; }
     public string? SelectedOrganizationIdsCsv { get; set; }
 
     public int CurrentRequestingUserId { get; set; }
     public ValidationResult ValidationResult { get; set; } = new();
-
-    // roles as they are in the database
-    public List<string> OriginalRoles { get; set; } = new();
 
     public class OrganizationViewModel
     {
@@ -51,7 +51,7 @@ namespace Accounting.Models.UserViewModels
     {
       public UpdateUserViewModelValidator()
       {
-        RuleFor(x => x.Email).EmailAddress().NotEmpty();        
+        
       }
     }
   }
