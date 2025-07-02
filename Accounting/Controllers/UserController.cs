@@ -182,25 +182,25 @@ namespace Accounting.Controllers
           await _tenantService.UpdateUserAsync(user.Email!, model.FirstName!, model.LastName!);
         }
 
-        // if sequence is different it means roles were added or removed.
-        if (!model.SelectedRoles.OrderBy(r => r).SequenceEqual(model.OriginalRoles.OrderBy(r => r)))
+        // Add new roles
+        foreach (var role in model.SelectedRoles ?? new List<string>())
         {
-          // Add new roles
-          foreach (var role in model.SelectedRoles)
+          if (!(model.OriginalRoles?.Contains(role) ?? false))
           {
-            if (!model.OriginalRoles.Contains(role))
+            if (User.IsInRole(role))
             {
-              // Role was added
               await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
             }
           }
+        }
 
-          // Remove roles that are no longer selected
-          foreach (var role in model.OriginalRoles)
+        // Remove roles that are no longer selected
+        foreach (var role in model.OriginalRoles ?? new List<string>())
+        {
+          if (!(model.SelectedRoles?.Contains(role) ?? false))
           {
-            if (!model.SelectedRoles.Contains(role))
+            if (User.IsInRole(role))
             {
-              // Role was removed
               await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId(), role);
             }
           }
