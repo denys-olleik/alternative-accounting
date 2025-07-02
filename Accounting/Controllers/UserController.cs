@@ -128,10 +128,19 @@ namespace Accounting.Controllers
         model.SelectedRoles = await claimService.GetUserRolesAsync(model.UserID, GetOrganizationId(), Claim.CustomClaimTypeConstants.Role);
       }
 
-      // Set OriginalRoles to a copy of SelectedRoles (as they exist in DB)
-      model.OriginalRoles = model.SelectedRoles != null
-        ? new List<string>(model.SelectedRoles)
-        : new List<string>();
+      // Set OriginalRoles from OriginalRolesCsv if available and non-empty, else from SelectedRoles
+      if (!string.IsNullOrWhiteSpace(model.OriginalRolesCsv))
+      {
+        model.OriginalRoles = model.OriginalRolesCsv
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(r => r.Trim())
+            .Where(r => !string.IsNullOrEmpty(r))
+            .ToList();
+      }
+      else
+      {
+        model.OriginalRoles = model.SelectedRoles?.ToList() ?? new List<string>();
+      }
 
       // Set current requesting user id
       model.CurrentRequestingUserId = GetUserId();
@@ -161,15 +170,16 @@ namespace Accounting.Controllers
     [Route("update/{userId}")]
     public async Task<IActionResult> UpdateUser(UpdateUserViewModel model)
     {
-      User existingUser = await _userService.GetAsync(model.Email);
+      User user = await _userService.GetAsync(model.UserID);
+      if (user == null) return NotFound();
 
-      if (existingUser == null) return NotFound();
+      await PopulateUpdateUserViewModelAsync(model);
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        if (existingUser.UserID == GetUserId())
+        if (user.UserID == GetUserId())
         {
-          await _tenantService.UpdateUserAsync(existingUser.Email!, model.FirstName!, model.LastName!);
+          await _tenantService.UpdateUserAsync(user.Email!, model.FirstName!, model.LastName!);
         }
 
         // if sequence is different it means roles were added or removed.
@@ -181,7 +191,7 @@ namespace Accounting.Controllers
             if (!model.OriginalRoles.Contains(role))
             {
               // Role was added
-              await _claimService.CreateRoleAsync(existingUser.UserID, GetOrganizationId(), role);
+              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
             }
           }
 
@@ -191,7 +201,7 @@ namespace Accounting.Controllers
             if (!model.SelectedRoles.Contains(role))
             {
               // Role was removed
-              await _claimService.RemoveRoleAsync(existingUser.UserID, GetOrganizationId(), role);
+              await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId(), role);
             }
           }
         }
@@ -199,7 +209,7 @@ namespace Accounting.Controllers
         scope.Complete();
       }
 
-      return Ok();
+      return RedirectToAction("Users");
     }
 
     [Route("users")]
