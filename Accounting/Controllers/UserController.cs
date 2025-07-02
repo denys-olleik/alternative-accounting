@@ -6,6 +6,7 @@ using Accounting.Service;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Abstractions;
 using System.Transactions;
 
 namespace Accounting.Controllers
@@ -166,6 +167,22 @@ namespace Accounting.Controllers
         if (user.UserID == GetUserId())
         {
           await _tenantService.UpdateUserAsync(user.Email!, model.FirstName!, model.LastName!);
+        }
+
+        foreach (var role in model.AvailableRoles)
+        {
+          Claim roleClaim = await _claimService.GetAsync(user.UserID, GetDatabaseName(), role);
+          int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId());
+
+          if (model.SelectedRoles.Contains(role) && roleClaim == null)
+          {
+            await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
+          }
+          else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
+          {
+            if (count > 1)
+              await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId(), role);
+          }
         }
 
         scope.Complete();
