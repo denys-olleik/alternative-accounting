@@ -169,20 +169,23 @@ namespace Accounting.Controllers
           await _tenantService.UpdateUserAsync(user.Email!, model.FirstName!, model.LastName!);
         }
 
-        foreach (var role in model.AvailableRoles)
+        if (User.IsInRole(UserRoleClaimConstants.RoleManager))
         {
-          Claim roleClaim = await _claimService.GetAsync(user.UserID, GetDatabaseName(), role);
-          int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId()!.Value);
+          foreach (var role in model.AvailableRoles)
+          {
+            Claim roleClaim = await _claimService.GetAsync(user.UserID, GetDatabaseName(), role);
+            int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId()!.Value);
 
-          if (model.SelectedRoles.Contains(role) && roleClaim == null)
-          {
-            if (User.IsInRole(role))
-              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
-          }
-          else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
-          {
-            if (count > 1)
-              await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
+            if (model.SelectedRoles.Contains(role) && roleClaim == null)
+            {
+              if (User.IsInRole(role)  && await UserInAnyOrganization(user.UserID))
+                await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
+            }
+            else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
+            {
+              if (count > 1)
+                await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
+            }
           }
         }
 
@@ -190,6 +193,12 @@ namespace Accounting.Controllers
       }
 
       return RedirectToAction("Users");
+    }
+
+    private async Task<bool> UserInAnyOrganization(int userId)
+    {
+      var userOrganizations = await _userOrganizationService.GetByUserIdAsync(userId, GetDatabaseName(), GetDatabasePassword());
+      return userOrganizations.Any();
     }
 
     [Route("users")]
