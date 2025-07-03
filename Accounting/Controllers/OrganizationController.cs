@@ -50,7 +50,7 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Update()
     {
-      Organization organization = await _organizationService.GetAsync(GetOrganizationId(), GetDatabaseName(), GetDatabasePassword());
+      Organization organization = await _organizationService.GetAsync(GetOrganizationId()!.Value, GetDatabaseName(), GetDatabasePassword());
 
       if (organization == null)
       {
@@ -86,7 +86,7 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        var organizationId = GetOrganizationId();
+        var organizationId = GetOrganizationId()!.Value;
 
         await _organizationService.UpdateNameAsync(organizationId, model.Name!);
         await _organizationService.UpdateAddressAsync(organizationId, model.Address!);

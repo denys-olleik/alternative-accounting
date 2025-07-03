@@ -23,7 +23,7 @@ namespace Accounting.Controllers
     [HttpGet("get-customers")]
     public async Task<IActionResult> GetCustomers(int page = 1, int pageSize = 2)
     {
-      var (businessEntities, nextPageNumber) = await _businessEntityService.GetAllAsync(page, pageSize, GetOrganizationId());
+      var (businessEntities, nextPageNumber) = await _businessEntityService.GetAllAsync(page, pageSize, GetOrganizationId()!.Value);
 
       var getCustomersViewModel = new GetBusinessEntitiesViewModel
       {

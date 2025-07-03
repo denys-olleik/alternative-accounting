@@ -45,7 +45,7 @@ namespace Accounting.Controllers
 
       using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        List<JournalReconciliationTransaction> lastTransaction = await _journalReconciliationTransactionService.GetLastRelevantTransactionsAsync(reconciliationTransaction.ReconciliationTransactionID, GetOrganizationId(), true);
+        List<JournalReconciliationTransaction> lastTransaction = await _journalReconciliationTransactionService.GetLastRelevantTransactionsAsync(reconciliationTransaction.ReconciliationTransactionID, GetOrganizationId()!.Value, true);
 
         if (lastTransaction.Any() && !lastTransaction.Any(x => x.ReversedJournalReconciliationTransactionId.HasValue))
         {
@@ -57,7 +57,7 @@ namespace Accounting.Controllers
               Debit = entry.Journal!.Credit,
               Credit = entry.Journal!.Debit,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId()
+              OrganizationId = GetOrganizationId()!.Value
             });
 
             await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction()
@@ -67,7 +67,7 @@ namespace Accounting.Controllers
               TransactionGuid = transactionGuid,
               ReversedJournalReconciliationTransactionId = entry.JournalReconciliationTransactionID,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId(),
+              OrganizationId = GetOrganizationId()!.Value,
             });
           }
 
@@ -89,7 +89,7 @@ namespace Accounting.Controllers
     {
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        await _reconciliationService.ProcessAsync(reconciliationId, GetOrganizationId());
+        await _reconciliationService.ProcessAsync(reconciliationId, GetOrganizationId()!.Value);
 
         scope.Complete();
       }

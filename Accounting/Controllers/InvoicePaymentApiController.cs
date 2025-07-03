@@ -37,7 +37,7 @@ namespace Accounting.Controllers
         .GetAllAsync(
           page,
           pageSize,
-          GetOrganizationId(),
+          GetOrganizationId()!.Value,
           new List<string>() {
             TypesToLoadConstants.Invoice,
             TypesToLoadConstants.Payment
@@ -48,7 +48,7 @@ namespace Accounting.Controllers
         invoicePayment.Invoice!.BusinessEntity
           = await _businessEntityService.GetAsync(
             invoicePayment.Invoice.BusinessEntityId,
-            GetOrganizationId());
+            GetOrganizationId()!.Value);
       }
 
       GetInvoicePaymentsApiViewModel getInvoicePaymentsViewModel = new GetInvoicePaymentsApiViewModel
@@ -96,14 +96,14 @@ namespace Accounting.Controllers
         pageSize,
         customerSearchQuery,
         new List<string>() { TypesToLoadConstants.Invoice, TypesToLoadConstants.Payment },
-        GetOrganizationId());
+        GetOrganizationId()!.Value);
 
       foreach (var invoicePayment in invoicePayments)
       {
         invoicePayment.Invoice!.BusinessEntity
           = await _businessEntityService.GetAsync(
             invoicePayment.Invoice.BusinessEntityId,
-            GetOrganizationId());
+            GetOrganizationId()!.Value);
       }
 
       SearchInvoicePaymentsApiViewModel searchInvoicePaymentsViewModel = new SearchInvoicePaymentsApiViewModel

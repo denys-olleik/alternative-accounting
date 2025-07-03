@@ -55,7 +55,7 @@ namespace Accounting.Controllers
     public async Task<IActionResult> ReceivePaymentForInvoiceIds(string invoiceIdsCsv)
     {
       List<Invoice> invoices = await FetchInvoices(invoiceIdsCsv);  
-      List<Account> debitAccounts = await _accountService.GetAssetAccounts(GetOrganizationId());
+      List<Account> debitAccounts = await _accountService.GetAssetAccounts(GetOrganizationId()!.Value);
 
       var model = CreateReceivePaymentForInvoiceIdsViewModel(invoices, debitAccounts);
       return View(model);
@@ -71,7 +71,7 @@ namespace Accounting.Controllers
       {
         string invoiceIdsCsv = string.Join(",", model.Invoices.Select(i => i.InvoiceId.ToString()));
         List<Invoice> latestInvoices = await FetchInvoices(invoiceIdsCsv);
-        List<Account> debitAccounts = await _accountService.GetAssetAccounts(GetOrganizationId());
+        List<Account> debitAccounts = await _accountService.GetAssetAccounts(GetOrganizationId()!.Value);
 
         model = RebuildInvalidModel(model, latestInvoices, debitAccounts, validationResult);
         return View(model);
@@ -84,7 +84,7 @@ namespace Accounting.Controllers
           ReferenceNumber = model.ReferenceNumber,
           Amount = model.PaymentTotal,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId()
+          OrganizationId = GetOrganizationId()!.Value
         });
 
         Guid transactionGuid = GuidExtensions.CreateSecureGuid();
@@ -100,10 +100,10 @@ namespace Accounting.Controllers
               PaymentId = payment.PaymentID,
               Amount = invoiceLine.AmountToReceive!.Value,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId(),
+              OrganizationId = GetOrganizationId()!.Value,
             });
 
-            var debitAccount = await _accountService.GetAsync(int.Parse(model.SelectedDebitAccountId!), GetOrganizationId());
+            var debitAccount = await _accountService.GetAsync(int.Parse(model.SelectedDebitAccountId!), GetOrganizationId()!.Value);
 
             // Debit Entry
             var debitGlEntry = await _journalService.CreateAsync(new Journal()
@@ -112,7 +112,7 @@ namespace Accounting.Controllers
               Debit = invoiceLine.AmountToReceive,
               Credit = null,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId()
+              OrganizationId = GetOrganizationId()!.Value
             });
 
             // Credit Entry
@@ -122,7 +122,7 @@ namespace Accounting.Controllers
               Debit = null,
               Credit = invoiceLine.AmountToReceive,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId()
+              OrganizationId = GetOrganizationId()!.Value
             });
 
             await _journalInvoicePaymentService.CreateAsync(new JournalInvoiceInvoiceLinePayment()
@@ -131,7 +131,7 @@ namespace Accounting.Controllers
               InvoiceInvoiceLinePaymentId = ip.InvoiceInvoiceLinePaymentID,
               TransactionGuid = transactionGuid,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId()
+              OrganizationId = GetOrganizationId()!.Value
             });
 
             await _journalInvoicePaymentService.CreateAsync(new JournalInvoiceInvoiceLinePayment()
@@ -140,12 +140,12 @@ namespace Accounting.Controllers
               InvoiceInvoiceLinePaymentId = ip.InvoiceInvoiceLinePaymentID,
               TransactionGuid = transactionGuid,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId()
+              OrganizationId = GetOrganizationId()!.Value
             });
           }
 
-          await _invoiceService.ComputeAndUpdateInvoiceStatus(invoice.InvoiceId, GetOrganizationId());
-          await _invoiceService.ComputeAndUpdateTotalAmountAndReceivedAmount(invoice.InvoiceId, GetOrganizationId());
+          await _invoiceService.ComputeAndUpdateInvoiceStatus(invoice.InvoiceId, GetOrganizationId()!.Value);
+          await _invoiceService.ComputeAndUpdateTotalAmountAndReceivedAmount(invoice.InvoiceId, GetOrganizationId()!.Value);
         }
 
         scope.Complete();
@@ -169,7 +169,7 @@ namespace Accounting.Controllers
 
     private async Task<ValidationResult> ValidateReceivePaymentForInvoiceIdsViewModel(ReceivePaymentForInvoiceIdsViewModel model, InvoiceService invoiceService)
     {
-      ReceivePaymentForInvoiceIdsViewModelValidator validator = new ReceivePaymentForInvoiceIdsViewModelValidator(GetOrganizationId(), invoiceService);
+      ReceivePaymentForInvoiceIdsViewModelValidator validator = new ReceivePaymentForInvoiceIdsViewModelValidator(GetOrganizationId()!.Value, invoiceService);
       return await validator.ValidateAsync(model);
     }
 
@@ -199,11 +199,11 @@ namespace Accounting.Controllers
 
     private async Task<List<Invoice>> FetchInvoices(string invoiceIdsCsv)
     {
-      List<Invoice> invoices = await _invoiceService.GetAsync(invoiceIdsCsv, GetOrganizationId());
+      List<Invoice> invoices = await _invoiceService.GetAsync(invoiceIdsCsv, GetOrganizationId()!.Value);
       foreach (var invoice in invoices)
       {
-        invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId());
-        invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId(), true);
+        invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId()!.Value);
+        invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId()!.Value, true);
       }
       return invoices;
     }

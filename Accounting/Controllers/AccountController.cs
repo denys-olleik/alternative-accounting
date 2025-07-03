@@ -30,7 +30,7 @@ namespace Accounting.Controllers
     [Route("delete/{accountId}")]
     public async Task<IActionResult> Delete(int accountId)
     {
-      Account account = await _accountService.GetAsync(accountId, GetOrganizationId());
+      Account account = await _accountService.GetAsync(accountId, GetOrganizationId()!.Value);
       if (account == null)
         return NotFound();
       DeleteAccountViewModel model = new DeleteAccountViewModel
@@ -45,7 +45,7 @@ namespace Accounting.Controllers
     [Route("delete/{accountId}")]
     public async Task<IActionResult> Delete(DeleteAccountViewModel model)
     {
-      await _accountService.DeleteAsync(model.AccountID, GetOrganizationId());
+      await _accountService.DeleteAsync(model.AccountID, GetOrganizationId()!.Value);
       return RedirectToAction("Accounts");
     }
 
@@ -76,7 +76,7 @@ namespace Accounting.Controllers
 
       if (parentAccountId.HasValue)
       {
-        parentAccount = await _accountService.GetAsync(parentAccountId.Value, GetOrganizationId());
+        parentAccount = await _accountService.GetAsync(parentAccountId.Value, GetOrganizationId()!.Value);
         if (parentAccount == null)
           return NotFound();
       }
@@ -117,7 +117,7 @@ namespace Accounting.Controllers
         Name = model.AccountName,
         Type = model.SelectedAccountType,
         ParentAccountId = model.ParentAccountId,
-        OrganizationId = GetOrganizationId(),
+        OrganizationId = GetOrganizationId()!.Value,
         CreatedById = GetUserId()
       };
 
@@ -130,14 +130,14 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Update(int accountId)
     {
-      Account account = await _accountService.GetAsync(accountId, GetOrganizationId());
+      Account account = await _accountService.GetAsync(accountId, GetOrganizationId()!.Value);
       if (account == null)
         return NotFound();
 
       Account? parentAccount = null;
 
       if (account.ParentAccountId.HasValue)
-        parentAccount = await _accountService.GetAsync(account.ParentAccountId!.Value, GetOrganizationId());
+        parentAccount = await _accountService.GetAsync(account.ParentAccountId!.Value, GetOrganizationId()!.Value);
 
       UpdateAccountViewModel model = new UpdateAccountViewModel()
       {
@@ -170,7 +170,7 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Update(int accountId, UpdateAccountViewModel model)
     {
-      UpdateAccountViewModelValidator validator = new UpdateAccountViewModelValidator(_accountService, _journalService, GetOrganizationId());
+      UpdateAccountViewModelValidator validator = new UpdateAccountViewModelValidator(_accountService, _journalService, GetOrganizationId()!.Value);
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
       if (!validationResult.IsValid)
@@ -180,7 +180,7 @@ namespace Accounting.Controllers
 
         if (model.ParentAccountId.HasValue)
         {
-          var parentAccount = await _accountService.GetAsync(model.ParentAccountId.Value, GetOrganizationId());
+          var parentAccount = await _accountService.GetAsync(model.ParentAccountId.Value, GetOrganizationId()!.Value);
           if (parentAccount != null)
           {
             model.ParentAccount = new AccountViewModel()
@@ -194,7 +194,7 @@ namespace Accounting.Controllers
         return View(model);
       }
 
-      Account account = await _accountService.GetAsync(model.AccountID, GetOrganizationId());
+      Account account = await _accountService.GetAsync(model.AccountID, GetOrganizationId()!.Value);
       if (account == null)
         return NotFound();
 
@@ -228,7 +228,7 @@ namespace Accounting.Controllers
     [HttpPost("create")]
     public async Task<IActionResult> CreateAccount(CreateAccountViewModel model)
     {
-      Account existingAccount = await _accountService.GetByAccountNameAsync(model.AccountName, GetOrganizationId());
+      Account existingAccount = await _accountService.GetByAccountNameAsync(model.AccountName, GetOrganizationId()!.Value);
 
       if (existingAccount != null)
       {
@@ -252,7 +252,7 @@ namespace Accounting.Controllers
       {
         Name = model.AccountName,
         Type = Account.AccountTypeConstants.Assets,
-        OrganizationId = GetOrganizationId(),
+        OrganizationId = GetOrganizationId()!.Value,
         CreatedById = GetUserId()
       };
 
@@ -284,7 +284,7 @@ namespace Accounting.Controllers
         = await _accountService.GetAllAsync(
           page,
           pageSize,
-          GetOrganizationId(),
+          GetOrganizationId()!.Value,
           includeJournalEntriesCount,
           includeDescendants);
 
@@ -329,7 +329,7 @@ namespace Accounting.Controllers
     [HttpGet("all-reconciliation-expense")]
     public async Task<IActionResult> GetAllReconciliationExpenseAccounts()
     {
-      var organizationId = GetOrganizationId();
+      var organizationId = GetOrganizationId()!.Value;
       List<Account> accounts = await _accountService.GetAllReconciliationExpenseAccountsAsync(organizationId);
 
       List<AccountViewModel> accountsViewmodel = accounts.Select(x => new AccountViewModel
@@ -353,7 +353,7 @@ namespace Accounting.Controllers
     [HttpGet("all-reconciliation-liabilities-and-assets")]
     public async Task<IActionResult> GetAllReconciliationLiabilitiesAndAssetsAccounts()
     {
-      var organizationId = GetOrganizationId();
+      var organizationId = GetOrganizationId()!.Value;
       List<Account> accounts = await _accountService.GetAllReconciliationLiabilitiesAndAssetsAsync(organizationId);
 
       List<AccountViewModel> accountsViewmodel = accounts.Select(x => new AccountViewModel

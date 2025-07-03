@@ -367,7 +367,7 @@ namespace Accounting.Controllers
 
       if (tenant.DatabaseName == currentDatabaseName && !(user.UserID != GetUserId()))
       {
-        int currentOrganizationId = GetOrganizationId();
+        int currentOrganizationId = GetOrganizationId()!.Value;
 
         var selectedOrganizationIds = (model.SelectedOrganizationIdsCsv?.Split(',') ?? Array.Empty<string>())
           .Select(id => int.Parse(id.Trim()))

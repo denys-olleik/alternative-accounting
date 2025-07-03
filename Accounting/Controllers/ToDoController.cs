@@ -55,7 +55,7 @@ namespace Accounting.Controllers
       List<Tag> tags = await _tagService.GetAllAsync();
 
       CreateToDoViewModel createToDoViewModel = new CreateToDoViewModel();
-      createToDoViewModel.Users = (await _userService.GetAllAsync(GetOrganizationId())).Select(user => new UserViewModel
+      createToDoViewModel.Users = (await _userService.GetAllAsync(GetOrganizationId()!.Value)).Select(user => new UserViewModel
       {
         UserID = user.UserID,
         Email = user.Email,
@@ -71,7 +71,7 @@ namespace Accounting.Controllers
 
       createToDoViewModel.ParentToDoId = parentToDoId;
 
-      ToDo? toDo = parentToDoId.HasValue ? await _toDoService.GetAsync(parentToDoId.Value, GetOrganizationId()) : null;
+      ToDo? toDo = parentToDoId.HasValue ? await _toDoService.GetAsync(parentToDoId.Value, GetOrganizationId()!.Value) : null;
       createToDoViewModel.ParentToDo = toDo != null ? new ToDoViewModel
       {
         ToDoID = toDo.ToDoID,
@@ -93,7 +93,7 @@ namespace Accounting.Controllers
 
       var deserializedSelectedTagIds = JsonConvert.DeserializeObject<List<int>>(model.SelectedTagIds!);
 
-      ToDo? parentToDoItem = model.ParentToDoId.HasValue ? await _toDoService.GetAsync(model.ParentToDoId.Value, GetOrganizationId()) : null;
+      ToDo? parentToDoItem = model.ParentToDoId.HasValue ? await _toDoService.GetAsync(model.ParentToDoId.Value, GetOrganizationId()!.Value) : null;
       model.ParentToDo = parentToDoItem != null ? new ToDoViewModel
       {
         ToDoID = parentToDoItem.ToDoID,
@@ -120,7 +120,7 @@ namespace Accounting.Controllers
         model.ParentToDoId = model.ParentToDoId;
         model.ToDoStatuses = ToDo.ToDoStatuses.All.Select(s => s.ToLower()).ToList();
 
-        model.Users = (await _userService.GetAllAsync(GetOrganizationId())).Select(user => new UserViewModel
+        model.Users = (await _userService.GetAllAsync(GetOrganizationId()!.Value)).Select(user => new UserViewModel
         {
           UserID = user.UserID,
           Email = user.Email,
@@ -147,7 +147,7 @@ namespace Accounting.Controllers
           ParentToDoId = model.ParentToDoId,
           Status = ToDo.ToDoStatuses.Open,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId()
+          OrganizationId = GetOrganizationId()!.Value
         });
 
         if (model.SelectedUsers != null && model.SelectedUsers.Any())
@@ -158,7 +158,7 @@ namespace Accounting.Controllers
             userTask.UserId = userId;
             userTask.ToDoId = taskItem.ToDoID;
             userTask.Completed = false;
-            userTask.OrganizationId = GetOrganizationId();
+            userTask.OrganizationId = GetOrganizationId()!.Value;
             userTask.CreatedById = GetUserId();
             await _userTaskService.CreateAsync(userTask);
           }
@@ -171,7 +171,7 @@ namespace Accounting.Controllers
             ToDoTag taskTag = new ToDoTag();
             taskTag.TaskId = taskItem.ToDoID;
             taskTag.TagId = tagId;
-            taskTag.OrganizationId = GetOrganizationId();
+            taskTag.OrganizationId = GetOrganizationId()!.Value;
             await _toDoTagService.CreateAsync(taskTag);
           }
         }
@@ -186,7 +186,7 @@ namespace Accounting.Controllers
     [Route("details/{id}")]
     public async Task<IActionResult> Details(int id)
     {
-      ToDo taskItem = await _toDoService.GetAsync(id, GetOrganizationId());
+      ToDo taskItem = await _toDoService.GetAsync(id, GetOrganizationId()!.Value);
 
       MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
@@ -208,7 +208,7 @@ namespace Accounting.Controllers
         Children = new List<ToDoViewModel>()
       };
 
-      var children = await taskService.GetChildrenAsync(task.ToDoID, GetOrganizationId());
+      var children = await taskService.GetChildrenAsync(task.ToDoID, GetOrganizationId()!.Value);
       foreach (var child in children)
       {
         taskViewModel.Children.Add(await ConvertToTaskViewModel(child, taskService, pipeline));

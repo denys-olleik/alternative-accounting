@@ -36,7 +36,7 @@ namespace Accounting.Controllers
       {
         Name = model.Name,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId()
+        OrganizationId = GetOrganizationId()!.Value
       });
 
       return Ok(tag);

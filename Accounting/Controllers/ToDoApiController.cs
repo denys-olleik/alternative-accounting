@@ -24,11 +24,11 @@ namespace Accounting.Controllers
     [HttpGet("get-todos")]
     public async Task<IActionResult> GetTasks()
     {
-      List<ToDo> toDos = await _toDoService.GetAllAsync(GetOrganizationId());
+      List<ToDo> toDos = await _toDoService.GetAllAsync(GetOrganizationId()!.Value);
 
       foreach (var task in toDos)
       {
-        await LoadUsersForTaskAndSubtasks(task, _userTaskService, GetOrganizationId());
+        await LoadUsersForTaskAndSubtasks(task, _userTaskService, GetOrganizationId()!.Value);
       }
 
       var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
@@ -48,7 +48,7 @@ namespace Accounting.Controllers
     [HttpPost("update-content")]
     public async Task<IActionResult> UpdateContent([FromBody] UpdateContentModel model)
     {
-      ToDo task = await _toDoService.UpdateContentAsync(model.ToDoId, model.Content, GetOrganizationId());
+      ToDo task = await _toDoService.UpdateContentAsync(model.ToDoId, model.Content, GetOrganizationId()!.Value);
 
       var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
@@ -71,7 +71,7 @@ namespace Accounting.Controllers
     {
       try
       {
-        int rowsAffected = await _toDoService.UpdateParentTaskIdAsync(model.ToDoId, model.NewParentToDoId, GetOrganizationId());
+        int rowsAffected = await _toDoService.UpdateParentTaskIdAsync(model.ToDoId, model.NewParentToDoId, GetOrganizationId()!.Value);
 
         if (rowsAffected == 0)
         {
@@ -91,11 +91,11 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> GetTaskChildren(int toDoID)
     {
-      List<ToDo> children = await _toDoService.GetTaskChildren(toDoID, GetOrganizationId());
+      List<ToDo> children = await _toDoService.GetTaskChildren(toDoID, GetOrganizationId()!.Value);
 
       foreach (var task in children)
       {
-        await LoadUsersForTaskAndSubtasks(task, _userTaskService, GetOrganizationId());
+        await LoadUsersForTaskAndSubtasks(task, _userTaskService, GetOrganizationId()!.Value);
       }
 
       var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
@@ -113,7 +113,7 @@ namespace Accounting.Controllers
     {
       try
       {
-        int rowsAffected = await _toDoService.UpdateTaskStatusIdAsync(model.ToDoId, model.Status!, GetOrganizationId());
+        int rowsAffected = await _toDoService.UpdateTaskStatusIdAsync(model.ToDoId, model.Status!, GetOrganizationId()!.Value);
 
         if (rowsAffected == 0)
         {

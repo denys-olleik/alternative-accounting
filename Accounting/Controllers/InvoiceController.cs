@@ -92,7 +92,7 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Create(CreateInvoiceViewModel model)
     {
-      model.OrganizationId = GetOrganizationId();
+      model.OrganizationId = GetOrganizationId()!.Value;
 
       model.SelectedPaymentTerm = JsonConvert.DeserializeObject<PaymentTermViewModel>(model.SelectedPaymentTermJSON!);
       model.InvoiceLines = JsonConvert.DeserializeObject<List<InvoiceLineViewModel>>(model.InvoiceLinesJson!);
@@ -120,7 +120,7 @@ namespace Accounting.Controllers
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
         Invoice invoice = await CreateInvoiceAttachmentsAndLedgerEntries(model, GetDatabaseName());
-        await _invoiceService.UpdatePaymentInstructions(invoice.InvoiceID, model.PaymentInstructions, GetOrganizationId());
+        await _invoiceService.UpdatePaymentInstructions(invoice.InvoiceID, model.PaymentInstructions, GetOrganizationId()!.Value);
 
         if (model.RememberPaymentInstructions)
         {
@@ -135,7 +135,7 @@ namespace Accounting.Controllers
 
     private async Task<CreateInvoiceViewModel> InitializeCreateInvoiceViewModel()
     {
-      int orgId = GetOrganizationId();
+      int orgId = GetOrganizationId()!.Value;
 
       var paymentTerms = await GetAllPaymentTerms();
       var defaultPaymentTerm = paymentTerms.FirstOrDefault();
@@ -168,7 +168,7 @@ namespace Accounting.Controllers
       model.Customers = await GetAllCustomersWithAddresses();
       model.PaymentTerms = await GetAllPaymentTerms();
       model.InvoiceStatuses = Invoice.InvoiceStatusConstants.All.ToList();
-      model.ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId());
+      model.ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId()!.Value);
       model.ValidationResult = validationResult;
 
       var selectedCustomer = model.Customers.FirstOrDefault(c => c.ID == model.SelectedCustomerId);
@@ -177,7 +177,7 @@ namespace Accounting.Controllers
         model.SelectedCustomer = selectedCustomer;
       }
 
-      await SetupAccrualAccounting(model, GetOrganizationId());
+      await SetupAccrualAccounting(model, GetOrganizationId()!.Value);
 
       return model;
     }
@@ -193,7 +193,7 @@ namespace Accounting.Controllers
         PaymentInstructions = model.PaymentInstructions,
         TotalAmount = model.InvoiceLines!.Sum(x => x.Price * x.Quantity)!.Value,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId(),
+        OrganizationId = GetOrganizationId()!.Value,
       });
 
       if (model.RememberPaymentInstructions)
@@ -201,12 +201,12 @@ namespace Accounting.Controllers
         await _organizationService.UpdatePaymentInstructions(model.OrganizationId, model.PaymentInstructions);
       }
 
-      List<InvoiceAttachment> invoiceAttachments = await _invoiceAttachmentService.GetAllAsync(model.InvoiceAttachments.Select(x => x.InvoiceAttachmentID).ToArray(), GetOrganizationId());
+      List<InvoiceAttachment> invoiceAttachments = await _invoiceAttachmentService.GetAllAsync(model.InvoiceAttachments.Select(x => x.InvoiceAttachmentID).ToArray(), GetOrganizationId()!.Value);
 
       foreach (var invoiceAttachment in invoiceAttachments)
       {
-        await _invoiceAttachmentService.UpdateInvoiceIdAsync(invoiceAttachment.InvoiceAttachmentID, invoice.InvoiceID, GetOrganizationId());
-        await _invoiceAttachmentService.MoveAndUpdateInvoiceAttachmentPathAsync(invoiceAttachment, ConfigurationSingleton.Instance.PermPath, GetOrganizationId(), databaseName);
+        await _invoiceAttachmentService.UpdateInvoiceIdAsync(invoiceAttachment.InvoiceAttachmentID, invoice.InvoiceID, GetOrganizationId()!.Value);
+        await _invoiceAttachmentService.MoveAndUpdateInvoiceAttachmentPathAsync(invoiceAttachment, ConfigurationSingleton.Instance.PermPath, GetOrganizationId()!.Value, databaseName);
 
         await MoveFileFromTempToPermDirectory(invoiceAttachment);
       }
@@ -223,7 +223,7 @@ namespace Accounting.Controllers
           CreatedById = GetUserId(),
           RevenueAccountId = invoiceLine.RevenueAccountId,
           AssetsAccountId = invoiceLine.AssetsAccountId,
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
         });
 
         invoiceLine.ID = newInvoiceLine.InvoiceLineID;
@@ -239,7 +239,7 @@ namespace Accounting.Controllers
           Debit = invoiceLine.Price * invoiceLine.Quantity,
           Credit = null,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
         });
 
         Journal creditGlEntry = await _journalService.CreateAsync(new Journal()
@@ -248,7 +248,7 @@ namespace Accounting.Controllers
           Debit = null,
           Credit = invoiceLine.Price * invoiceLine.Quantity,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
         });
 
         await _journalInvoiceInvoiceLineService.CreateAsync(new JournalInvoiceInvoiceLine()
@@ -257,7 +257,7 @@ namespace Accounting.Controllers
           InvoiceId = invoice.InvoiceID,
           InvoiceLineId = invoiceLine.ID,
           TransactionGuid = transactionGuid,
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
           CreatedById = GetUserId(),
         });
 
@@ -267,7 +267,7 @@ namespace Accounting.Controllers
           InvoiceId = invoice.InvoiceID,
           InvoiceLineId = invoiceLine.ID,
           TransactionGuid = transactionGuid,
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
           CreatedById = GetUserId(),
         });
       }
@@ -285,7 +285,7 @@ namespace Accounting.Controllers
           Debit = line.Price * line.Quantity,
           Credit = null,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
         });
 
         await _journalInvoiceInvoiceLineService.CreateAsync(new JournalInvoiceInvoiceLine()
@@ -294,7 +294,7 @@ namespace Accounting.Controllers
           InvoiceLineId = line.InvoiceLineID,
           TransactionGuid = transactionGuid,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
         });
 
         Journal creditGlEntry = await _journalService.CreateAsync(new Journal()
@@ -303,7 +303,7 @@ namespace Accounting.Controllers
           Debit = null,
           Credit = line.Price * line.Quantity,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
         });
 
         await _journalInvoiceInvoiceLineService.CreateAsync(new JournalInvoiceInvoiceLine()
@@ -312,7 +312,7 @@ namespace Accounting.Controllers
           InvoiceLineId = line.InvoiceLineID,
           TransactionGuid = transactionGuid,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
         });
       }
     }
@@ -332,7 +332,7 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Update(int id)
     {
-      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId());
+      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId()!.Value);
 
       if (invoice == null)
       {
@@ -344,9 +344,9 @@ namespace Accounting.Controllers
         return RedirectToAction("InvoiceIsVoid");
       }
 
-      invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId());
+      invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId()!.Value);
       invoice.BusinessEntity.Addresses = await _addressService.GetByAsync(invoice.BusinessEntityId);
-      invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId(), true);
+      invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId()!.Value, true);
 
       var model = new UpdateInvoiceViewModel
       {
@@ -355,8 +355,8 @@ namespace Accounting.Controllers
         DueDate = invoice.DueDate,
         LastUpdated = invoice.LastUpdated,
         InvoiceStatuses = Invoice.InvoiceStatusConstants.All.ToList(),
-        ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId()),
-        Attachments = (await _invoiceAttachmentService.GetAllAsync(invoice.InvoiceID, GetOrganizationId()))
+        ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId()!.Value),
+        Attachments = (await _invoiceAttachmentService.GetAllAsync(invoice.InvoiceID, GetOrganizationId()!.Value))
           .Select(a => new UpdateInvoiceViewModel.InvoiceAttachmentViewModel
           {
             InvoiceAttachmentID = a.InvoiceAttachmentID,
@@ -406,13 +406,13 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Update(UpdateInvoiceViewModel model, int id)
     {
-      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId());
+      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId()!.Value);
       if (invoice == null)
       {
         return NotFound();
       }
 
-      invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId());
+      invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId()!.Value);
       invoice.BusinessEntity.Addresses = await _addressService.GetByAsync(invoice.BusinessEntityId);
 
       model.InvoiceNumber = invoice.InvoiceNumber;
@@ -420,7 +420,7 @@ namespace Accounting.Controllers
       model.InvoiceDate = invoice.Created;
       model.DueDate = invoice.DueDate;
       model.InvoiceStatuses = Invoice.InvoiceStatusConstants.All.ToList();
-      model.ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId());
+      model.ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId()!.Value);
       model.Customer = new BusinessEntityViewModel()
       {
         ID = invoice.BusinessEntity.BusinessEntityID,
@@ -446,7 +446,7 @@ namespace Accounting.Controllers
       model.NewInvoiceLines = JsonConvert.DeserializeObject<List<InvoiceLineViewModel>>(model.InvoiceLinesJson!)!.Where(x => x.ID < 0).ToList();
       model.DeletedInvoiceLines = JsonConvert.DeserializeObject<List<InvoiceLineViewModel>>(model.DeletedInvoiceLinesJson!);
 
-      UpdateInvoiceViewModelValidator validator = new UpdateInvoiceViewModelValidator(_invoiceService, GetOrganizationId());
+      UpdateInvoiceViewModelValidator validator = new UpdateInvoiceViewModelValidator(_invoiceService, GetOrganizationId()!.Value);
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
       if (!validationResult.IsValid)
@@ -464,7 +464,7 @@ namespace Accounting.Controllers
               .Split(',', StringSplitOptions.RemoveEmptyEntries)
               .Select(id => int.Parse(id.Trim()))
               .ToList();
-          await _invoiceAttachmentService.DeleteAttachmentsAsync(ids, invoice.InvoiceID, GetOrganizationId());
+          await _invoiceAttachmentService.DeleteAttachmentsAsync(ids, invoice.InvoiceID, GetOrganizationId()!.Value);
         }
 
         if (!string.IsNullOrEmpty(model.NewAttachmentIdsCsv))
@@ -474,13 +474,13 @@ namespace Accounting.Controllers
               .Select(id => int.Parse(id.Trim()))
               .ToList();
 
-          var newAttachments = await _invoiceAttachmentService.GetAllAsync(newAttachmentIds.ToArray(), GetOrganizationId());
+          var newAttachments = await _invoiceAttachmentService.GetAllAsync(newAttachmentIds.ToArray(), GetOrganizationId()!.Value);
 
           foreach (var attachment in newAttachments)
           {
-            await _invoiceAttachmentService.UpdateInvoiceIdAsync(attachment.InvoiceAttachmentID, invoice.InvoiceID, GetOrganizationId());
+            await _invoiceAttachmentService.UpdateInvoiceIdAsync(attachment.InvoiceAttachmentID, invoice.InvoiceID, GetOrganizationId()!.Value);
             //Optionally move file or update path if needed
-            await _invoiceAttachmentService.MoveAndUpdateInvoiceAttachmentPathAsync(attachment, ConfigurationSingleton.Instance.PermPath, GetOrganizationId(), GetDatabaseName());
+            await _invoiceAttachmentService.MoveAndUpdateInvoiceAttachmentPathAsync(attachment, ConfigurationSingleton.Instance.PermPath, GetOrganizationId()!.Value, GetDatabaseName());
           }
         }
 
@@ -495,7 +495,7 @@ namespace Accounting.Controllers
           QuantityOrPriceModified = x.QuantityOrPriceModified,
         }).ToList();
 
-        await _invoiceLineService.UpdateTitleAndDescription(existingLines.Where(x => x.TitleOrDescriptionModified).ToList(), invoice.InvoiceID, GetUserId(), GetOrganizationId());
+        await _invoiceLineService.UpdateTitleAndDescription(existingLines.Where(x => x.TitleOrDescriptionModified).ToList(), invoice.InvoiceID, GetUserId(), GetOrganizationId()!.Value);
 
         if (model.NewInvoiceLines != null && model.NewInvoiceLines.Any())
         {
@@ -511,7 +511,7 @@ namespace Accounting.Controllers
               CreatedById = GetUserId(),
               RevenueAccountId = invoiceLine.RevenueAccountId,
               AssetsAccountId = invoiceLine.AssetsAccountId,
-              OrganizationId = GetOrganizationId(),
+              OrganizationId = GetOrganizationId()!.Value,
             });
 
             invoiceLine.ID = newInvoiceLine.InvoiceLineID;
@@ -547,20 +547,20 @@ namespace Accounting.Controllers
             deletedLines,
             invoice,
             GetUserId(),
-            GetOrganizationId());
+            GetOrganizationId()!.Value);
 
         await _invoiceService
           .ComputeAndUpdateInvoiceStatus(
             invoice.InvoiceID,
-            GetOrganizationId());
+            GetOrganizationId()!.Value);
         await _invoiceService
           .ComputeAndUpdateTotalAmountAndReceivedAmount(
             invoice.InvoiceID,
-            GetOrganizationId());
+            GetOrganizationId()!.Value);
         await _invoiceService
           .UpdateLastUpdated(
             invoice.InvoiceID,
-            GetOrganizationId());
+            GetOrganizationId()!.Value);
 
         scope.Complete();
       }
@@ -572,7 +572,7 @@ namespace Accounting.Controllers
     [Route("void/{id}")]
     public async Task<IActionResult> Void(int id)
     {
-      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId());
+      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId()!.Value);
 
 
       if (invoice == null)
@@ -593,14 +593,14 @@ namespace Accounting.Controllers
     [Route("void/{id}")]
     public async Task<IActionResult> Void(VoidInvoiceViewModel model)
     {
-      Invoice invoice = await _invoiceService.GetAsync(model.InvoiceID, GetOrganizationId());
+      Invoice invoice = await _invoiceService.GetAsync(model.InvoiceID, GetOrganizationId()!.Value);
 
       if (invoice == null)
       {
         return NotFound();
       }
 
-      VoidInvoiceViewModelValidator validationRules = new VoidInvoiceViewModelValidator(_invoiceService, GetOrganizationId(), _invoicePaymentService);
+      VoidInvoiceViewModelValidator validationRules = new VoidInvoiceViewModelValidator(_invoiceService, GetOrganizationId()!.Value, _invoicePaymentService);
       ValidationResult validationResult = await validationRules.ValidateAsync(model);
 
       if (!validationResult.IsValid)
@@ -611,7 +611,7 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        await _invoiceService.VoidAsync(invoice, model.VoidReason, GetUserId(), GetOrganizationId());
+        await _invoiceService.VoidAsync(invoice, model.VoidReason, GetUserId(), GetOrganizationId()!.Value);
 
         scope.Complete();
       }
@@ -649,7 +649,7 @@ namespace Accounting.Controllers
 
     private async Task<List<BusinessEntityViewModel>> GetAllCustomersWithAddresses()
     {
-      var customers = await _businessEntityService.GetAllAsync(GetOrganizationId());
+      var customers = await _businessEntityService.GetAllAsync(GetOrganizationId()!.Value);
 
       foreach (var customer in customers)
       {

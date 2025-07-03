@@ -29,7 +29,7 @@ namespace Accounting.Controllers
         await _locationService.GetAllAsync(
           page,
           pageSize,
-          GetOrganizationId(),
+          GetOrganizationId()!.Value,
           includeDescendants,
           includeInventories);
 

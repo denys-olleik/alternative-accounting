@@ -58,19 +58,19 @@ namespace Accounting.Controllers
           page,
           pageSize,
           inStatus.Split(","),
-          GetOrganizationId(),
+          GetOrganizationId()!.Value,
           includeVoidInvoices);
 
       InvoiceInvoiceLinePaymentService invoiceInvoiceLinePaymentService 
         = new InvoiceInvoiceLinePaymentService(_requestContext.DatabaseName!, _requestContext.DatabasePassword!);
       foreach (var invoice in invoices)
       {
-        invoice.Payments = await _invoiceInvoiceLinePaymentService.GetAllPaymentsByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId(), true);
-        invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId(), true);
+        invoice.Payments = await _invoiceInvoiceLinePaymentService.GetAllPaymentsByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId()!.Value, true);
+        invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId()!.Value, true);
 
         foreach (var invoiceLine in invoice.InvoiceLines)
         {
-          invoiceLine.Received = await _invoiceInvoiceLinePaymentService.GetTotalReceivedAsync(invoiceLine.InvoiceLineID, GetOrganizationId());
+          invoiceLine.Received = await _invoiceInvoiceLinePaymentService.GetTotalReceivedAsync(invoiceLine.InvoiceLineID, GetOrganizationId()!.Value);
         }
 
         invoice.Received = invoice.InvoiceLines.Sum(x => x.Received);
@@ -78,7 +78,7 @@ namespace Accounting.Controllers
 
       foreach (var invoice in invoices)
       {
-        invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId());
+        invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId()!.Value);
       }
 
       GetInvoicesViewModel getInvoicesViewModel = new GetInvoicesViewModel
@@ -129,16 +129,16 @@ namespace Accounting.Controllers
         string company = null)
     {
       InvoiceService invoiceService = new InvoiceService(_journalService, _journalInvoiceInvoiceLineService, _requestContext.DatabaseName!, _requestContext.DatabasePassword!);
-      List<Invoice> invoices = await invoiceService.GetFilteredAsync(inStatus?.Split(","), invoiceNumbers, company, GetOrganizationId());
+      List<Invoice> invoices = await invoiceService.GetFilteredAsync(inStatus?.Split(","), invoiceNumbers, company, GetOrganizationId()!.Value);
 
       foreach (var invoice in invoices)
       {
-        invoice.Payments = await _invoiceInvoiceLinePaymentService.GetAllPaymentsByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId(), true);
-        invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId(), true);
+        invoice.Payments = await _invoiceInvoiceLinePaymentService.GetAllPaymentsByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId()!.Value, true);
+        invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId()!.Value, true);
 
         foreach (var invoiceLine in invoice.InvoiceLines)
         {
-          invoiceLine.Received = await _invoiceInvoiceLinePaymentService.GetTotalReceivedAsync(invoiceLine.InvoiceLineID, GetOrganizationId());
+          invoiceLine.Received = await _invoiceInvoiceLinePaymentService.GetTotalReceivedAsync(invoiceLine.InvoiceLineID, GetOrganizationId()!.Value);
         }
 
         invoice.Received = invoice.InvoiceLines.Sum(x => x.Received);
@@ -146,7 +146,7 @@ namespace Accounting.Controllers
 
       foreach (var invoice in invoices)
       {
-        invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId());
+        invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId()!.Value);
       }
 
       GetInvoicesViewModel getInvoicesViewModel = new GetInvoicesViewModel

@@ -33,7 +33,7 @@ namespace Accounting.Controllers
     [HttpGet("get-unpaid-and-paid-balance")]
     public async Task<IActionResult> GetUnpaidAndPaidBalance()
     {
-      (decimal unpaid, decimal paid) = await _invoiceService.GetUnpaidAndPaidBalance(GetOrganizationId());
+      (decimal unpaid, decimal paid) = await _invoiceService.GetUnpaidAndPaidBalance(GetOrganizationId()!.Value);
 
       return Ok(new { unpaid, paid });
     }
@@ -41,7 +41,7 @@ namespace Accounting.Controllers
     [HttpGet("get-account-balance-report")]
     public async Task<IActionResult> GetAccountBalanceReport()
     {
-      var accountBalances = await _accountService.GetAccountBalanceReport(GetOrganizationId());
+      var accountBalances = await _accountService.GetAccountBalanceReport(GetOrganizationId()!.Value);
 
       return Ok(accountBalances);
     }

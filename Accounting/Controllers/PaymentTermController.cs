@@ -63,7 +63,7 @@ namespace Accounting.Controllers
         Description = model.Description,
         DaysUntilDue = model.DaysUntilDue,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId()
+        OrganizationId = GetOrganizationId()!.Value
       });
 
       return RedirectToAction("PaymentTerms");

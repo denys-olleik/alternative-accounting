@@ -85,7 +85,7 @@ namespace Accounting.Controllers
     //[Route("details/{id}")]
     //public async Task<IActionResult> Details(int id)
     //{
-    //  BusinessEntity customer = await _customerService.GetAsync(id, GetOrganizationId());
+    //  BusinessEntity customer = await _customerService.GetAsync(id, GetOrganizationId()!.Value);
 
     //  return View(customer);
     //}
@@ -94,7 +94,7 @@ namespace Accounting.Controllers
     [Route("edit/{id}")]
     public async Task<IActionResult> Edit(int id)
     {
-      BusinessEntity businessEntity = await _customerService.GetAsync(id, GetOrganizationId());
+      BusinessEntity businessEntity = await _customerService.GetAsync(id, GetOrganizationId()!.Value);
       businessEntity.Addresses = await _addressService.GetByAsync(id);
       businessEntity.PaymentTerm = await _paymentTermsService.GetAsync(businessEntity.PaymentTermId);
 
@@ -140,7 +140,7 @@ namespace Accounting.Controllers
     [Route("edit/{id}")]
     public async Task<IActionResult> Edit(EditBusinessEntityViewModel model)
     {
-      BusinessEntity businessEntity = await _customerService.GetAsync(model.ID, GetOrganizationId());
+      BusinessEntity businessEntity = await _customerService.GetAsync(model.ID, GetOrganizationId()!.Value);
 
       model.Addresses = DeserializeAddresses(model.AddressesJson);
 
@@ -185,7 +185,7 @@ namespace Accounting.Controllers
             PostalCode = address.PostalCode,
             Country = address.Country,
             BusinessEntityId = model.ID,
-            OrganizationId = GetOrganizationId(),
+            OrganizationId = GetOrganizationId()!.Value,
             CreatedById = GetUserId()
           });
         }
@@ -207,7 +207,7 @@ namespace Accounting.Controllers
         CompanyName = model.CompanyName,
         PaymentTermId = model.SelectedPaymentTermId,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId()
+        OrganizationId = GetOrganizationId()!.Value
       });
 
       foreach (var addressViewModel in model.Addresses)
@@ -221,7 +221,7 @@ namespace Accounting.Controllers
           PostalCode = addressViewModel.PostalCode,
           Country = addressViewModel.Country,
           BusinessEntityId = customer.BusinessEntityID,
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
           CreatedById = GetUserId(),
         });
       }

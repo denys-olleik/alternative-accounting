@@ -40,7 +40,7 @@ namespace Accounting.Controllers
     [Route("void/{id}")]
     public async Task<IActionResult> Void(int id)
     {
-      Payment payment = await _paymentService.GetAsync(id, GetOrganizationId());
+      Payment payment = await _paymentService.GetAsync(id, GetOrganizationId()!.Value);
 
       if (payment == null)
       {
@@ -64,8 +64,8 @@ namespace Accounting.Controllers
       PaymentVoidValidator validator = new PaymentVoidValidator();
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
-      Payment payment = await _paymentService.GetAsync(model.PaymentID, GetOrganizationId());
-      List<Invoice> invoices = await _invoiceInvoiceLinePaymentService.GetAllInvoicesByPaymentIdAsync(model.PaymentID, GetOrganizationId());
+      Payment payment = await _paymentService.GetAsync(model.PaymentID, GetOrganizationId()!.Value);
+      List<Invoice> invoices = await _invoiceInvoiceLinePaymentService.GetAllInvoicesByPaymentIdAsync(model.PaymentID, GetOrganizationId()!.Value);
 
       if (payment == null)
       {
@@ -81,13 +81,13 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        await _paymentService.VoidAsync(payment, model.VoidReason, GetUserId(), GetOrganizationId());
+        await _paymentService.VoidAsync(payment, model.VoidReason, GetUserId(), GetOrganizationId()!.Value);
 
         foreach (Invoice invoice in invoices)
         {
-          await _invoiceService.ComputeAndUpdateInvoiceStatus(invoice.InvoiceID, GetOrganizationId());
-          await _invoiceService.ComputeAndUpdateTotalAmountAndReceivedAmount(invoice.InvoiceID, GetOrganizationId());
-          await _invoiceService.UpdateLastUpdated(invoice.InvoiceID, GetOrganizationId());
+          await _invoiceService.ComputeAndUpdateInvoiceStatus(invoice.InvoiceID, GetOrganizationId()!.Value);
+          await _invoiceService.ComputeAndUpdateTotalAmountAndReceivedAmount(invoice.InvoiceID, GetOrganizationId()!.Value);
+          await _invoiceService.UpdateLastUpdated(invoice.InvoiceID, GetOrganizationId()!.Value);
         }
 
         scope.Complete();

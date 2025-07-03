@@ -42,10 +42,10 @@ namespace Accounting.Controllers
     [HttpGet("view-invoice/{id}")]
     public async Task<IActionResult> ViewInvoice(int id)
     {
-      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId());
+      Invoice invoice = await _invoiceService.GetAsync(id, GetOrganizationId()!.Value);
       invoice.IssuingOrganization = await _organizationService.GetAsync(invoice.OrganizationId, GetDatabaseName(), GetDatabasePassword());
-      invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId());
-      invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId(), true);
+      invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, GetOrganizationId()!.Value);
+      invoice.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(invoice.InvoiceID, GetOrganizationId()!.Value, true);
 
       if (IsValidJson(invoice.BillingAddressJSON!))
       {
@@ -117,7 +117,7 @@ namespace Accounting.Controllers
     //[HttpGet("print-invoice-with-attachments/{id}")]
     //public async Task<IActionResult> PrintWithAttachments(int id)
     //{
-    //  byte[] pdfWithAttachments = await _ironPdfService.PrintInvoice(id, GetOrganizationId(), true);
+    //  byte[] pdfWithAttachments = await _ironPdfService.PrintInvoice(id, GetOrganizationId()!.Value, true);
     //  return File(pdfWithAttachments, "application/pdf", $"Invoice-w-attachments-{id}.pdf");
     //}
 

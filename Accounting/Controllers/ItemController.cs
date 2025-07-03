@@ -33,9 +33,9 @@ namespace Accounting.Controllers
     [Route("delete/{itemId}")]
     public async Task<IActionResult> Delete(int itemId)
     {
-      Item item = await _itemService.GetAsync(itemId, GetOrganizationId());
+      Item item = await _itemService.GetAsync(itemId, GetOrganizationId()!.Value);
       
-      item.Children = await _itemService.GetChildrenAsync(itemId, GetOrganizationId());
+      item.Children = await _itemService.GetChildrenAsync(itemId, GetOrganizationId()!.Value);
 
       if (item == null)
         return NotFound();
@@ -52,7 +52,7 @@ namespace Accounting.Controllers
     [Route("delete/{itemId}")]
     public async Task<IActionResult> Delete(DeleteItemViewModel model)
     {
-      Item item = await _itemService.GetAsync(model.ItemID, GetOrganizationId());
+      Item item = await _itemService.GetAsync(model.ItemID, GetOrganizationId()!.Value);
 
       if (item == null)
         return NotFound();
@@ -60,7 +60,7 @@ namespace Accounting.Controllers
       DeleteItemViewModel.DeleteItemViewModelValidator validator = new DeleteItemViewModel.DeleteItemViewModelValidator();
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
-      item.Children = await _itemService.GetChildrenAsync(item.ItemID, GetOrganizationId());
+      item.Children = await _itemService.GetChildrenAsync(item.ItemID, GetOrganizationId()!.Value);
       model.HasChildren = item.Children?.Count > 0;
 
       if (!validationResult.IsValid)
@@ -118,7 +118,7 @@ namespace Accounting.Controllers
 
       if (parentItemId != null)
       {
-        Item parentItem = await _itemService.GetAsync(parentItemId.Value, GetOrganizationId());
+        Item parentItem = await _itemService.GetAsync(parentItemId.Value, GetOrganizationId()!.Value);
         if (parentItem == null)
           return NotFound();
 
@@ -131,11 +131,11 @@ namespace Accounting.Controllers
       }
 
       List<Account> accounts
-          = await _accountService.GetAllAsync(AccountTypeConstants.Revenue, GetOrganizationId());
+          = await _accountService.GetAllAsync(AccountTypeConstants.Revenue, GetOrganizationId()!.Value);
       accounts.AddRange(
-          await _accountService.GetAllAsync(AccountTypeConstants.Assets, GetOrganizationId()));
+          await _accountService.GetAllAsync(AccountTypeConstants.Assets, GetOrganizationId()!.Value));
       accounts.AddRange(
-          await _accountService.GetAllAsync(AccountTypeConstants.Equity, GetOrganizationId()));
+          await _accountService.GetAllAsync(AccountTypeConstants.Equity, GetOrganizationId()!.Value));
 
       model.Accounts = new List<CreateItemViewModel.AccountViewModel>();
       model.AvailableInventoryMethods = Item.InventoryMethods.All.ToList();
@@ -158,7 +158,7 @@ namespace Accounting.Controllers
     [Route("create/{parentItemId?}")]
     public async Task<IActionResult> Create(CreateItemViewModel model)
     {
-      CreateItemViewModel.CreateItemViewModelValidator validator = new CreateItemViewModel.CreateItemViewModelValidator(GetOrganizationId());
+      CreateItemViewModel.CreateItemViewModelValidator validator = new CreateItemViewModel.CreateItemViewModelValidator(GetOrganizationId()!.Value);
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
       if (!validationResult.IsValid)
@@ -167,7 +167,7 @@ namespace Accounting.Controllers
 
         if (model.ParentItemId != null)
         {
-          Item parentItem = await _itemService.GetAsync(model.ParentItemId.Value, GetOrganizationId());
+          Item parentItem = await _itemService.GetAsync(model.ParentItemId.Value, GetOrganizationId()!.Value);
           if (parentItem == null)
             return NotFound();
 
@@ -180,9 +180,9 @@ namespace Accounting.Controllers
         }
 
         List<Account> accounts
-          = await _accountService.GetAllAsync(AccountTypeConstants.Revenue, GetOrganizationId());
+          = await _accountService.GetAllAsync(AccountTypeConstants.Revenue, GetOrganizationId()!.Value);
         accounts.AddRange(
-          await _accountService.GetAllAsync(AccountTypeConstants.Assets, GetOrganizationId()));
+          await _accountService.GetAllAsync(AccountTypeConstants.Assets, GetOrganizationId()!.Value));
 
         model.Accounts = new List<CreateItemViewModel.AccountViewModel>();
         model.AvailableInventoryMethods = Item.InventoryMethods.All.ToList();
@@ -216,7 +216,7 @@ namespace Accounting.Controllers
         InventoryMethod = model.SelectedInventoryMethod!,
         ParentItemId = model.ParentItemId,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId()
+        OrganizationId = GetOrganizationId()!.Value
       };
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -261,7 +261,7 @@ namespace Accounting.Controllers
         await _itemService.GetAllAsync(
           page,
           pageSize,
-          GetOrganizationId(),
+          GetOrganizationId()!.Value,
           includeDescendants,
           includeInventories);
 
@@ -326,20 +326,20 @@ namespace Accounting.Controllers
       var (items, nextPageNumber) = await _itemService.GetAllAsync(
         page,
         pageSize,
-        GetOrganizationId(),
+        GetOrganizationId()!.Value,
         true,
         false);
 
       foreach (var item in items)
       {
-        item.Children = await _itemService.GetChildrenAsync(item.ItemID, GetOrganizationId());
+        item.Children = await _itemService.GetChildrenAsync(item.ItemID, GetOrganizationId()!.Value);
 
         item.Inventories = await _inventoryService.GetAllAsync(
-          new[] { item.ItemID }, GetOrganizationId());
+          new[] { item.ItemID }, GetOrganizationId()!.Value);
 
         foreach (var inventory in item.Inventories!)
         {
-          inventory.Location = await _locationService.GetAsync(inventory.LocationId, GetOrganizationId());
+          inventory.Location = await _locationService.GetAsync(inventory.LocationId, GetOrganizationId()!.Value);
         }
       }
 

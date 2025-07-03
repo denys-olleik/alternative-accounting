@@ -21,7 +21,7 @@ namespace Accounting.Controllers
     [HttpGet("download/{invoiceAttachmentId}")]
     public async Task<IActionResult> Download(int invoiceAttachmentId)
     {
-      InvoiceAttachment attachment = await _invoiceAttachmentService.GetInvoiceAttachmentAsync(invoiceAttachmentId, GetOrganizationId());
+      InvoiceAttachment attachment = await _invoiceAttachmentService.GetInvoiceAttachmentAsync(invoiceAttachmentId, GetOrganizationId()!.Value);
       if (attachment == null)
       {
         return NotFound();
@@ -44,7 +44,7 @@ namespace Accounting.Controllers
         Stream = formFile.OpenReadStream()
       };
 
-      InvoiceAttachment attachment = await _invoiceAttachmentService.UploadInvoiceAttachmentAsync(fileUpload, GetUserId(), GetOrganizationId(), GetDatabaseName());
+      InvoiceAttachment attachment = await _invoiceAttachmentService.UploadInvoiceAttachmentAsync(fileUpload, GetUserId(), GetOrganizationId()!.Value, GetDatabaseName());
 
       return Ok(new { InvoiceAttachmentID = attachment.InvoiceAttachmentID, FileName = attachment.OriginalFileName });
     }
@@ -53,7 +53,7 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> UpdatePrintOrder([FromBody] UpdatePrintOrderModel model)
     {
-      bool isSuccess = await _invoiceAttachmentService.UpdatePrintOrderAsync(model.ID, model.NewPrintOrder, GetUserId(), GetOrganizationId());
+      bool isSuccess = await _invoiceAttachmentService.UpdatePrintOrderAsync(model.ID, model.NewPrintOrder, GetUserId(), GetOrganizationId()!.Value);
 
       if (isSuccess)
       {

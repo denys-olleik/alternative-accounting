@@ -78,7 +78,7 @@ namespace Accounting.Controllers
         }
 
         await _secretService.CreateAsync(
-          model.Master, model.Value, model.Type, model.Purpose, GetOrganizationId(), GetUserId(), GetTenantId());
+          model.Master, model.Value, model.Type, model.Purpose, GetOrganizationId()!.Value, GetUserId(), GetTenantId());
 
         scope.Complete();
       };

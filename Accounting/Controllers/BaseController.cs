@@ -54,11 +54,11 @@ namespace Accounting.Controllers
     }
 
     [NonAction]
-    public int GetOrganizationId()
+    public int? GetOrganizationId()
     {
       if (User?.Identity is not { IsAuthenticated: true })
       {
-        throw new InvalidOperationException("User is not authenticated.");
+        return null;
       }
 
       var identity = (ClaimsIdentity)User.Identity;
@@ -66,10 +66,15 @@ namespace Accounting.Controllers
 
       if (organizationIdClaim == null)
       {
-        throw new InvalidOperationException("Organization identifier claim is not available.");
+        return null;
       }
 
-      return Convert.ToInt32(organizationIdClaim.Value);
+      if (int.TryParse(organizationIdClaim.Value, out var organizationId))
+      {
+        return organizationId;
+      }
+
+      return null;
     }
 
     [NonAction]

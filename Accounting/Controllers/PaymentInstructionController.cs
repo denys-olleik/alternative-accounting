@@ -27,7 +27,7 @@ namespace Accounting.Controllers
       PaymentInstructionsViewModel paymentInstructionsViewModel = new PaymentInstructionsViewModel();
 
       List<PaymentInstruction> paymentInstructions =
-          await _paymentInstructionService.GetPaymentInstructionsAsync(GetOrganizationId());
+          await _paymentInstructionService.GetPaymentInstructionsAsync(GetOrganizationId()!.Value);
 
       paymentInstructionsViewModel.PaymentInstructions = paymentInstructions.Select(pi => new PaymentInstructionViewModel
       {
@@ -65,7 +65,7 @@ namespace Accounting.Controllers
         Title = model.Title,
         Content = model.Content,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId()
+        OrganizationId = GetOrganizationId()!.Value
       };
 
       await _paymentInstructionService.CreateAsync(paymentInstruction);

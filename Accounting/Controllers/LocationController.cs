@@ -24,7 +24,7 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Update(int locationId)
     {
-      Location location = await _locationService.GetAsync(locationId, GetOrganizationId());
+      Location location = await _locationService.GetAsync(locationId, GetOrganizationId()!.Value);
 
       if (location == null)
       {
@@ -44,7 +44,7 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Update(int locationId, UpdateLocationViewModel model)
     {
-      Location location = await _locationService.GetAsync(locationId, GetOrganizationId());
+      Location location = await _locationService.GetAsync(locationId, GetOrganizationId()!.Value);
 
       if (location == null)
       {
@@ -94,7 +94,7 @@ namespace Accounting.Controllers
 
       if (parentLocationId.HasValue)
       {
-        parentLocation = await _locationService.GetAsync(parentLocationId.Value, GetOrganizationId());
+        parentLocation = await _locationService.GetAsync(parentLocationId.Value, GetOrganizationId()!.Value);
         if (parentLocation == null)
           return NotFound();
       }
@@ -135,7 +135,7 @@ namespace Accounting.Controllers
           Description = model.Description,
           ParentLocationId = model.ParentLocationId,
           CreatedById = GetUserId(),
-          OrganizationId = GetOrganizationId()
+          OrganizationId = GetOrganizationId()!.Value
         };
 
         await _locationService.CreateLocationAsync(location);
@@ -150,13 +150,13 @@ namespace Accounting.Controllers
     [Route("delete/{locationId}")]
     public async Task<IActionResult> Delete(int locationId)
     {
-      Location location = await _locationService.GetAsync(locationId, GetOrganizationId());
+      Location location = await _locationService.GetAsync(locationId, GetOrganizationId()!.Value);
 
       if (location == null)
         return NotFound();
 
-      bool isLocationInUseAsync = await _locationService.IsLocationInUseAsync(locationId, GetOrganizationId());
-      //location.Children = await _locationService.GetChildrenAsync(locationId, GetOrganizationId());
+      bool isLocationInUseAsync = await _locationService.IsLocationInUseAsync(locationId, GetOrganizationId()!.Value);
+      //location.Children = await _locationService.GetChildrenAsync(locationId, GetOrganizationId()!.Value);
 
       return View(new DeleteLocationViewModel
       {
@@ -170,19 +170,19 @@ namespace Accounting.Controllers
     [Route("delete/{locationId}")]
     public async Task<IActionResult> Delete(DeleteLocationViewModel model)
     {
-      Location location = await _locationService.GetAsync(model.LocationID, GetOrganizationId());
+      Location location = await _locationService.GetAsync(model.LocationID, GetOrganizationId()!.Value);
 
       if (location == null)
         return NotFound();
 
-      bool isLocationInUseAsync = await _locationService.IsLocationInUseAsync(model.LocationID, GetOrganizationId());
-      location.Children = await _locationService.GetChildrenAsync(model.LocationID, GetOrganizationId());
+      bool isLocationInUseAsync = await _locationService.IsLocationInUseAsync(model.LocationID, GetOrganizationId()!.Value);
+      location.Children = await _locationService.GetChildrenAsync(model.LocationID, GetOrganizationId()!.Value);
       model.IsLocationInUseAsync = isLocationInUseAsync;
 
       DeleteLocationViewModel.DeleteLocationViewModelValidator validator = new DeleteLocationViewModel.DeleteLocationViewModelValidator();
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
-      location.Children = await _locationService.GetChildrenAsync(location.LocationID, GetOrganizationId());
+      location.Children = await _locationService.GetChildrenAsync(location.LocationID, GetOrganizationId()!.Value);
       model.IsLocationInUseAsync = location.Children?.Count > 0;
 
       if (!validationResult.IsValid)

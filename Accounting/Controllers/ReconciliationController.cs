@@ -36,7 +36,7 @@ namespace Accounting.Controllers
     public async Task<IActionResult> Reconciliations()
     {
       List<Reconciliation> reconciliations
-          = await _reconciliationService.GetAllDescendingAsync(20, GetOrganizationId());
+          = await _reconciliationService.GetAllDescendingAsync(20, GetOrganizationId()!.Value);
 
       var model = new ReconciliationsViewModel();
       model.Reconciliations = new List<ReconciliationViewModel>();
@@ -63,8 +63,8 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> ReconciliationDetails(int id, int page = 1, int pageSize = 10)
     {
-      var reconciliation = await _reconciliationService.GetByIdAsync(id, GetOrganizationId());
-      var reconciliationAttachment = await _reconciliationAttachmentService.GetByReconciliationIdAsync(id, GetOrganizationId());
+      var reconciliation = await _reconciliationService.GetByIdAsync(id, GetOrganizationId()!.Value);
+      var reconciliationAttachment = await _reconciliationAttachmentService.GetByReconciliationIdAsync(id, GetOrganizationId()!.Value);
 
       var model = new ReconciliationDetailsViewModel
       {
@@ -86,8 +86,8 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Finalize(int reconciliationId)
     {
-      var reconciliation = await _reconciliationService.GetByIdAsync(reconciliationId, GetOrganizationId());
-      var transactions = await _reconciliationTransactionService.GetAllByReconciliationIdAsync(reconciliationId, GetOrganizationId());
+      var reconciliation = await _reconciliationService.GetByIdAsync(reconciliationId, GetOrganizationId()!.Value);
+      var transactions = await _reconciliationTransactionService.GetAllByReconciliationIdAsync(reconciliationId, GetOrganizationId()!.Value);
 
       return RedirectToAction("Index", "Home");
     }
@@ -115,10 +115,10 @@ namespace Accounting.Controllers
       {
         Status = Reconciliation.Statuses.Pending,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId(),
+        OrganizationId = GetOrganizationId()!.Value,
       };
 
-      var ra = await _reconciliationAttachmentService.GetAsync(model.ReconciliationAttachmentId, GetOrganizationId());
+      var ra = await _reconciliationAttachmentService.GetAsync(model.ReconciliationAttachmentId, GetOrganizationId()!.Value);
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
@@ -135,7 +135,7 @@ namespace Accounting.Controllers
               ReconciliationId = createdReconciliation.ReconciliationID,
               Status = ReconciliationTransaction.ImportStatuses.Pending,
               CreatedById = GetUserId(),
-              OrganizationId = GetOrganizationId()
+              OrganizationId = GetOrganizationId()!.Value
             };
 
             foreach (var mapping in model.SelectedColumns)
@@ -172,8 +172,8 @@ namespace Accounting.Controllers
         FileInfo fileInfo = new FileInfo(ra.FilePath!);
         string destinationPath = fileInfo.MoveToDirectory(ConfigurationSingleton.Instance.PermPath);
 
-        await _reconciliationAttachmentService.UpdateFilePathAsync(ra.ReconciliationAttachmentID, destinationPath, GetOrganizationId());
-        await _reconciliationAttachmentService.UpdateReconciliationIdAsync(ra.ReconciliationAttachmentID, createdReconciliation.ReconciliationID, GetOrganizationId());
+        await _reconciliationAttachmentService.UpdateFilePathAsync(ra.ReconciliationAttachmentID, destinationPath, GetOrganizationId()!.Value);
+        await _reconciliationAttachmentService.UpdateReconciliationIdAsync(ra.ReconciliationAttachmentID, createdReconciliation.ReconciliationID, GetOrganizationId()!.Value);
 
         scope.Complete();
       }
@@ -213,7 +213,7 @@ namespace Accounting.Controllers
         OriginalFileName = file.FileName,
         FilePath = filePath,
         CreatedById = GetUserId(),
-        OrganizationId = GetOrganizationId(),
+        OrganizationId = GetOrganizationId()!.Value,
       });
 
       using (var reader = new StreamReader(file.OpenReadStream()))

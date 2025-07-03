@@ -126,7 +126,7 @@ namespace Accounting.Controllers
       if (model.SelectedRoles == null || !model.SelectedRoles.Any())
       {
         var claimService = new ClaimService(GetDatabaseName(), GetDatabasePassword());
-        model.SelectedRoles = await claimService.GetUserRolesAsync(model.UserID, GetOrganizationId(), Claim.CustomClaimTypeConstants.Role);
+        model.SelectedRoles = await claimService.GetUserRolesAsync(model.UserID, GetOrganizationId() ?? 0, Claim.CustomClaimTypeConstants.Role);
       }
 
       // Set current requesting user id
@@ -174,17 +174,17 @@ namespace Accounting.Controllers
         foreach (var role in model.AvailableRoles)
         {
           Claim roleClaim = await _claimService.GetAsync(user.UserID, GetDatabaseName(), role);
-          int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId());
+          int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId()!.Value);
 
           if (model.SelectedRoles.Contains(role) && roleClaim == null)
           {
             if (User.IsInRole(role))
-              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
+              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
           }
           else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
           {
             if (count > 1)
-              await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId(), role);
+              await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
           }
         }
 
@@ -256,7 +256,7 @@ namespace Accounting.Controllers
 
         await _userOrganizationService.CreateAsync(new UserOrganization()
         {
-          OrganizationId = GetOrganizationId(),
+          OrganizationId = GetOrganizationId()!.Value,
           UserId = user.UserID
         });
 
@@ -270,7 +270,7 @@ namespace Accounting.Controllers
     [Route("details/{id}")]
     public async Task<IActionResult> Details(int id)
     {
-      User user = (await _userOrganizationService.GetAsync(id, GetOrganizationId())).User!;
+      User user = (await _userOrganizationService.GetAsync(id, GetOrganizationId()!.Value)).User!;
 
       if (user == null)
       {
