@@ -133,7 +133,6 @@ namespace Accounting.Controllers
       model.CurrentRequestingUserId = GetUserId();
     }
 
-    [AllowWithoutOrganizationId]
     [HttpGet]
     [Route("update/{userId}")]
     public async Task<IActionResult> UpdateUser(int userId)
@@ -154,7 +153,6 @@ namespace Accounting.Controllers
       return View(viewModel);
     }
 
-    [AllowWithoutOrganizationId]
     [HttpPost]
     [Route("update/{userId}")]
     public async Task<IActionResult> UpdateUser(UpdateUserViewModel model)
