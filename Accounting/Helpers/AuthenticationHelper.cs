@@ -17,18 +17,14 @@ namespace Accounting.Helpers
       List<Claim> claims = new List<Claim>();
 
       claims.Add(new Claim(Business.Claim.CustomClaimTypeConstants.TenantId, tenantId.ToString()));
+      claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()));
+      claims.Add(new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()));
+      claims.Add(new Claim(ClaimTypes.Email, user.Email));
 
       if (organizationId.HasValue && !string.IsNullOrEmpty(organizationName))
       {
-        claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()));
-        claims.Add(new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()));
-        claims.Add(new Claim(ClaimTypes.Email, user.Email));
         claims.Add(new Claim(Business.Claim.CustomClaimTypeConstants.OrganizationId, organizationId.Value.ToString()));
         claims.Add(new Claim(Business.Claim.CustomClaimTypeConstants.OrganizationName, organizationName));
-      }
-      else
-      {
-        claims.Add(new Claim(ClaimTypes.Email, user.Email));
       }
 
       if (roles.Count > 0)
