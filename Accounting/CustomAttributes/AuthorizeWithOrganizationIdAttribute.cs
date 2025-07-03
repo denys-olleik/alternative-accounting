@@ -13,6 +13,10 @@ namespace Accounting.CustomAttributes
       var hasAllowAnonymous = context.ActionDescriptor.EndpointMetadata
           .Any(em => em is IAllowAnonymous);
 
+      // Check if the action or controller has the AllowWithoutOrganizationId attribute
+      var hasAllowWithoutOrgId = context.ActionDescriptor.EndpointMetadata
+          .Any(em => em is AllowWithoutOrganizationIdAttribute);
+
       if (hasAllowAnonymous)
       {
         // If AllowAnonymous is detected, skip the authorization check
@@ -23,6 +27,12 @@ namespace Accounting.CustomAttributes
       if (user == null || !user.Identity.IsAuthenticated)
       {
         context.Result = new UnauthorizedResult();
+        return;
+      }
+
+      if (hasAllowWithoutOrgId)
+      {
+        // Authenticated, but skip organization ID check
         return;
       }
 

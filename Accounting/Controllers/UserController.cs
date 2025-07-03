@@ -133,6 +133,7 @@ namespace Accounting.Controllers
       model.CurrentRequestingUserId = GetUserId();
     }
 
+    [AllowWithoutOrganizationId]
     [HttpGet]
     [Route("update/{userId}")]
     public async Task<IActionResult> UpdateUser(int userId)
@@ -153,6 +154,7 @@ namespace Accounting.Controllers
       return View(viewModel);
     }
 
+    [AllowWithoutOrganizationId]
     [HttpPost]
     [Route("update/{userId}")]
     public async Task<IActionResult> UpdateUser(UpdateUserViewModel model)
@@ -176,7 +178,7 @@ namespace Accounting.Controllers
 
           if (model.SelectedRoles.Contains(role) && roleClaim == null)
           {
-            if(User.IsInRole(role))
+            if (User.IsInRole(role))
               await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId(), role);
           }
           else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
