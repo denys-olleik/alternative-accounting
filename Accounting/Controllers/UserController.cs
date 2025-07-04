@@ -189,6 +189,15 @@ namespace Accounting.Controllers
           }
         }
 
+        if (User.IsInRole(UserRoleClaimConstants.OrganizationManager))
+        {
+          foreach (var organization in model.AvailableOrganizations)
+          {
+            List<Organization> organizations = await _userOrganizationService.GetByUserIdAsync(user.UserID, GetDatabaseName(), GetDatabasePassword());
+
+          }
+        }
+
         scope.Complete();
       }
 
