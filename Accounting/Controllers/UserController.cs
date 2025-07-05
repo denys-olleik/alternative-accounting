@@ -191,7 +191,7 @@ namespace Accounting.Controllers
 
         if (User.IsInRole(UserRoleClaimConstants.OrganizationManager))
         {
-          var currentOrganizations = await _userOrganizationService.GetByUserIdAsync(
+          List<Organization> currentOrganizations = await _userOrganizationService.GetByUserIdAsync(
             user.UserID, GetDatabaseName(), GetDatabasePassword());
           var currentOrgIds = currentOrganizations.Select(o => o.OrganizationID).ToHashSet();
 
@@ -208,7 +208,7 @@ namespace Accounting.Controllers
             }
             else if (!isSelected && isCurrentlyAssociated)
             {
-              await _userOrganizationService.DeleteAsync(user.UserID, GetOrganizationId()!.Value);
+              await _userOrganizationService.DeleteAsync(user.UserID, organization.OrganizationID);
             }
           }
         }
