@@ -179,9 +179,12 @@ namespace Accounting.Controllers
             if (model.SelectedRoles.Contains(role) && roleClaim == null)
             {
               if (User.IsInRole(role) && await UserInAnyOrganization(user.UserID))
+              {
+                EnsureOrganizationSelectedForRole(model, GetOrganizationId()!.Value);
                 await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
+              }
             }
-            else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
+            else if (/*!model.SelectedRoles.Contains(role) && */roleClaim != null)
             {
               if (count > 1)
                 await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
@@ -217,6 +220,18 @@ namespace Accounting.Controllers
       }
 
       return RedirectToAction("Users");
+    }
+
+    private void EnsureOrganizationSelectedForRole(UpdateUserViewModel model, int organizationId)
+    {
+      var orgIdStr = organizationId.ToString();
+      if (string.IsNullOrEmpty(model.SelectedOrganizationIdsCsv) ||
+          !model.SelectedOrganizationIdsCsv.Split(',').Contains(orgIdStr))
+      {
+        model.SelectedOrganizationIdsCsv = string.IsNullOrEmpty(model.SelectedOrganizationIdsCsv)
+            ? orgIdStr
+            : model.SelectedOrganizationIdsCsv + "," + orgIdStr;
+      }
     }
 
     private async Task<bool> UserInAnyOrganization(int userId)
