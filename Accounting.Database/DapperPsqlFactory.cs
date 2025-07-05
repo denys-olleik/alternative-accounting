@@ -4865,6 +4865,25 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public async Task<int> DeleteAsync(int userID, int organizationId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@UserId", userID);
+        p.Add("@OrganizationId", organizationId);
+        
+        int rowsAffected;
+        
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          rowsAffected = await con.ExecuteAsync("""
+            DELETE FROM "UserOrganization" 
+            WHERE "UserId" = @UserId AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return rowsAffected;
+      }
+
       public async Task<int> DeleteByOrganizationIdAsync(int organizationId, string databaseName, string databasePassword)
       {
         DynamicParameters p = new DynamicParameters();

@@ -178,7 +178,7 @@ namespace Accounting.Controllers
 
             if (model.SelectedRoles.Contains(role) && roleClaim == null)
             {
-              if (User.IsInRole(role)  && await UserInAnyOrganization(user.UserID))
+              if (User.IsInRole(role) && await UserInAnyOrganization(user.UserID))
                 await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
             }
             else if (!model.SelectedRoles.Contains(role) && roleClaim != null)
@@ -191,10 +191,25 @@ namespace Accounting.Controllers
 
         if (User.IsInRole(UserRoleClaimConstants.OrganizationManager))
         {
+          var currentOrganizations = await _userOrganizationService.GetByUserIdAsync(
+            user.UserID, GetDatabaseName(), GetDatabasePassword());
+          var currentOrgIds = currentOrganizations.Select(o => o.OrganizationID).ToHashSet();
+
           foreach (var organization in model.AvailableOrganizations)
           {
-            List<Organization> organizations = await _userOrganizationService.GetByUserIdAsync(user.UserID, GetDatabaseName(), GetDatabasePassword());
+            bool isSelected = !string.IsNullOrEmpty(model.SelectedOrganizationIdsCsv) &&
+                  model.SelectedOrganizationIdsCsv.Split(',').Contains(organization.OrganizationID.ToString());
+            bool isCurrentlyAssociated = currentOrgIds.Contains(organization.OrganizationID);
 
+            if (isSelected && !isCurrentlyAssociated)
+            {
+              await _userOrganizationService.CreateAsync(
+                user.UserID, organization.OrganizationID, GetDatabaseName(), GetDatabasePassword());
+            }
+            else if (!isSelected && isCurrentlyAssociated)
+            {
+              await _userOrganizationService.DeleteAsync(user.UserID, GetOrganizationId()!.Value);
+            }
           }
         }
 
