@@ -95,7 +95,7 @@ namespace Accounting.Controllers
       return RedirectToAction("Users", new { page = 1, pageSize = 2 });
     }
 
-    private async Task PopulateUpdateUserViewModelAsync(UpdateUserViewModel model)
+    private async Task PopulateUpdateUserViewModelAsync(UpdateUserViewModel model, bool isPost = false)
     {
       // Fetch organizations
       OrganizationService organizationService = new OrganizationService(GetDatabaseName(), GetDatabasePassword());
@@ -122,8 +122,8 @@ namespace Accounting.Controllers
         UserRoleClaimConstants.OrganizationManager
       };
 
-      // Fetch selected roles if not already set
-      if (model.SelectedRoles == null || !model.SelectedRoles.Any())
+      // Only set selected roles on GET (not POST)
+      if (!isPost && (model.SelectedRoles == null || !model.SelectedRoles.Any()))
       {
         var claimService = new ClaimService(GetDatabaseName(), GetDatabasePassword());
         model.SelectedRoles = await claimService.GetUserRolesAsync(model.UserID, GetOrganizationId() ?? 0, Claim.CustomClaimTypeConstants.Role);
@@ -160,7 +160,7 @@ namespace Accounting.Controllers
       User user = await _userService.GetAsync(model.UserID);
       if (user == null) return NotFound();
 
-      await PopulateUpdateUserViewModelAsync(model);
+      await PopulateUpdateUserViewModelAsync(model, true);
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
@@ -173,21 +173,25 @@ namespace Accounting.Controllers
         {
           foreach (var role in model.AvailableRoles)
           {
-            Claim roleClaim = await _claimService.GetAsync(user.UserID, GetDatabaseName(), role);
             int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId()!.Value);
+            Claim roleClaim = await _claimService.GetAsync(user.UserID, GetOrganizationId()!.Value, Claim.CustomClaimTypeConstants.Role, role);
 
-            if (model.SelectedRoles.Contains(role) && roleClaim == null)
-            {
-              if (User.IsInRole(role) && await UserInAnyOrganization(user.UserID))
-              {
-                EnsureOrganizationSelectedForRole(model, GetOrganizationId()!.Value);
-                await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
-              }
-            }
-            else if (/*!model.SelectedRoles.Contains(role) && */roleClaim != null)
+            if (roleClaim != null && !model.SelectedRoles.Contains(role))
             {
               if (count > 1)
+              {
                 await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
+              }
+            }
+            else if (model.SelectedRoles.Contains(role) && roleClaim == null)
+            {
+              EnsureOrganizationSelectedForRole(model, GetOrganizationId()!.Value);
+              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
+            }
+            //
+            else if (!model.SelectedRoles.Any())
+            {
+              await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
             }
           }
         }

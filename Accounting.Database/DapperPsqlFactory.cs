@@ -8039,6 +8039,7 @@ namespace Accounting.Database
           rowsAffected = await con.ExecuteAsync("""
             INSERT INTO "Claim" ("UserId", "ClaimType", "ClaimValue", "OrganizationId", "CreatedById") 
             VALUES (@UserId, @ClaimType, @ClaimValue, @OrganizationId, @CreatedById)
+            ON CONFLICT ("OrganizationId", "UserId", "ClaimType", "ClaimValue") DO NOTHING
             """, p);
         }
 
@@ -8152,6 +8153,31 @@ namespace Accounting.Database
             WHERE "UserId" = @UserId
             AND "ClaimType" = @ClaimType
             AND "ClaimValue" = @ClaimValue
+            """, p);
+        }
+
+        return result.SingleOrDefault();
+      }
+
+      public async Task<Claim> GetAsync(int userID, int organizationId, string claimType, string claimValue)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@UserId", userID);
+        p.Add("@ClaimType", claimType);
+        p.Add("@ClaimValue", claimValue);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<Claim> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<Claim>("""
+            SELECT * 
+            FROM "Claim" 
+            WHERE "UserId" = @UserId
+            AND "ClaimType" = @ClaimType
+            AND "ClaimValue" = @ClaimValue
+            AND "OrganizationId" = @OrganizationId
             """, p);
         }
 

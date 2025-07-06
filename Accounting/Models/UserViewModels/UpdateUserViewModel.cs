@@ -37,6 +37,7 @@ namespace Accounting.Models.UserViewModels
 
     public int CurrentRequestingUserId { get; set; }
     public ValidationResult ValidationResult { get; set; } = new();
+    public List<string> DatabaseRoles { get;  set; } = new();
 
     public class OrganizationViewModel
     {
