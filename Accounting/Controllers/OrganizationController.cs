@@ -14,10 +14,12 @@ namespace Accounting.Controllers
   public class OrganizationController : BaseController
   {
     private readonly OrganizationService _organizationService;
+    private readonly UserOrganizationService _userOrganizationService;
 
-    public OrganizationController(OrganizationService organizationService, RequestContext requestContext)
+    public OrganizationController(OrganizationService organizationService, RequestContext requestContext, UserOrganizationService userOrganizationService)
     {
       _organizationService = new OrganizationService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _userOrganizationService = new UserOrganizationService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
     [HttpGet]
@@ -39,8 +41,18 @@ namespace Accounting.Controllers
         model.ValidationResult = validationResult;
         return View(model);
       }
-      
-      await _organizationService.CreateAsync(model.Name!);
+
+      using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+      {
+        Organization organization = await _organizationService.CreateAsync(model.Name!);
+        await _userOrganizationService.CreateAsync(new UserOrganization
+        {
+          UserId = GetUserId(),
+          OrganizationId = organization.OrganizationID
+        });
+
+        scope.Complete();
+      }
       
       return RedirectToAction("ChooseOrganization", "UserAccount");
     }
