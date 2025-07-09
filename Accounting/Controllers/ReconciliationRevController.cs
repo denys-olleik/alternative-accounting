@@ -22,30 +22,20 @@ namespace Accounting.Controllers
 
     [Route("reconciliationsrev")]
     [HttpGet]
-    public async Task<IActionResult> Reconciliations()
+    public async Task<IActionResult> Reconciliations(
+      int page = 1,
+      int pageSize = 2)
     {
-      List<Reconciliation> reconciliations
-          = await _reconciliationService.GetAllDescendingAsync(20, GetOrganizationId()!.Value);
+      var referer = Request.Headers["Referer"].ToString() ?? string.Empty;
 
-      var model = new ReconciliationsViewModel();
-      model.Reconciliations = new List<ReconciliationViewModel>();
-
-      foreach (var reconciliation in reconciliations)
+      var vm = new ReconciliationsPaginatedViewModel
       {
-        var reconciliationViewModel = new ReconciliationViewModel
-        {
-          ID = reconciliation.ReconciliationID,
-          Status = reconciliation.Status,
-          OriginalFileName = Path.GetFileName(reconciliation.ReconciliationAttachment.OriginalFileName),
-          Created = reconciliation.Created,
-          CreatedById = reconciliation.CreatedById,
-          OrganizationId = reconciliation.OrganizationId
-        };
+        Page = page,
+        PageSize = pageSize,
+        RememberPageSize = string.IsNullOrEmpty(referer),
+      };
 
-        model.Reconciliations.Add(reconciliationViewModel);
-      }
-
-      return View(model);
+      return View(vm);
     }
   }
 }
