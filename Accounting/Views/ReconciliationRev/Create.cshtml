@@ -18,3 +18,42 @@
 			 class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
 	</div>
 </div>
+
+<form asp-action="Create" asp-controller="ReconciliationRev" method="post" enctype="multipart/form-data" class="display-flex flex-direction-column margin-bottom-5px">
+
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <div class="display-flex align-items-center">
+      <label asp-for="StatementType" class="margin-right-10px">Statement Type</label>
+      <select asp-for="StatementType" class="font-size-20px">
+        <option value="">Select type:</option>
+        <option value="bank">bank</option>
+        <option value="credit-card">credit card</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="StatementCsv">CSV File</label>
+    <input asp-for="StatementCsv" type="file" accept=".csv" class="font-size-20px" />
+  </div>
+
+  <div class="display-flex">
+    <div class="flex-1">
+      <button type="button" class="full-width-regular-button width-100" onclick="event.preventDefault(); window.location.href='@Url.Action("Index", "Home")';">Cancel</button>
+    </div>
+    <div class="width-5px"></div>
+    <div class="flex-1">
+      <button type="submit" class="full-width-regular-button width-100">Create reconciliation</button>
+    </div>
+  </div>
+</form>
+
+@if (Model != null && Model.ValidationResult != null)
+{
+  foreach (var error in Model.ValidationResult.Errors)
+  {
+    <div>
+      <small class="color-red">@error.ErrorMessage</small>
+    </div>
+  }
+}

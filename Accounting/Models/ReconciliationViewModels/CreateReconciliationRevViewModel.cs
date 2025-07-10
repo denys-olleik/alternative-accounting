@@ -75,8 +75,7 @@ namespace Accounting.Models.ReconciliationViewModels
           .Must(value => value == "bank" || value == "credit-card")
           .WithMessage("Invalid statement type.");
         RuleFor(x => x.StatementCsv)
-          .NotNull().WithMessage("CSV file is required.")
-          .Must(file => file.Length > 0).WithMessage("CSV file cannot be empty.");
+          .Must(file => file != null && file.Length > 0).WithMessage("CSV file cannot be empty.");
       }
     }
   }
