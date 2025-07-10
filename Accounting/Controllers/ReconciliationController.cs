@@ -21,14 +21,11 @@ namespace Accounting.Controllers
     private readonly ReconciliationAttachmentService _reconciliationAttachmentService;
 
     public ReconciliationController(
-        ReconciliationTransactionService reconciliationTransactionService,
-        ReconciliationService reconciliationService,
-        ReconciliationAttachmentService reconciliationAttachmentService,
         RequestContext requestContext)
     {
-      _reconciliationTransactionService = new ReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
-      _reconciliationService = new ReconciliationService(requestContext.DatabaseName, requestContext.DatabasePassword);
-      _reconciliationAttachmentService = new ReconciliationAttachmentService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _reconciliationTransactionService = new (requestContext.DatabaseName, requestContext.DatabasePassword);
+      _reconciliationService = new (requestContext.DatabaseName, requestContext.DatabasePassword);
+      _reconciliationAttachmentService = new (requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
     [Route("reconciliations")]
