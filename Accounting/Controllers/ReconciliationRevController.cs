@@ -63,7 +63,24 @@ namespace Accounting.Controllers
 
         string firstTenLinesOfCsv = string.Empty;
 
+        // load first 10 lines of CSV file to process transactions
+        if (model.StatementCsv != null && model.StatementCsv.Length > 0)
+        {
+          using (var reader = new StreamReader(model.StatementCsv.OpenReadStream()))
+          {
+            for (int i = 0; i < 10 && !reader.EndOfStream; i++)
+            {
+              firstTenLinesOfCsv += await reader.ReadLineAsync() + Environment.NewLine;
+            }
+          }
+        }
 
+        LanguageModelService languageModelService = new LanguageModelService();
+        var (context, structuredResponse) = await languageModelService.GenerateResponse("""
+          is this a CSV file and on what line is the first row of data?
+          """, firstTenLinesOfCsv);
+
+        scope.Complete();
       }
 
       return RedirectToAction("Reconciliations");
