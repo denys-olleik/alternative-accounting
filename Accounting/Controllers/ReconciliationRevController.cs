@@ -68,10 +68,7 @@ namespace Accounting.Controllers
         {
           using (var reader = new StreamReader(model.StatementCsv.OpenReadStream()))
           {
-            for (int i = 0; i < 10 && !reader.EndOfStream; i++)
-            {
-              allLines += await reader.ReadLineAsync() + Environment.NewLine;
-            }
+            allLines = await reader.ReadToEndAsync();
           }
         }
 
@@ -91,16 +88,6 @@ namespace Accounting.Controllers
 
         List<ReconciliationTransaction> transactions = new ();
         // Process the CSV file to extract transactions, make sure to offset the first data row
-        for (int i = structuredResponse.firstDataRow - 1; i < 10 && i >= 0; i++)
-        {
-          // Here you would parse each line of the CSV and create a ReconciliationTransaction object
-          // For simplicity, let's assume we have a method ParseCsvLine that does this
-          var transaction = await _reconciliationTransactionService.ParseCsvLineAsync(model.StatementCsv, i, reconciliation.ReconciliationID.Value);
-          if (transaction != null)
-          {
-            transactions.Add(transaction);
-          }
-        }
 
         scope.Complete();
       }
