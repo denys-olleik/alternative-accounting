@@ -76,9 +76,15 @@ namespace Accounting.Controllers
         }
 
         LanguageModelService languageModelService = new LanguageModelService();
-        var (context, structuredResponse) = await languageModelService.GenerateResponse("""
+        var (response, structuredResponse) = await languageModelService.GenerateResponse<dynamic>("""
           is this a CSV file and on what line is the first row of data?
-          """, firstTenLinesOfCsv);
+
+          example response:
+          {
+            "isCsv": true,
+            "firstDataRow": 2
+          }
+          """, firstTenLinesOfCsv, true);
 
         scope.Complete();
       }

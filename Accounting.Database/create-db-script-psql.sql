@@ -618,7 +618,7 @@ CREATE TABLE "Secret"
 	"Master" BOOLEAN DEFAULT FALSE,
 	"Value" TEXT NOT NULL,
 	"ValueEncrypted" BOOLEAN NOT NULL DEFAULT FALSE,
-	"Type" VARCHAR(20) CHECK ("Type" IN ('cloud', 'no-reply', 'droplet-limit', 'abuse-ip-db')) NULL,
+	"Type" VARCHAR(20) CHECK ("Type" IN ('cloud', 'no-reply', 'droplet-limit', 'abuse-ip-db', 'openai')) NULL,
 	"Purpose" VARCHAR(100) NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NULL,
