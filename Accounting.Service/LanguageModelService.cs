@@ -13,19 +13,18 @@ namespace Accounting.Service
       SecretService secretService = new SecretService();
       Secret secret = await secretService.GetAsync(Secret.SecretTypeConstants.OpenAI, 1);
 
-      // call OpenAI API with the provided prompt and secret
-      // if response is structured, parse it into T
-      // otherwise put response into context and leave structured response as null
+      string model = useMiniModel ? "gpt-4.1-mini-2025-04-14" : "gpt-4.1-2025-04-14";
+
       using (HttpClient client = new HttpClient())
       {
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", secret.Value);
         var requestBody = new
         {
-          model = "gpt-4.1-2025-04-14",
+          model = model,
           messages = new[]
           {
-            new { role = "user", content = prompt }
-          },
+          new { role = "user", content = prompt }
+        },
           temperature = 0.1
         };
         var content = new StringContent(

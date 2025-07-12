@@ -61,7 +61,7 @@ namespace Accounting.Controllers
           OrganizationId = GetOrganizationId()!.Value
         });
 
-        string firstTenLinesOfCsv = string.Empty;
+        string allLines = string.Empty;
 
         // load first 10 lines of CSV file to process transactions
         if (model.StatementCsv != null && model.StatementCsv.Length > 0)
@@ -70,7 +70,7 @@ namespace Accounting.Controllers
           {
             for (int i = 0; i < 10 && !reader.EndOfStream; i++)
             {
-              firstTenLinesOfCsv += await reader.ReadLineAsync() + Environment.NewLine;
+              allLines += await reader.ReadLineAsync() + Environment.NewLine;
             }
           }
         }
@@ -84,7 +84,23 @@ namespace Accounting.Controllers
             "isCsv": true,
             "firstDataRow": 2
           }
-          """, firstTenLinesOfCsv, true);
+          """, string.Join("\n", allLines.Split('\n').Take(10)), false, true);
+
+        if (structuredResponse?.isCsv != true)
+          throw new InvalidOperationException("The uploaded file is not a valid CSV file.");
+
+        List<ReconciliationTransaction> transactions = new ();
+        // Process the CSV file to extract transactions, make sure to offset the first data row
+        for (int i = structuredResponse.firstDataRow - 1; i < 10 && i >= 0; i++)
+        {
+          // Here you would parse each line of the CSV and create a ReconciliationTransaction object
+          // For simplicity, let's assume we have a method ParseCsvLine that does this
+          var transaction = await _reconciliationTransactionService.ParseCsvLineAsync(model.StatementCsv, i, reconciliation.ReconciliationID.Value);
+          if (transaction != null)
+          {
+            transactions.Add(transaction);
+          }
+        }
 
         scope.Complete();
       }
