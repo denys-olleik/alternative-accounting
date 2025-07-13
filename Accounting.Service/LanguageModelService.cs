@@ -4,9 +4,9 @@ namespace Accounting.Service
 {
   public class LanguageModelService
   {
-    public async Task<(string context, T? structuredResponse)> GenerateResponse<T>(
+    public async Task<(string response, T? structuredResponse)> GenerateResponse<T>(
       string prompt,
-      string context,
+      string? context,
       bool useMiniModel,
       bool requireStructuredResponse = false)
     {
