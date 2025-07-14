@@ -147,7 +147,7 @@ namespace Accounting.Controllers
                   importData.TransactionDate = DateTime.Parse(value);
                   break;
                 case "PostedDate":
-                  importData.PostedDate = DateTime.Parse(value);
+                  //importData.PostedDate = DateTime.Parse(value);
                   break;
                 case "Description":
                   importData.Description = value;

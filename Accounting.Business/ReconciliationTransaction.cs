@@ -13,7 +13,6 @@ namespace Accounting.Business
     public string? ReconciliationInstruction { get; set; }
     public Guid? TransactionGuid { get; set; }
     public DateTime? TransactionDate { get; set; }
-    public DateTime? PostedDate { get; set; }
     public string? Description { get; set; }
     public decimal? Amount { get; set; }
     public string? Category { get; set; }
@@ -39,10 +38,10 @@ namespace Accounting.Business
       static ReconciliationInstructions()
       {
         var fields = typeof(ReconciliationInstructions)
-            .GetFields(
-                     BindingFlags.Public
-                                | BindingFlags.Static
-                                           | BindingFlags.DeclaredOnly);
+          .GetFields(
+            BindingFlags.Public
+            | BindingFlags.Static
+            | BindingFlags.DeclaredOnly);
 
         foreach (var field in fields)
         {

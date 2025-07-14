@@ -9,7 +9,7 @@ namespace Accounting.Controllers
 {
   [Route("recrev")]
   [AuthorizeWithOrganizationId]
-  public class ReconciliationRevController 
+  public class ReconciliationRevController
     : BaseController
   {
     private readonly ReconciliationTransactionService _reconciliationTransactionService;
@@ -23,6 +23,30 @@ namespace Accounting.Controllers
       _reconciliationService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
       _reconciliationAttachmentService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
+
+//-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "ReconciliationTransaction";'
+//CREATE TABLE "ReconciliationTransaction"
+//(
+//	"ReconciliationTransactionID" SERIAL PRIMARY KEY NOT NULL,
+//	"Status" VARCHAR(20) CHECK("Status" IN ('pending', 'processed', 'error')) DEFAULT 'pending' NOT NULL,
+//	"RawData" TEXT NULL,
+//	"ReconciliationInstruction" VARCHAR(20) NULL CHECK("ReconciliationInstruction" IN ('expense', 'revenue')),
+//	"TransactionDate" TIMESTAMPTZ NOT NULL,
+//	"Description" VARCHAR(1000) NOT NULL,
+//	"Amount" DECIMAL(18, 2) NOT NULL,
+//	"Category" VARCHAR(100) NULL,
+//	"ExpenseAccountId" INT NULL,
+//	"AssetOrLiabilityAccountId" INT NULL,
+//	"Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+//	"ReconciliationId" INT NOT NULL,
+//	"CreatedById" INT NOT NULL,
+//	"OrganizationId" INT NOT NULL,
+//	FOREIGN KEY("ReconciliationId") REFERENCES "Reconciliation"("ReconciliationID"),
+//	FOREIGN KEY("ExpenseAccountId") REFERENCES "Account"("AccountID"),
+//	FOREIGN KEY("AssetOrLiabilityAccountId") REFERENCES "Account"("AccountID"),
+//	FOREIGN KEY("CreatedById") REFERENCES "User"("UserID"),
+//	FOREIGN KEY("OrganizationId") REFERENCES "Organization"("OrganizationID")
+//);
 
     [HttpGet]
     [Route("create")]
@@ -86,8 +110,32 @@ namespace Accounting.Controllers
         if (structuredResponse?.isCsv != true)
           throw new InvalidOperationException("The uploaded file is not a valid CSV file.");
 
-        List<ReconciliationTransaction> transactions = new ();
+        List<ReconciliationTransaction> transactions = new();
         // Process the CSV file to extract transactions, make sure to offset the first data row
+        for (int i = structuredResponse.firstDataRow - 1; i < allLines.Split('\n').Length; i++)
+        {
+          string row = allLines.Split('\n')[i].Trim();
+
+          await languageModelService.GenerateResponse<dynamic>($"""
+            process this CSV row into a ReconciliationTransaction object:
+            {row}
+            """,
+            string.Empty,
+            true,
+            true
+          ).ContinueWith(t =>
+          {
+            if (t.Result.structuredResponse != null)
+            {
+              transactions.Add(new ReconciliationTransaction
+              {
+                RawData = t.Result.structuredResponse.RawData,
+                ReconciliationInstruction = model.StatementType,
+                TransactionDate = t.Result.structuredResponse.TransactionDate,
+              });
+            }
+          });
+        }
 
         scope.Complete();
       }

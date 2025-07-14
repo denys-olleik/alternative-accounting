@@ -3795,7 +3795,6 @@ namespace Accounting.Database
             p.Add("@ReconciliationId", reconciliationTransaction.ReconciliationId);
             p.Add("@RawData", reconciliationTransaction.RawData);
             p.Add("@TransactionDate", reconciliationTransaction.TransactionDate);
-            p.Add("@PostedDate", reconciliationTransaction.PostedDate);
             p.Add("@Description", reconciliationTransaction.Description);
             p.Add("@Amount", reconciliationTransaction.Amount);
             p.Add("@Category", reconciliationTransaction.Category);
@@ -3809,7 +3808,6 @@ namespace Accounting.Database
                   "ReconciliationId",    
                   "RawData", 
                   "TransactionDate", 
-                  "PostedDate", 
                   "Description", 
                   "Amount", 
                   "Category", 
@@ -3821,7 +3819,6 @@ namespace Accounting.Database
                   @ReconciliationId,
                   @RawData, 
                   @TransactionDate, 
-                  @PostedDate, 
                   @Description, 
                   @Amount, 
                   @Category, 

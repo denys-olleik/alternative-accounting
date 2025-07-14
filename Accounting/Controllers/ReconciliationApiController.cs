@@ -111,7 +111,6 @@ namespace Accounting.Controllers
           RawData = rt.RawData,
           ReconciliationInstruction = rt.ReconciliationInstruction,
           TransactionDate = rt.TransactionDate,
-          PostedDate = rt.PostedDate,
           Description = rt.Description,
           Amount = rt.Amount,
           Category = rt.Category,

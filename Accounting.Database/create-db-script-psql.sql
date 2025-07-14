@@ -143,7 +143,6 @@ CREATE TABLE "ReconciliationTransaction"
 	"RawData" TEXT NULL,
 	"ReconciliationInstruction" VARCHAR(20) NULL CHECK ("ReconciliationInstruction" IN ('expense', 'revenue')),
 	"TransactionDate" TIMESTAMPTZ NOT NULL,
-	"PostedDate" TIMESTAMPTZ NOT NULL,
 	"Description" VARCHAR(1000) NOT NULL,
 	"Amount" DECIMAL(18, 2) NOT NULL,
 	"Category" VARCHAR(100) NULL,
