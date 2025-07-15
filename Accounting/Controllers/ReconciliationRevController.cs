@@ -79,7 +79,6 @@ namespace Accounting.Controllers
       {
         Reconciliation reconciliation = await _reconciliationService.CreateAsync(new Reconciliation
         {
-          StatementType = model.StatementType,
           CreatedById = GetUserId(),
           OrganizationId = GetOrganizationId()!.Value
         });
@@ -129,7 +128,6 @@ namespace Accounting.Controllers
               transactions.Add(new ReconciliationTransaction
               {
                 RawData = t.Result.structuredResponse.RawData,
-                ReconciliationInstruction = model.StatementType,
                 TransactionDate = t.Result.structuredResponse.TransactionDate,
                 Description = t.Result.structuredResponse.Description,
                 Amount = t.Result.structuredResponse.Amount,

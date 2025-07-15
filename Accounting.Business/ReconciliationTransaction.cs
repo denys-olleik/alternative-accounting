@@ -7,7 +7,6 @@ namespace Accounting.Business
   public class ReconciliationTransaction : IIdentifiable<int>
   {
     public int ReconciliationTransactionID { get; set; }
-    public string? StatementType { get; set; }
     public string? Status { get; set; }
     public string? RawData { get; set; }
     public string? ReconciliationInstruction { get; set; }
@@ -66,33 +65,6 @@ namespace Accounting.Business
       static ImportStatuses()
       {
         var fields = typeof(ImportStatuses)
-            .GetFields(
-            BindingFlags.Public
-            | BindingFlags.Static
-            | BindingFlags.DeclaredOnly);
-
-        foreach (var field in fields)
-        {
-          if (field.FieldType == typeof(string) && field.GetValue(null) is string value)
-          {
-            _all.Add(value);
-          }
-        }
-      }
-
-      public static IReadOnlyList<string> All => _all.AsReadOnly();
-    }
-
-    public static class StatementTypes
-    {
-      public const string Bank = "bank";
-      public const string CreditCard = "credit-card";
-
-      private static readonly List<string> _all = new List<string>();
-
-      static StatementTypes()
-      {
-        var fields = typeof(StatementTypes)
             .GetFields(
             BindingFlags.Public
             | BindingFlags.Static

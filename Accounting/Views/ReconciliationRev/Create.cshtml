@@ -22,17 +22,6 @@
 <form asp-action="Create" asp-controller="ReconciliationRev" method="post" enctype="multipart/form-data" class="display-flex flex-direction-column margin-bottom-5px">
 
   <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
-    <div class="display-flex align-items-center">
-      <label asp-for="StatementType" class="margin-right-10px">Statement Type</label>
-      <select asp-for="StatementType" class="font-size-20px">
-        <option value="">Select type:</option>
-        <option value="bank">bank</option>
-        <option value="credit-card">credit card</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
     <label asp-for="StatementCsv">CSV File</label>
     <input asp-for="StatementCsv" type="file" accept=".csv" class="font-size-20px" />
   </div>

@@ -61,35 +61,11 @@ CREATE TABLE "UserOrganization"
 	UNIQUE ("UserId", "OrganizationId")
 );
 
----- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "LoginWithoutPassword";'
---CREATE TABLE "LoginWithoutPassword"
---(
---	"LoginWithoutPasswordID" SERIAL PRIMARY KEY NOT NULL,
---	"Code" VARCHAR(100) NOT NULL,
---	"Email" VARCHAR(100) NOT NULL,
---	"Expires" TIMESTAMPTZ NOT NULL,
---	"Completed" TIMESTAMPTZ NULL,
---	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
---);
-
--- CREATE TABLE "Cloud"
--- (
--- 	"CloudID" SERIAL PRIMARY KEY NOT NULL,
--- 	"Name" VARCHAR(100) NOT NULL,
--- 	"Description" TEXT NULL,
--- 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
--- 	"CreatedById" INT NOT NULL,
--- 	"OrganizationId" INT NOT NULL,
--- 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
--- 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
--- );
-
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Reconciliation";'
 CREATE TABLE "Reconciliation"
 (
 	"ReconciliationID" SERIAL PRIMARY KEY NOT NULL,
 	"Status" VARCHAR(20) CHECK ("Status" IN ('pending', 'processed')) DEFAULT 'pending' NOT NULL,
-	"StatementType" VARCHAR(20) CHECK ("StatementType" IN ('bank', 'credit-card')) NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
