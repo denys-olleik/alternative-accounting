@@ -145,7 +145,6 @@ CREATE TABLE "ReconciliationTransaction"
 	"TransactionDate" TIMESTAMPTZ NOT NULL,
 	"Description" VARCHAR(1000) NOT NULL,
 	"Amount" DECIMAL(18, 2) NOT NULL,
-	"Category" VARCHAR(100) NULL,
 	"ExpenseAccountId" INT NULL,
 	"AssetOrLiabilityAccountId" INT NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),

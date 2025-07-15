@@ -113,7 +113,6 @@ namespace Accounting.Controllers
           TransactionDate = rt.TransactionDate,
           Description = rt.Description,
           Amount = rt.Amount,
-          Category = rt.Category,
           Created = rt.Created,
           ReconciliationId = rt.ReconciliationId,
           CreatedById = rt.CreatedById,

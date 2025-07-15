@@ -3797,7 +3797,6 @@ namespace Accounting.Database
             p.Add("@TransactionDate", reconciliationTransaction.TransactionDate);
             p.Add("@Description", reconciliationTransaction.Description);
             p.Add("@Amount", reconciliationTransaction.Amount);
-            p.Add("@Category", reconciliationTransaction.Category);
             p.Add("@CreatedById", reconciliationTransaction.CreatedById);
             p.Add("@OrganizationId", reconciliationTransaction.OrganizationId);
 
@@ -3810,7 +3809,6 @@ namespace Accounting.Database
                   "TransactionDate", 
                   "Description", 
                   "Amount", 
-                  "Category", 
                   "CreatedById", 
                   "OrganizationId"
                 ) 
@@ -3821,7 +3819,6 @@ namespace Accounting.Database
                   @TransactionDate, 
                   @Description, 
                   @Amount, 
-                  @Category, 
                   @CreatedById, 
                   @OrganizationId
                 );

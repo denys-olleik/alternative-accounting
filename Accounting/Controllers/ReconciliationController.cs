@@ -156,7 +156,7 @@ namespace Accounting.Controllers
                   importData.Amount = Decimal.Parse(value);
                   break;
                 case "Category":
-                  importData.Category = value;
+                  //importData.Category = value;
                   break;
               }
             }
