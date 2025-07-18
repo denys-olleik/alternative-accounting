@@ -24,29 +24,6 @@ namespace Accounting.Controllers
       _reconciliationAttachmentService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
-//-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "ReconciliationTransaction";'
-//CREATE TABLE "ReconciliationTransaction"
-//(
-//	"ReconciliationTransactionID" SERIAL PRIMARY KEY NOT NULL,
-//	"Status" VARCHAR(20) CHECK("Status" IN ('pending', 'processed', 'error')) DEFAULT 'pending' NOT NULL,
-//	"RawData" TEXT NULL,
-//	"ReconciliationInstruction" VARCHAR(20) NULL CHECK("ReconciliationInstruction" IN ('expense', 'revenue')),
-//	"TransactionDate" TIMESTAMPTZ NOT NULL,
-//	"Description" VARCHAR(1000) NOT NULL,
-//	"Amount" DECIMAL(18, 2) NOT NULL,
-//	"ExpenseAccountId" INT NULL,
-//	"AssetOrLiabilityAccountId" INT NULL,
-//	"Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
-//	"ReconciliationId" INT NOT NULL,
-//	"CreatedById" INT NOT NULL,
-//	"OrganizationId" INT NOT NULL,
-//	FOREIGN KEY("ReconciliationId") REFERENCES "Reconciliation"("ReconciliationID"),
-//	FOREIGN KEY("ExpenseAccountId") REFERENCES "Account"("AccountID"),
-//	FOREIGN KEY("AssetOrLiabilityAccountId") REFERENCES "Account"("AccountID"),
-//	FOREIGN KEY("CreatedById") REFERENCES "User"("UserID"),
-//	FOREIGN KEY("OrganizationId") REFERENCES "Organization"("OrganizationID")
-//);
-
     [HttpGet]
     [Route("create")]
     public async Task<IActionResult> Create()
@@ -116,7 +93,11 @@ namespace Accounting.Controllers
 
           await languageModelService.GenerateResponse<dynamic>($"""
             process this CSV row into a ReconciliationTransaction object:
+            ```csv
             {row}
+            ```
+
+            respond with JSON object that includes TransactionDate, Description, and Amount fields.
             """,
             string.Empty,
             true,
@@ -127,7 +108,7 @@ namespace Accounting.Controllers
             {
               transactions.Add(new ReconciliationTransaction
               {
-                RawData = t.Result.structuredResponse.RawData,
+                RawData = row,
                 TransactionDate = t.Result.structuredResponse.TransactionDate,
                 Description = t.Result.structuredResponse.Description,
                 Amount = t.Result.structuredResponse.Amount,
