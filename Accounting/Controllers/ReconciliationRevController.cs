@@ -62,13 +62,16 @@ namespace Accounting.Controllers
 
         string allLines = string.Empty;
 
-        // load first 10 lines of CSV file to process transactions
         if (model.StatementCsv != null && model.StatementCsv.Length > 0)
         {
           using (var reader = new StreamReader(model.StatementCsv.OpenReadStream()))
           {
             allLines = await reader.ReadToEndAsync();
           }
+        }
+        else
+        {
+          allLines = model.StatementCsvText!;
         }
 
         LanguageModelService languageModelService = new LanguageModelService();
@@ -86,10 +89,12 @@ namespace Accounting.Controllers
           throw new InvalidOperationException("The uploaded file is not a valid CSV file.");
 
         List<ReconciliationTransaction> transactions = new();
-        // Process the CSV file to extract transactions, make sure to offset the first data row
-        for (int i = structuredResponse.firstDataRow - 1; i < allLines.Split('\n').Length; i++)
+        var lines = allLines.Split('\n');
+        for (int i = structuredResponse.firstDataRow - 1; i < lines.Length; i++)
         {
-          string row = allLines.Split('\n')[i].Trim();
+          string row = lines[i].Trim();
+          if (string.IsNullOrWhiteSpace(row))
+            continue;
 
           await languageModelService.GenerateResponse<dynamic>($"""
             process this CSV row into a ReconciliationTransaction object:
