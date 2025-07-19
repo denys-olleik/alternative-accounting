@@ -27,6 +27,11 @@
     </div>
   </div>
 
+  <div class="display-flex flex-direction-column">
+    <label asp-for="StatementCsvText" class="background-color-antiquewhite">Content</label>
+    <textarea asp-for="StatementCsvText" rows="6" class="margin-bottom-5px font-size-20px"></textarea>
+  </div>
+
   <div class="display-flex">
     <div class="flex-1">
       <button type="button" class="full-width-regular-button width-100" onclick="event.preventDefault(); window.location.href='@Url.Action("Index", "Home")';">Cancel</button>

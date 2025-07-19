@@ -3578,8 +3578,10 @@ namespace Accounting.Database
 
       public async Task<Reconciliation> CreateAsync(Reconciliation entity)
       {
+        var status = entity.Status ?? Reconciliation.Statuses.Pending;
+
         DynamicParameters p = new DynamicParameters();
-        p.Add("@Status", entity.Status);
+        p.Add("@Status", status);
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
 

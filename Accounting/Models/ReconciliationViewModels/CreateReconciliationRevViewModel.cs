@@ -3,11 +3,13 @@ using FluentValidation.Results;
 
 namespace Accounting.Models.ReconciliationViewModels
 {
-  public class CreateReconciliationRevViewModel 
+  public class CreateReconciliationRevViewModel
   {
     public int? ReconciliationID { get; set; }
 
     public IFormFile? StatementCsv { get; set; }
+
+    public string? StatementCsvText { get; set; }
 
     public ValidationResult? ValidationResult { get; set; }
 
@@ -15,8 +17,12 @@ namespace Accounting.Models.ReconciliationViewModels
     {
       public CreateReconciliationViewModelValidator()
       {
-        RuleFor(x => x.StatementCsv)
-          .Must(file => file != null && file.Length > 0).WithMessage("CSV file cannot be empty.");
+        RuleFor(x => new { x.StatementCsv, x.StatementCsvText })
+          .Must(x =>
+            (x.StatementCsv != null && x.StatementCsv.Length > 0 && string.IsNullOrWhiteSpace(x.StatementCsvText)) ||
+            (x.StatementCsv == null && !string.IsNullOrWhiteSpace(x.StatementCsvText))
+          )
+          .WithMessage("Upload file or content.");
       }
     }
   }
