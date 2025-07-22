@@ -22,12 +22,14 @@ namespace Accounting.Service
       request.AddHeader("Authorization", $"Bearer {secret.Value}");
       request.AddHeader("Content-Type", "application/json");
 
+      string messageContent = context == null ? prompt : context + prompt;
+
       var requestBody = new
       {
         model = model,
         messages = new[]
         {
-          new { role = "user", content = prompt }
+          new { role = "user", content = messageContent }
         },
         temperature = 0.1
       };
@@ -60,7 +62,8 @@ namespace Accounting.Service
         }
       }
 
-      return ($"{context}\n{responseContent}", default(T));
+      string contextPart = context ?? string.Empty;
+      return ($"{contextPart}\n{responseContent}", default(T));
     }
   }
 }
