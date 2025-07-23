@@ -1,11 +1,11 @@
 ﻿@model Accounting.Models.ReconciliationViewModels.ReconciliationsPaginatedViewModel
 
 @{
-    ViewData["Title"] = "Reconciliations - " + ConfigurationSingleton.Instance.ApplicationName;
+	ViewData["Title"] = "Reconciliations - " + ConfigurationSingleton.Instance.ApplicationName;
 }
 
 @{
-    string headerText = "Reconciliations";
+	string headerText = "Reconciliations";
 }
 
 <partial name="_H1HeaderPartial" model="@headerText" />
@@ -18,6 +18,74 @@
 	</div>
 	<div class="flex-1 text-align-right">
 		<a asp-action="Index" asp-controller="Home"
-			 class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
+			class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
 	</div>
 </div>
+
+<div id="app">
+	<table>
+		<thead>
+			<tr>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="reconciliation in reconciliations" :key="reconciliation.reconciliationID">
+				<td>{{ reconciliation.reconciliationID }}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<script>
+	const { createApp } = Vue;
+
+	const app = createApp({
+		data() {
+			return {
+				reconciliations: [],
+				page: @Model.Page,
+				pageSize: @Model.PageSize,
+				nextPage: null,
+				rememberPageSize: @(Model.RememberPageSize ? "true" : "false")
+			};
+		},
+		methods: {
+			fetchReconciliations() {
+				const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+				if (storedPageSize) {
+					this.pageSize = storedPageSize;
+				}
+				let apiUrl;
+
+				if (this.reconciliationFilter) {
+					apiUrl = `/api/reconciliation/get-reconciliations-filtered?search=${encodeURIComponent(this.reconciliationFilter)}`;
+				} else {
+					apiUrl = `/api/reconciliation/get-reconciliations?page=${this.page}&pageSize=${this.pageSize}`;
+				}
+
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						this.reconciliations = data.reconciliations;
+						if (!this.reconciliationFilter) {
+							if (data.page > 0) {
+								this.page = data.page;
+							}
+							if (data.nextPage > 0) {
+								this.nextPage = data.nextPage;
+							}
+						}
+					});
+			}
+		},
+		mounted() {
+			if (this.rememberPageSize) {
+				localStorage.setItem('pageSize', this.pageSize);
+			}
+			this.fetchReconciliations();
+		}
+	});
+
+	app.mount('#app');
+</script>

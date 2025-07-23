@@ -109,10 +109,10 @@ namespace Accounting.Controllers
           if (string.IsNullOrWhiteSpace(row))
             continue;
 
-          await languageModelService.GenerateResponse<ReconciliationTransactionResult>($$"""
+          await languageModelService.GenerateResponse<ReconciliationTransactionResult>($"""
             process this CSV row into a ReconciliationTransaction object:
             ```csv
-            {{row}}
+            {row}
             ```
 
             respond with JSON object that includes TransactionDate, Description, and Amount fields. respond without wrapping in a code block or any other text, so I can parse it easily.
