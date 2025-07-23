@@ -13,6 +13,10 @@ namespace Accounting.Business
     public int CreatedById { get; set; }
     public int OrganizationId { get; set; }
 
+    #region Extra properties
+    public int? RowNumber { get; set; }
+    #endregion
+
     public int Identifiable => this.ReconciliationID;
 
     public ReconciliationAttachment? ReconciliationAttachment { get; set; }

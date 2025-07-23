@@ -196,7 +196,10 @@ namespace Accounting.Controllers
       {
         Reconciliations = reconciliations.Select(r => new GetReconciliationsViewModel.ReconciliationViewModel
         {
-         
+          ReconciliationID = r.ReconciliationID,
+          RowNumber = r.RowNumber!.Value,
+          Name = r.Name,
+          Status = r.Status
         }).ToList(),
         Page = page,
         NextPage = nextPage,
