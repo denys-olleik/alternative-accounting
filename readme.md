@@ -14,3 +14,14 @@ Ask your favorite LLM to adopt this
 
 1. Enter using `test@example.com` password `test`. Choose `Farm To Market LLC`.
 2. `Create Invoice` > `enter customer` > choose addresses > add line items > select payment terms > add attachments > create invoice.
+
+1. Create Invoice
+2. Receive Payment
+3. Record Foreign Currency Transaction
+4. Issue or Assign Equity (e.g., owner’s capital, shares issued)
+5. Purchase Inventory
+6. Move Inventory Between Locations
+7. Record Expense Payment (e.g., rent, utilities)
+8. Record Payroll
+9. Record Depreciation of Assets
+10. Accrue Liabilities (e.g., taxes payable, interest payable)

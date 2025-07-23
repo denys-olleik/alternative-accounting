@@ -132,6 +132,7 @@ namespace Accounting.Controllers
                 Description = t.Result.structuredResponse.Description,
                 Amount = t.Result.structuredResponse.Amount,
                 CreatedById = GetUserId(),
+                OrganizationId = GetOrganizationId()!.Value,
               });
             }
           });
