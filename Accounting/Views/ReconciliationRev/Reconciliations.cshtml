@@ -59,9 +59,9 @@
 				let apiUrl;
 
 				if (this.reconciliationFilter) {
-					apiUrl = `/api/reconciliation/get-reconciliations-filtered?search=${encodeURIComponent(this.reconciliationFilter)}`;
+					apiUrl = `/api/rclrev/get-reconciliations-filtered?search=${encodeURIComponent(this.reconciliationFilter)}`;
 				} else {
-					apiUrl = `/api/reconciliation/get-reconciliations?page=${this.page}&pageSize=${this.pageSize}`;
+				  apiUrl = `/api/rclrev/get-reconciliations?page=${this.page}&pageSize=${this.pageSize}`;
 				}
 
 				fetch(apiUrl)

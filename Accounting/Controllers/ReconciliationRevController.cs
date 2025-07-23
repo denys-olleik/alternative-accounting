@@ -179,10 +179,12 @@ namespace Accounting.Controllers
     private readonly ReconciliationService _reconciliationService;
 
     public ReconciliationRevApiController(
+      ReconciliationService reconciliationService,
       ReconciliationTransactionService reconciliationTransactionService,
       RequestContext requestContext)
     {
       _reconciliationTransactionService = new ReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _reconciliationService = new ReconciliationService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
     [HttpGet("get-reconciliations")]
