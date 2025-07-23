@@ -126,13 +126,20 @@ namespace Accounting.Controllers
             {
               transactions.Add(new ReconciliationTransaction
               {
+                ReconciliationId = reconciliation.ReconciliationID,
                 RawData = row,
                 TransactionDate = t.Result.structuredResponse.TransactionDate,
                 Description = t.Result.structuredResponse.Description,
                 Amount = t.Result.structuredResponse.Amount,
+                CreatedById = GetUserId(),
               });
             }
           });
+        }
+
+        foreach (var transaction in transactions)
+        { 
+          await _reconciliationTransactionService.ImportAsync(transactions);
         }
 
         scope.Complete();
