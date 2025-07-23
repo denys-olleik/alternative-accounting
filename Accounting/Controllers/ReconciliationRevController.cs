@@ -24,6 +24,19 @@ namespace Accounting.Controllers
       _reconciliationAttachmentService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
+    public class CsvAnalysisResult
+    {
+      public bool isCsv { get; set; }
+      public int firstDataRow { get; set; }
+    }
+
+    public class ReconciliationTransactionResult
+    {
+      public DateTime TransactionDate { get; set; }
+      public string Description { get; set; }
+      public decimal Amount { get; set; }
+    }
+
     [HttpGet]
     [Route("create")]
     public async Task<IActionResult> Create()
@@ -75,7 +88,7 @@ namespace Accounting.Controllers
         }
 
         LanguageModelService languageModelService = new LanguageModelService();
-        var (response, structuredResponse) = await languageModelService.GenerateResponse<dynamic>("""
+        var (response, structuredResponse) = await languageModelService.GenerateResponse<CsvAnalysisResult>("""
           is this a CSV file and on what line is the first row of data?
 
           example response:
@@ -96,13 +109,13 @@ namespace Accounting.Controllers
           if (string.IsNullOrWhiteSpace(row))
             continue;
 
-          await languageModelService.GenerateResponse<dynamic>($"""
+          await languageModelService.GenerateResponse<ReconciliationTransactionResult>($$"""
             process this CSV row into a ReconciliationTransaction object:
             ```csv
-            {row}
+            {{row}}
             ```
 
-            respond with JSON object that includes TransactionDate, Description, and Amount fields.
+            respond with JSON object that includes TransactionDate, Description, and Amount fields. respond without wrapping in a code block or any other text, so I can parse it easily.
             """,
             string.Empty,
             true,
