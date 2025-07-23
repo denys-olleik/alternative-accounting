@@ -23,6 +23,12 @@ namespace Accounting.Service
       return await factoryManager.ReconciliationManager().CreateAsync(reconciliation);
     }
 
+    public async Task<(List<Reconciliation> reconciliations, int? nextPage)> GetAllAsync(int page, int pageSize, int organizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);  
+      return await factoryManager.ReconciliationManager().GetAllAsync(page, pageSize, organizationId);
+    }
+
     public async Task<List<Reconciliation>> GetAllDescendingAsync(int top, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);

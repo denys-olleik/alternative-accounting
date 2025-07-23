@@ -3617,6 +3617,40 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public async Task<(List<Reconciliation> reconciliations, int? nextPage)> GetAllAsync(int page, int pageSize, int organizationId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@Page", page);
+        p.Add("@PageSize", pageSize);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<Reconciliation> paginatedResult;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          paginatedResult = await con.QueryAsync<Reconciliation>($"""
+            SELECT * FROM (
+              SELECT *,
+                     ROW_NUMBER() OVER (ORDER BY "ReconciliationID" DESC) AS RowNumber
+              FROM "Reconciliation"
+              WHERE "OrganizationId" = @OrganizationId
+            ) AS NumberedReconciliations
+            WHERE RowNumber BETWEEN @PageSize * (@Page - 1) + 1 AND @PageSize * @Page + 1
+            """, p);
+        }
+
+        var result = paginatedResult.ToList();
+        int? nextPage = null;
+
+        if (result.Count > pageSize)
+        {
+          result.RemoveAt(result.Count - 1);
+          nextPage = page + 1;
+        }
+
+        return (result, nextPage);
+      }
+
       public async Task<List<Reconciliation>> GetAllDescendingAsync(int top, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();

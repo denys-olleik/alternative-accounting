@@ -4,6 +4,7 @@ using Accounting.Models.ReconciliationViewModels;
 using Accounting.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Transactions;
+using static Accounting.Models.ReconciliationViewModels.ReconciliationsViewModel;
 
 namespace Accounting.Controllers
 {
@@ -165,6 +166,40 @@ namespace Accounting.Controllers
       };
 
       return View(vm);
+    }
+  }
+
+  [AuthorizeWithOrganizationId]
+  [ApiController]
+  [Route("api/rclrev")]
+  public class ReconciliationRevApiController : BaseController
+  {
+    private readonly ReconciliationTransactionService _reconciliationTransactionService;
+    private readonly ReconciliationService _reconciliationService;
+
+    public ReconciliationRevApiController(
+      ReconciliationTransactionService reconciliationTransactionService,
+      RequestContext requestContext)
+    {
+      _reconciliationTransactionService = new ReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
+    }
+
+    [HttpGet("get-reconciliations")]
+    public async Task<IActionResult> GetReconciliations(int page = 1, int pageSize = 2)
+    {
+      var (reconciliations, nextPage) = await _reconciliationService.GetAllAsync(page, pageSize, GetOrganizationId()!.Value);
+
+      var getReconciliationsViewModel = new GetReconciliationsViewModel
+      {
+        Reconciliations = reconciliations.Select(r => new GetReconciliationsViewModel.ReconciliationViewModel
+        {
+         
+        }).ToList(),
+        Page = page,
+        NextPage = nextPage,
+      };
+
+      return Ok(getReconciliationsViewModel);
     }
   }
 }
