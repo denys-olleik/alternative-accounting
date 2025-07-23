@@ -65,6 +65,7 @@ CREATE TABLE "UserOrganization"
 CREATE TABLE "Reconciliation"
 (
 	"ReconciliationID" SERIAL PRIMARY KEY NOT NULL,
+	"Name" VARCHAR(200) NOT NULL,
 	"Status" VARCHAR(20) CHECK ("Status" IN ('pending', 'processed')) DEFAULT 'pending' NOT NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NOT NULL,

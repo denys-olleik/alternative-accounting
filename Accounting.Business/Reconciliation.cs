@@ -7,6 +7,7 @@ namespace Accounting.Business
   public class Reconciliation : IIdentifiable<int>
   {
     public int ReconciliationID { get; set; }
+    public string Name { get; set; }
     public string? Status { get; set; }
     public DateTime Created { get; set; }
     public int CreatedById { get; set; }

@@ -7,6 +7,8 @@ namespace Accounting.Models.ReconciliationViewModels
   {
     public int? ReconciliationID { get; set; }
 
+    public string Name { get; set; }
+
     public IFormFile? StatementCsv { get; set; }
 
     public string? StatementCsvText { get; set; }
@@ -17,6 +19,10 @@ namespace Accounting.Models.ReconciliationViewModels
     {
       public CreateReconciliationViewModelValidator()
       {
+        RuleFor(x => x.Name)
+          .NotEmpty().WithMessage("'Name' is required.")
+          .MaximumLength(200).WithMessage("'Name' must be within 200 characters.");
+
         RuleFor(x => new { x.StatementCsv, x.StatementCsvText })
           .Must(x =>
             (x.StatementCsv != null && x.StatementCsv.Length > 0 && string.IsNullOrWhiteSpace(x.StatementCsvText)) ||
