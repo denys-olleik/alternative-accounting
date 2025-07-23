@@ -3581,6 +3581,7 @@ namespace Accounting.Database
         var status = entity.Status ?? Reconciliation.Statuses.Pending;
 
         DynamicParameters p = new DynamicParameters();
+        p.Add("@Name", entity.Name);
         p.Add("@Status", status);
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
@@ -3591,9 +3592,9 @@ namespace Accounting.Database
         {
           result = await con.QueryAsync<Reconciliation>("""
             INSERT INTO "Reconciliation" 
-            ("Status", "CreatedById", "OrganizationId") 
-            VALUES 
-            (@Status, @CreatedById, @OrganizationId)
+            ("Name", "Status", "CreatedById", "OrganizationId") 
+            VALUES
+            (@Name, @Status, @CreatedById, @OrganizationId)
             RETURNING *;
             """, p);
         }

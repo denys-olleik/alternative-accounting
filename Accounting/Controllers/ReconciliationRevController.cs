@@ -70,6 +70,7 @@ namespace Accounting.Controllers
       {
         Reconciliation reconciliation = await _reconciliationService.CreateAsync(new Reconciliation
         {
+          Name = model.Name,
           CreatedById = GetUserId(),
           OrganizationId = GetOrganizationId()!.Value
         });
