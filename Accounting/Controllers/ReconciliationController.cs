@@ -68,7 +68,7 @@ namespace Accounting.Controllers
         Page = page,
         PageSize = pageSize,
 
-        ReconciliationId = reconciliation.ReconciliationID,
+        ReconciliationID = reconciliation.ReconciliationID,
         Status = reconciliation.Status,
         OriginalFileName = reconciliationAttachment.OriginalFileName,
         Created = reconciliation.Created,

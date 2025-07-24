@@ -25,6 +25,34 @@ namespace Accounting.Controllers
       _reconciliationAttachmentService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
+    [HttpGet]
+    [Route("reconciliation-details/{id}")]
+    public async Task<IActionResult> ReconciliationDetails(
+      int id, 
+      int page, 
+      int pageSize)
+    {
+      var reconciliation = await _reconciliationService.GetByIdAsync(id, GetOrganizationId()!.Value);
+      
+      if (reconciliation == null)
+        return NotFound();
+
+      reconciliation.ReconciliationAttachment = await _reconciliationAttachmentService.GetByReconciliationIdAsync(reconciliation.ReconciliationID, GetOrganizationId()!.Value);
+
+      var model = new ReconciliationDetailsViewModel
+      {
+        Page = page,
+        PageSize = pageSize,
+
+        ReconciliationID = reconciliation.ReconciliationID,
+        Name = reconciliation.Name,
+        Status = reconciliation.Status,
+        OriginalFileName = reconciliation.ReconciliationAttachment?.OriginalFileName,
+      };
+
+      return View(model);
+    }
+
     public class CsvAnalysisResult
     {
       public bool isCsv { get; set; }
