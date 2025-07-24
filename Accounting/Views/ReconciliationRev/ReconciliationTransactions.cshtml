@@ -33,6 +33,7 @@
   const app = createApp({
     data() {
       return {
+        reconciliationId: @Model.ReconciliationID,
         reconciliationTransactions: [],
         page: @Model.Page,
         pageSize: @Model.PageSize,
@@ -49,9 +50,9 @@
         let apiUrl;
 
         if (this.reconciliationFilter) {
-          apiUrl = `/api/rclrev/get-reconciliation-transactions-filtered?search=${encodeURIComponent(this.reconciliationFilter)}`;
+          apiUrl = `/api/rclrev/get-reconciliation-transactions-filtered?reconciliationId=${this.reconciliationId}&search=${encodeURIComponent(this.reconciliationFilter)}`;
         } else {
-          apiUrl = `/api/rclrev/get-reconciliation-transactions?page=${this.page}&pageSize=${this.pageSize}`;
+          apiUrl = `/api/rclrev/get-reconciliation-transactions?reconciliationId=${this.reconciliationId}&page=${this.page}&pageSize=${this.pageSize}`;
         }
 
         fetch(apiUrl)

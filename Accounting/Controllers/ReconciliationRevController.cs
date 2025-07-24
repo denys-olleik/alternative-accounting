@@ -224,6 +224,7 @@ namespace Accounting.Controllers
 
       GetReconciliationTransactionsViewModel model = new GetReconciliationTransactionsViewModel
       {
+        ReconciliationID = reconciliationId,
         Page = page,
         PageSize = pageSize,
         NextPage = nextPage,

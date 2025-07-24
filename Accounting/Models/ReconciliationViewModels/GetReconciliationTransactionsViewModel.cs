@@ -2,6 +2,7 @@
 {
   public class GetReconciliationTransactionsViewModel : PaginatedViewModel
   {
+    public int ReconciliationID { get; set; }
     public List<ReconciliationTransactionViewModel>? ReconciliationTransactions { get; set; }
    
     public class ReconciliationTransactionViewModel
