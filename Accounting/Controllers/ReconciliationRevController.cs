@@ -38,7 +38,7 @@ namespace Accounting.Controllers
 
       reconciliation.ReconciliationAttachment = await _reconciliationAttachmentService.GetByReconciliationIdAsync(reconciliation.ReconciliationID, GetOrganizationId()!.Value);
 
-      var model = new ReconciliationDetailsViewModel
+      var model = new ReconciliationTransactionsPaginatedViewModel
       {
         Page = page,
         PageSize = pageSize,

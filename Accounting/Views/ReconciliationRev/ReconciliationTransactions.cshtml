@@ -1,8 +1,8 @@
-﻿@model Accounting.Models.ReconciliationViewModels.ReconciliationDetailsViewModel
+﻿@model Accounting.Models.ReconciliationViewModels.ReconciliationTransactionsPaginatedViewModel
 
 @{
-  ViewData["Title"] = Model.Name + " - Reconciliation Details - " + ConfigurationSingleton.Instance.ApplicationName;
-  string headerText = Model.Name + " - Reconciliation Details";
+  ViewData["Title"] = Model.Name + " - Reconciliation transactions - " + ConfigurationSingleton.Instance.ApplicationName;
+  string headerText = Model.Name + " - Reconciliation transactions";
 }
 
 <partial name="_H1HeaderPartial" model="@headerText" />
@@ -28,5 +28,54 @@
 </div>
 
 <script>
+  const { createApp } = Vue;
 
+  const app = createApp({
+    data() {
+      return {
+        reconciliationTransactions: [],
+        page: @Model.Page,
+        pageSize: @Model.PageSize,
+        nextPage: null,
+        rememberPageSize: @(Model.RememberPageSize ? "true" : "false")
+      };
+    },
+    methods: {
+      fetchReconciliationTransactions() {
+        const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+        if (storedPageSize) {
+          this.pageSize = storedPageSize;
+        }
+        let apiUrl;
+
+        if (this.reconciliationFilter) {
+          apiUrl = `/api/rclrev/get-reconciliation-transactions-filtered?search=${encodeURIComponent(this.reconciliationFilter)}`;
+        } else {
+          apiUrl = `/api/rclrev/get-reconciliation-transactions?page=${this.page}&pageSize=${this.pageSize}`;
+        }
+
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            this.reconciliationTransactions = data.reconciliationTransactions;
+            if (!this.reconciliationFilter) {
+              if (data.page > 0) {
+                this.page = data.page;
+              }
+              if (data.nextPage > 0) {
+                this.nextPage = data.nextPage;
+              }
+            }
+          });
+      }
+    },
+    mounted() {
+      if (this.rememberPageSize) {
+        localStorage.setItem('pageSize', this.pageSize);
+      }
+      this.fetchReconciliationTransactions();
+    },
+  });
+
+  app.mount('#app');
 </script>

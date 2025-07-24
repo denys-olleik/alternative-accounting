@@ -63,7 +63,7 @@ namespace Accounting.Controllers
       var reconciliation = await _reconciliationService.GetByIdAsync(id, GetOrganizationId()!.Value);
       var reconciliationAttachment = await _reconciliationAttachmentService.GetByReconciliationIdAsync(id, GetOrganizationId()!.Value);
 
-      var model = new ReconciliationDetailsViewModel
+      var model = new ReconciliationTransactionsPaginatedViewModel
       {
         Page = page,
         PageSize = pageSize,

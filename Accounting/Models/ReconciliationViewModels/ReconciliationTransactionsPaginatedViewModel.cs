@@ -1,6 +1,6 @@
 ﻿namespace Accounting.Models.ReconciliationViewModels
 {
-  public class ReconciliationDetailsViewModel : PaginatedViewModel
+  public class ReconciliationTransactionsPaginatedViewModel : PaginatedViewModel
   {
     public int ReconciliationID { get; set; }
     public string Name { get; set; }
