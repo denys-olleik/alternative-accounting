@@ -214,6 +214,32 @@ namespace Accounting.Controllers
       _reconciliationService = new ReconciliationService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
+    [HttpGet("get-reconciliation-transactions")]
+    public async Task<IActionResult> GetReconciliationTransactions(
+      int reconciliationId,
+      int page = 1,
+      int pageSize = 2)
+    {
+      var (transactions, nextPage) = await _reconciliationTransactionService.GetReconciliationTransactionsAsync(reconciliationId, page, pageSize, GetOrganizationId()!.Value);
+
+      GetReconciliationTransactionsViewModel model = new GetReconciliationTransactionsViewModel
+      {
+        Page = page,
+        PageSize = pageSize,
+        NextPage = nextPage,
+        ReconciliationTransactions = transactions.Select(t => new GetReconciliationTransactionsViewModel.ReconciliationTransactionViewModel
+        {
+          ReconciliationTransactionID = t.ReconciliationTransactionID,
+          TransactionDate = t.TransactionDate,
+          Description = t.Description,
+          Amount = t.Amount,
+          RawData = t.RawData
+        }).ToList()
+      };
+
+      return Ok(model);
+    }
+
     [HttpGet("get-reconciliations")]
     public async Task<IActionResult> GetReconciliations(int page = 1, int pageSize = 2)
     {

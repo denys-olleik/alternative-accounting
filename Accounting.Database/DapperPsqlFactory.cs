@@ -3786,12 +3786,13 @@ namespace Accounting.Database
         return result.SingleOrDefault()!;
       }
 
-      public async Task<(List<ReconciliationTransaction> reconciliationTransactions, int? nextPage)> GetReconciliationTransactionAsync(int reconciliationId, int page, int pageSize)
+      public async Task<(List<ReconciliationTransaction> reconciliationTransactions, int? nextPage)> GetReconciliationTransactionAsync(int reconciliationId, int page, int pageSize, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@ReconciliationId", reconciliationId);
         p.Add("@Page", page);
         p.Add("@PageSize", pageSize);
+        p.Add("@OrganizationId", organizationId);
 
         IEnumerable<ReconciliationTransaction> result;
 
@@ -3803,6 +3804,7 @@ namespace Accounting.Database
                 ROW_NUMBER() OVER (ORDER BY "ReconciliationTransactionID" DESC) AS RowNumber
               FROM "ReconciliationTransaction"
               WHERE "ReconciliationId" = @ReconciliationId
+                AND "OrganizationId" = @OrganizationId
             ) AS NumberedReconciliationTransactions
             WHERE RowNumber BETWEEN @PageSize * (@Page - 1) + 1 AND @PageSize * @Page + 1
             """, p);

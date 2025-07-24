@@ -100,7 +100,7 @@ namespace Accounting.Controllers
     [HttpGet("get-transactions")]
     public async Task<IActionResult> GetTransactions(int reconciliationId, int page = 1, int pageSize = 2)
     {
-      var (reconciliationTransactions, nextPageNumber) = await _reconciliationTransactionService.GetReconciliationTransactionsAsync(reconciliationId, page, pageSize);
+      var (reconciliationTransactions, nextPageNumber) = await _reconciliationTransactionService.GetReconciliationTransactionsAsync(reconciliationId, page, pageSize, GetOrganizationId()!.Value);
 
       GetReconciliationTransactionsViewModel vm = new GetReconciliationTransactionsViewModel()
       {

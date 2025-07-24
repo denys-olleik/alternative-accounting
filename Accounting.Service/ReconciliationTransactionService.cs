@@ -32,10 +32,11 @@ namespace Accounting.Service
     public async Task<(List<ReconciliationTransaction>, int? NextPageNumber)> GetReconciliationTransactionsAsync(
         int reconciliationId,
         int page,
-        int pageSize)
+        int pageSize,
+        int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetReconciliationTransactionManager().GetReconciliationTransactionAsync(reconciliationId, page, pageSize);
+      return await factoryManager.GetReconciliationTransactionManager().GetReconciliationTransactionAsync(reconciliationId, page, pageSize, organizationId);
     }
 
     public async Task<int> ImportAsync(List<ReconciliationTransaction> reconciliationTransactions)
