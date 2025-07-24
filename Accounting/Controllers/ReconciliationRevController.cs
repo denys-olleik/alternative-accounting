@@ -26,8 +26,8 @@ namespace Accounting.Controllers
     }
 
     [HttpGet]
-    [Route("reconciliation-details/{id}")]
-    public async Task<IActionResult> ReconciliationDetails(
+    [Route("reconciliation-transactions/{id}")]
+    public async Task<IActionResult> ReconciliationTransactions(
       int id, 
       int page, 
       int pageSize)

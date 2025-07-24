@@ -34,7 +34,9 @@
 		<tbody class="font-Roboto-Mono">
 			<tr v-for="reconciliation in reconciliations" :key="reconciliation.reconciliationID">
 				<td class="padding-right-20px">{{ reconciliation.rowNumber }}</td>
-				<td class="padding-right-20px white-space-nowrap">{{ reconciliation.name }}</td>
+				<td class="padding-right-20px white-space-nowrap">
+					<a :href="`/recrev/reconciliation-transactions/${reconciliation.reconciliationID}`">{{ reconciliation.name }}</a>
+				</td>
 				<td class="text-align-right white-space-nowrap">{{ reconciliation.status }}</td>
 			</tr>
 		</tbody>
