@@ -1,13 +1,13 @@
 ﻿@model Accounting.Models.ReconciliationViewModels.ReconciliationDetailsViewModel
 
 @{
-  ViewData["Title"] = "Reconciliation Details - " + ConfigurationSingleton.Instance.ApplicationName;
+  ViewData["Title"] = "Reconciliation details - " + ConfigurationSingleton.Instance.ApplicationName;
 }
 
 <script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
 
 @{
-  string headerText = "Reconciliation Details";
+  string headerText = "Reconciliation details";
 }
 <partial name="_H1HeaderPartial" model="@headerText" />
 
