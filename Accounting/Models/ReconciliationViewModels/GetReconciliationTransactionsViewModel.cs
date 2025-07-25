@@ -8,6 +8,7 @@
     public class ReconciliationTransactionViewModel
     {
       public int ReconciliationTransactionID { get; set; }
+      public int? RowNumber { get; internal set; }
       public string? Status { get; set; }
       public string? RawData { get; set; }
       public string? ReconciliationInstruction { get; set; }

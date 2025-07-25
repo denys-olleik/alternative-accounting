@@ -231,6 +231,7 @@ namespace Accounting.Controllers
         ReconciliationTransactions = transactions.Select(t => new GetReconciliationTransactionsViewModel.ReconciliationTransactionViewModel
         {
           ReconciliationTransactionID = t.ReconciliationTransactionID,
+          RowNumber = t.RowNumber,
           TransactionDate = t.TransactionDate,
           Description = t.Description,
           Amount = t.Amount,

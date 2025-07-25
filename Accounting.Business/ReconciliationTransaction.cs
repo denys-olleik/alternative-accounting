@@ -25,6 +25,10 @@ namespace Accounting.Business
     public User? CreatedBy { get; set; }
     public Organization? Organization { get; set; }
 
+    #region Extra properties
+    public int? RowNumber { get; set; }
+    #endregion
+
     public int Identifiable => this.ReconciliationTransactionID;
 
     public class ReconciliationInstructions
