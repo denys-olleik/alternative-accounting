@@ -19,10 +19,22 @@
 <div id="app">
   <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
-
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">#</th>
+        <th class="text-align-left width-1px padding-right-20px">Date</th>
+        <th class="text-align-left padding-right-20px">Description</th>
+        <th class="text-align-left width-1px padding-right-20px">Amount</th>
+        <th class="text-align-left width-1px padding-right-20px">Instruction</th>
+      </tr>
     </thead>
     <tbody class="font-Roboto-Mono">
-
+      <tr v-for="reconciliationTransaction in reconciliationTransactions" :key="reconciliationTransaction.reconciliationTransactionID">
+        <td class="padding-right-20px">{{ reconciliationTransaction.rowNumber }}</td>
+        <td class="padding-right-20px white-space-nowrap">{{ reconciliationTransaction.transactionDate }}</td>
+        <td class="padding-right-20px white-space-nowrap">{{ reconciliationTransaction.description }}</td>
+        <td class="padding-right-20px white-space-nowrap">{{ reconciliationTransaction.amount }}</td>
+        <td class="text-align-right white-space-nowrap">{{ reconciliationTransaction.reconciliationInstruction }}</td>
+      </tr>
     </tbody>
   </table>
 </div>
