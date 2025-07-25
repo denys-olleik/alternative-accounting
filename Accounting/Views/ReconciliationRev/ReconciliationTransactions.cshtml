@@ -17,9 +17,15 @@
 </div>
 
 <div class="display-flex margin-bottom-5px">
-  <div class="flex-1">debit</div>
+  <div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
+    <label class="font-size-16px">Debit</label>
+    <select-account-dropdown :accounts="accounts" :selected-account="selectedDebitAccount" @@account-selected="debitAccountSelected">
+    </select-account-dropdown>
+  </div>
   <div class="width-5px"></div>
-  <div class="flex-1">credit</div>
+  <div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
+    <label class="font-size-16px">Credit</label>
+  </div>
 </div>
 
 <div id="app">
@@ -53,6 +59,8 @@
       return {
         reconciliationId: @Model.ReconciliationID,
         reconciliationTransactions: [],
+        accounts: @Html.Raw(Json.Serialize(Model.Accounts).ToString() ?? "[]"),
+        selectedDebitAccount: null,
         page: @Model.Page,
         pageSize: @Model.PageSize,
         nextPage: null,
