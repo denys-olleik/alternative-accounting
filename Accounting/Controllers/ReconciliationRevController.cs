@@ -31,6 +31,8 @@ namespace Accounting.Controllers
       int page, 
       int pageSize)
     {
+      var referer = Request.Headers["Referer"].ToString() ?? string.Empty;
+
       var reconciliation = await _reconciliationService.GetByIdAsync(id, GetOrganizationId()!.Value);
       
       if (reconciliation == null)
@@ -47,6 +49,7 @@ namespace Accounting.Controllers
         Name = reconciliation.Name,
         Status = reconciliation.Status,
         OriginalFileName = reconciliation.ReconciliationAttachment?.OriginalFileName,
+        RememberPageSize = string.IsNullOrEmpty(referer),
       };
 
       return View(model);
