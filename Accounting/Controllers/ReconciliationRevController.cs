@@ -1,5 +1,6 @@
 ﻿using Accounting.Business;
 using Accounting.CustomAttributes;
+using Accounting.Models;
 using Accounting.Models.ReconciliationViewModels;
 using Accounting.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace Accounting.Controllers
     private readonly ReconciliationTransactionService _reconciliationTransactionService;
     private readonly ReconciliationService _reconciliationService;
     private readonly ReconciliationAttachmentService _reconciliationAttachmentService;
+    private readonly AccountService _accountService;
 
     public ReconciliationRevController(
       RequestContext requestContext)
@@ -22,6 +24,7 @@ namespace Accounting.Controllers
       _reconciliationTransactionService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
       _reconciliationService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
       _reconciliationAttachmentService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _accountService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
     [HttpGet]
@@ -34,7 +37,8 @@ namespace Accounting.Controllers
       var referer = Request.Headers["Referer"].ToString() ?? string.Empty;
 
       var reconciliation = await _reconciliationService.GetByIdAsync(id, GetOrganizationId()!.Value);
-      
+      var accounts = await _accountService.GetAllAsync(GetOrganizationId()!.Value, false);
+
       if (reconciliation == null)
         return NotFound();
 
@@ -44,6 +48,13 @@ namespace Accounting.Controllers
       {
         Page = page,
         PageSize = pageSize,
+
+        Accounts = accounts.Select(a => new ReconciliationTransactionsPaginatedViewModel.AccountViewModel
+        {
+          AccountID = a.AccountID,
+          Name = a.Name,
+          Type = a.Type.ToString()
+        }).ToList(),
 
         ReconciliationID = reconciliation.ReconciliationID,
         Name = reconciliation.Name,
