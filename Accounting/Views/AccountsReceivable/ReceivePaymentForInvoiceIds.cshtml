@@ -17,34 +17,6 @@
 	</div>
 </div>
 
-<template id="select-account-template">
-	<input ref="inputElement" type="text" class="font-size-20px font-Roboto-Mono" @@keydown="handleKeyDown" @@focus="handleFocus" @@blur="handleBlur" v-model="inputText" />
-	<div class="display-flex flex-direction-column background-color-black">
-		<div v-if="selectedAccount && !dropdownVisible" class="display-flex font-size-16px margin-5px font-Roboto-Mono">
-			<div>
-				<span class="margin-right-10px color-lawngreen">█</span>
-			</div>
-			<div class="color-white">
-				{{ selectedAccount.name }}
-			</div>
-		</div>
-	</div>
-	<span>
-		<input asp-for="Remember" type="checkbox" class="margin-bottom-5px" />
-		<label asp-for="Remember">remember</label>
-	</span>
-	<div v-if="dropdownVisible" class="display-flex flex-direction-column background-color-black font-Roboto-Mono padding-5px">
-		<div v-for="(account, index) in filteredAccounts" :key="account.accountID" @@click="handleAccountSelected(account)" class="display-flex font-size-16px color-white">
-			<div>
-				<span :class="['margin-right-10px', account.accountID === selectedAccount?.accountID ? 'color-lawngreen' : '', index === preselectedIndex ? 'blinking-cursor' : '']">█</span>
-			</div>
-			<div>
-				{{ account.name }}
-			</div>
-		</div>
-	</div>
-</template>
-
 <form id="app" asp-action="ReceivePaymentForInvoiceIds" asp-controller="AccountsReceivable" method="post" class="display-flex flex-direction-column margin-bottom-5px">
 
 	<input type="hidden" name="SelectedDebitAccountId" v-model="selectedDebitAccountID">
@@ -57,8 +29,8 @@
 		<div class="width-5px"></div>
 		<div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
 			<label for="SelectedDebitAccountId" class="font-size-16px">Account</label>
-			<select-debit-account :accounts="debitAccounts" :selected-account="selectedDebitAccount" @@account-selected="accountSelected">
-			</select-debit-account>
+			<select-account-dropdown :accounts="debitAccounts" :selected-account="selectedDebitAccount" @@account-selected="accountSelected">
+			</select-account-dropdown>
 		</div>
 	</div>
 
@@ -159,123 +131,14 @@
 	</div>
 }
 
-@if (Context.RequestServices.GetService<IWebHostEnvironment>()!.IsDevelopment())
-{
-
-}
+<script src="~/js/SelectAccountDropdown.js" asp-append-version="true"></script>
 
 <script>
 	const { createApp } = Vue;
 
-	const SelectAccountDropdown = {
-		name: 'SelectAccountDropdown',
-		template: '#select-account-template',
-		props: ['accounts', 'selectedAccount'],
-		emits: ['account-selected'],
-		data() {
-			return {
-				inputText: '',
-				preselectedIndex: 0,
-				dropdownVisible: false
-			};
-		},
-		watch: {
-			inputText(newVal) {
-				if (newVal !== '') {
-					this.dropdownVisible = true;
-				}
-			}
-		},
-		computed: {
-			filteredAccounts() {
-				if (!this.inputText) {
-					return this.accounts;
-				}
-				return this.accounts.filter(account =>
-					account.name.toLowerCase().includes(this.inputText.toLowerCase())
-				);
-			}
-		},
-		methods: {
-			handleBlur() {
-				setTimeout(() => {
-					this.dropdownVisible = false;
-				}, 200);
-			},
-			handleFocus() {
-				if (this.selectedAccount) {
-					// Find the index of the selected account in the filteredAccounts array
-					this.preselectedIndex = this.filteredAccounts.findIndex(account =>
-						account.accountID === this.selectedAccount.accountID
-					);
-				} else {
-					this.preselectedIndex = 0;
-				}
-				this.dropdownVisible = true;
-			},
-			handleKeyDown(event) {
-				if (event.key === 'Enter') {
-					event.preventDefault();
-
-					if (!this.dropdownVisible) {
-						this.dropdownVisible = true;
-						return;
-					}
-
-					if (this.preselectedIndex < this.filteredAccounts.length) {
-						this.handleAccountSelected(this.filteredAccounts[this.preselectedIndex]);
-						this.dropdownVisible = false;
-					} else {
-						let apiUrl = `/api/a/create`;
-
-						let account = { accountName: this.inputText };
-
-						fetch(apiUrl, {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify(account)
-						})
-							.then(response => response.json())
-							.then(data => {
-								this.$emit('account-selected', data);
-								this.dropdownVisible = false;
-							})
-							.catch((error) => {
-								console.error('Error:', error);
-							});
-
-						this.inputText = '';
-					}
-				} else if (event.key === 'ArrowUp') {
-					event.preventDefault();
-					if (this.preselectedIndex > 0) {
-						this.preselectedIndex--;
-					} else {
-						this.preselectedIndex = this.filteredAccounts.length - 1;
-					}
-					this.dropdownVisible = true;
-					console.log('Arrow Up pressed');
-				} else if (event.key === 'ArrowDown') {
-					event.preventDefault();
-					if (this.preselectedIndex < this.filteredAccounts.length - 1) {
-						this.preselectedIndex++;
-					} else {
-						this.preselectedIndex = 0;
-					}
-					this.dropdownVisible = true;
-					console.log('Arrow Down pressed');
-				}
-			},
-			handleAccountSelected(account) {
-				this.inputText = '';
-				this.$emit('account-selected', account);
-			},
-		}
-	}
-
 	const app = createApp({
 		components: {
-			'select-debit-account': SelectAccountDropdown
+			'select-account-dropdown': SelectAccountDropdown
 		},
 		data() {
 			return {
