@@ -16,19 +16,23 @@
   </div>
 </div>
 
-<div class="display-flex margin-bottom-5px">
-  <div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
-    <label class="font-size-16px">Debit</label>
-    <select-account-dropdown :accounts="accounts" :selected-account="selectedDebitAccount" @@account-selected="debitAccountSelected">
-    </select-account-dropdown>
-  </div>
-  <div class="width-5px"></div>
-  <div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
-    <label class="font-size-16px">Credit</label>
-  </div>
-</div>
+
 
 <div id="app">
+  <div class="display-flex margin-bottom-5px">
+    <div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
+      <label class="font-size-16px">Debit</label>
+      <select-account-dropdown :accounts="accounts" :selected-account="selectedDebitAccount" @@account-selected="debitAccountSelected">
+      </select-account-dropdown>
+    </div>
+    <div class="width-5px"></div>
+    <div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
+      <label class="font-size-16px">Credit</label>
+      <select-account-dropdown :accounts="accounts" :selected-account="selectedCreditAccount" @@account-selected="creditAccountSelected">
+      </select-account-dropdown>
+    </div>
+  </div>
+
   <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
       <tr>
@@ -51,16 +55,22 @@
   </table>
 </div>
 
+<script src="~/js/SelectAccountDropdown.js" asp-append-version="true"></script>
+
 <script>
   const { createApp } = Vue;
 
   const app = createApp({
+    components: {
+      'select-account-dropdown': SelectAccountDropdown
+    },
     data() {
       return {
         reconciliationId: @Model.ReconciliationID,
         reconciliationTransactions: [],
         accounts: @Html.Raw(Json.Serialize(Model.Accounts).ToString() ?? "[]"),
         selectedDebitAccount: null,
+        selectedCreditAccount: null,
         page: @Model.Page,
         pageSize: @Model.PageSize,
         nextPage: null,
@@ -94,7 +104,13 @@
               }
             }
           });
-      }
+      },
+      debitAccountSelected(selectedDebitAccount) {
+        this.selectedDebitAccount = selectedDebitAccount;
+      },
+      creditAccountSelected(selectedCreditAccount) {
+        this.selectedCreditAccount = selectedCreditAccount;
+      },
     },
     mounted() {
       if (this.rememberPageSize) {
