@@ -527,19 +527,23 @@ CREATE TABLE "JournalInvoiceInvoiceLinePayment"
 );
 
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "JournalReconciliationTransaction";'
-CREATE TABLE "JournalReconciliationTransaction"
+CREATE TABLE "JournalReconciliationTransactionDebitCredit"
 (
 	"JournalReconciliationTransactionID" SERIAL PRIMARY KEY NOT NULL,
 	"JournalId" INT NOT NULL,
-	"ReconciliationTransactionId" INT NOT NULL,
-	"ReversedJournalReconciliationTransactionId" INT NULL,
+	"ReconciliationTransactionDebitCreditId" INT NOT NULL,
+	"Debit" INT NOT NULL,
+	"Credit" INT NOT NULL,
+	"ReversedJournalReconciliationTransactionDebitCreditId" INT NULL,
 	"TransactionGuid" UUID NOT NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
 	FOREIGN KEY ("JournalId") REFERENCES "Journal"("JournalID"),
-	FOREIGN KEY ("ReconciliationTransactionId") REFERENCES "ReconciliationTransaction"("ReconciliationTransactionID"),
-	FOREIGN KEY ("ReversedJournalReconciliationTransactionId") REFERENCES "JournalReconciliationTransaction"("JournalReconciliationTransactionID"),
+	FOREIGN KEY ("JournalReconciliationTransactionDebitCreditId") REFERENCES "JournalReconciliationTransactionDebitCredit"("JournalReconciliationTransactionDebitCreditID"),
+	FOREIGN KEY ("Debit") REFERENCES "Account"("AccountID"),
+	FOREIGN KEY ("Credit") REFERENCES "Account"("AccountID"),
+	FOREIGN KEY ("ReversedJournalReconciliationTransactionDebitCreditId") REFERENCES "JournalReconciliationTransactionDebitCredit"("JournalReconciliationTransactionDebitCreditID"),
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );

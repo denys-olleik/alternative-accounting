@@ -5464,12 +5464,12 @@ namespace Accounting.Database
         _connectionString = connectionString;
       }
 
-      public JournalReconciliationTransaction Create(JournalReconciliationTransaction entity)
+      public JournalReconciliationTransactionDebitCredit Create(JournalReconciliationTransactionDebitCredit entity)
       {
         throw new NotImplementedException();
       }
 
-      public async Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction entity)
+      public async Task<JournalReconciliationTransactionDebitCredit> CreateAsync(JournalReconciliationTransactionDebitCredit entity)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@JournalId", entity.JournalId);
@@ -5479,11 +5479,11 @@ namespace Accounting.Database
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
 
-        IEnumerable<JournalReconciliationTransaction> result;
+        IEnumerable<JournalReconciliationTransactionDebitCredit> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          result = await con.QueryAsync<JournalReconciliationTransaction>("""
+          result = await con.QueryAsync<JournalReconciliationTransactionDebitCredit>("""
             INSERT INTO "JournalReconciliationTransaction" 
             ("JournalId", "ReversedJournalReconciliationTransactionId", "ReconciliationTransactionId", "TransactionGuid", "CreatedById", "OrganizationId") 
             VALUES 
@@ -5500,17 +5500,17 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public JournalReconciliationTransaction Get(int id)
+      public JournalReconciliationTransactionDebitCredit Get(int id)
       {
         throw new NotImplementedException();
       }
 
-      public IEnumerable<JournalReconciliationTransaction> GetAll()
+      public IEnumerable<JournalReconciliationTransactionDebitCredit> GetAll()
       {
         throw new NotImplementedException();
       }
 
-      public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(
+      public async Task<List<JournalReconciliationTransactionDebitCredit>> GetLastTransactionAsync(
         int reconciliationTransactionId,
         int organizationId,
         bool loadChildren = false)
@@ -5519,13 +5519,13 @@ namespace Accounting.Database
         p.Add("@ReconciliationTransactionId", reconciliationTransactionId);
         p.Add("@OrganizationId", organizationId);
 
-        IEnumerable<JournalReconciliationTransaction> result;
+        IEnumerable<JournalReconciliationTransactionDebitCredit> result;
 
         if (loadChildren)
         {
           using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
           {
-            result = await con.QueryAsync<JournalReconciliationTransaction, Journal, JournalReconciliationTransaction>("""
+            result = await con.QueryAsync<JournalReconciliationTransactionDebitCredit, Journal, JournalReconciliationTransactionDebitCredit>("""
               SELECT glrt.*, gl.*
               FROM "JournalReconciliationTransaction" glrt
               JOIN "Journal" gl ON glrt."JournalId" = gl."JournalID"
@@ -5548,7 +5548,7 @@ namespace Accounting.Database
         {
           using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
           {
-            result = await con.QueryAsync<JournalReconciliationTransaction>("""
+            result = await con.QueryAsync<JournalReconciliationTransactionDebitCredit>("""
               SELECT *
               FROM "JournalReconciliationTransaction"
               WHERE "TransactionGuid" IN (
@@ -5566,7 +5566,7 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      public int Update(JournalReconciliationTransaction entity)
+      public int Update(JournalReconciliationTransactionDebitCredit entity)
       {
         throw new NotImplementedException();
       }

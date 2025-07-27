@@ -2,8 +2,8 @@
 
 namespace Accounting.Database.Interfaces
 {
-  public interface IJournalReconciliationTransactionManager : IGenericRepository<JournalReconciliationTransaction, int>
+  public interface IJournalReconciliationTransactionManager : IGenericRepository<JournalReconciliationTransactionDebitCredit, int>
   {
-    Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(int reconciliationTransactionId, int organizationId, bool loadChildren = false);
+    Task<List<JournalReconciliationTransactionDebitCredit>> GetLastTransactionAsync(int reconciliationTransactionId, int organizationId, bool loadChildren = false);
   }
 }

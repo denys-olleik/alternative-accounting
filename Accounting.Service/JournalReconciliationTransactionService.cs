@@ -17,13 +17,13 @@ namespace Accounting.Service
 
     }
 
-    public async Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction journalExpense)
+    public async Task<JournalReconciliationTransactionDebitCredit> CreateAsync(JournalReconciliationTransactionDebitCredit journalExpense)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetJournalReconciliationTransactionManager().CreateAsync(journalExpense);
     }
 
-    public async Task<List<JournalReconciliationTransaction>> GetLastRelevantTransactionsAsync(
+    public async Task<List<JournalReconciliationTransactionDebitCredit>> GetLastRelevantTransactionsAsync(
       int reconciliationTransactionId,
       int organizationId,
       bool loadChildren = false)
@@ -32,7 +32,7 @@ namespace Accounting.Service
       var manager = factoryManager.GetJournalReconciliationTransactionManager();
 
       var transactions = await manager.GetLastTransactionAsync(reconciliationTransactionId, organizationId, loadChildren);
-      var lastTransaction = transactions.OrderByDescending(t => t.JournalReconciliationTransactionID).FirstOrDefault();
+      var lastTransaction = transactions.OrderByDescending(t => t.JournalReconciliationTransactionDebitCreditID).FirstOrDefault();
 
       if (lastTransaction != null)
       {
@@ -46,7 +46,7 @@ namespace Accounting.Service
         }
       }
 
-      return new List<JournalReconciliationTransaction>();
+      return new List<JournalReconciliationTransactionDebitCredit>();
     }
   }
 }
