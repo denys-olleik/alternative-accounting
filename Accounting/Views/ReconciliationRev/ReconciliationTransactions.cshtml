@@ -51,10 +51,12 @@
         <td class="padding-right-20px text-align-right white-space-nowrap">{{ reconciliationTransaction.amount }}</td>
         <td class="white-space-nowrap text-align-center">
           <template v-if="!reconciliationTransaction.reconciliationInstruction || reconciliationTransaction.reconciliationInstruction.trim() === ''">
-            <a href="#" class="color-grey">none</a>
+            <a href="#" class="color-grey" @@click.prevent="instructionSelected(reconciliationTransaction.reconciliationTransactionID)">none</a>
           </template>
           <template v-else>
-            {{ reconciliationTransaction.reconciliationInstruction }}
+            <a href="#" @@click.prevent="instructionSelected(reconciliationTransaction.reconciliationTransactionID)">
+              {{ reconciliationTransaction.reconciliationInstruction }}
+            </a>
           </template>
         </td>
       </tr>
@@ -118,6 +120,10 @@
       creditAccountSelected(selectedCreditAccount) {
         this.selectedCreditAccount = selectedCreditAccount;
       },
+      instructionSelected(reconciliationTransactionID) {
+        console.log('Instruction selected for transaction ID:', reconciliationTransactionID);
+        // Future extension: open modal, fetch instruction details, etc.
+      }
     },
     mounted() {
       if (this.rememberPageSize) {
