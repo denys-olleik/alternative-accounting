@@ -49,7 +49,14 @@
         <td class="padding-right-20px white-space-nowrap">{{ reconciliationTransaction.transactionDate }}</td>
         <td class="padding-right-20px white-space-nowrap">{{ reconciliationTransaction.description }}</td>
         <td class="padding-right-20px text-align-right white-space-nowrap">{{ reconciliationTransaction.amount }}</td>
-        <td class="text-align-right white-space-nowrap">{{ reconciliationTransaction.reconciliationInstruction }}</td>
+        <td class="white-space-nowrap text-align-center">
+          <template v-if="!reconciliationTransaction.reconciliationInstruction || reconciliationTransaction.reconciliationInstruction.trim() === ''">
+            <a href="#" class="color-grey">none</a>
+          </template>
+          <template v-else>
+            {{ reconciliationTransaction.reconciliationInstruction }}
+          </template>
+        </td>
       </tr>
     </tbody>
   </table>
