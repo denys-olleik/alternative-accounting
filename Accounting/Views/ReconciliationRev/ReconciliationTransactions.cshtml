@@ -51,10 +51,10 @@
         <td class="padding-right-20px text-align-right white-space-nowrap">{{ reconciliationTransaction.amount }}</td>
         <td class="white-space-nowrap text-align-center">
           <template v-if="!reconciliationTransaction.reconciliationInstruction || reconciliationTransaction.reconciliationInstruction.trim() === ''">
-            <a href="#" class="color-grey" @@click.prevent="instructionSelected(reconciliationTransaction.reconciliationTransactionID)">none</a>
+            <a href="#" class="color-grey" @@click.prevent="instructionSelected(reconciliationTransaction)">none</a>
           </template>
           <template v-else>
-            <a href="#" @@click.prevent="instructionSelected(reconciliationTransaction.reconciliationTransactionID)">
+            <a href="#" @@click.prevent="instructionSelected(reconciliationTransaction)">
               {{ reconciliationTransaction.reconciliationInstruction }}
             </a>
           </template>

@@ -7,8 +7,19 @@ namespace Accounting.Business
     public int JournalID { get; set; }
     public int AccountId { get; set; }
     public Account? Account { get; set; }
-    public decimal? Debit { get; set; }
-    public decimal? Credit { get; set; }
+    private decimal? _debit;
+    public decimal? Debit
+    {
+      get => _debit;
+      set => _debit = value.HasValue ? Math.Abs(value.Value) : (decimal?)null;
+    }
+
+    private decimal? _credit;
+    public decimal? Credit
+    {
+      get => _credit;
+      set => _credit = value.HasValue ? Math.Abs(value.Value) : (decimal?)null;
+    }
     public string? Memo { get; set; }
     public int CreatedById { get; set; }
     public int OrganizationId { get; set; }

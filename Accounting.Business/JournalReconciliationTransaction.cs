@@ -2,10 +2,9 @@
 
 namespace Accounting.Business
 {
-  public class JournalReconciliationTransactionDebitCredit : JournalTableBase, IIdentifiable<int>
+  public class JournalReconciliationTransaction : JournalTableBase, IIdentifiable<int>
   {
 		public int JournalReconciliationTransactionDebitCreditID { get; set; }
-		public int JournalId { get; set; }
     public int ReconciliationTransactionId { get; set; }
 		public int? ReversedJournalReconciliationTransactionId { get; set; }
 		public int CreatedById { get; set; }

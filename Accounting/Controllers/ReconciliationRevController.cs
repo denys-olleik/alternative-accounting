@@ -30,8 +30,8 @@ namespace Accounting.Controllers
     [HttpGet]
     [Route("reconciliation-transactions/{id}")]
     public async Task<IActionResult> ReconciliationTransactions(
-      int id, 
-      int page, 
+      int id,
+      int page,
       int pageSize)
     {
       var referer = Request.Headers["Referer"].ToString() ?? string.Empty;
@@ -182,7 +182,7 @@ namespace Accounting.Controllers
         }
 
         foreach (var transaction in transactions)
-        { 
+        {
           await _reconciliationTransactionService.ImportAsync(transactions);
         }
 
@@ -218,6 +218,8 @@ namespace Accounting.Controllers
   {
     private readonly ReconciliationTransactionService _reconciliationTransactionService;
     private readonly ReconciliationService _reconciliationService;
+    private readonly JournalReconciliationTransactionService _journalReconciliationTransactionService;
+    private readonly JournalService _journalService;
 
     public ReconciliationRevApiController(
       ReconciliationService reconciliationService,
@@ -226,6 +228,48 @@ namespace Accounting.Controllers
     {
       _reconciliationTransactionService = new ReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _reconciliationService = new ReconciliationService(requestContext.DatabaseName, requestContext.DatabasePassword);
+    }
+
+    [HttpPost("record")]
+    public async Task<IActionResult> RecordReconciliationTransactionInstruction(RecordReconciliationTransactionInstruction model)
+    {
+      ReconciliationTransaction reconciliationTransaction = await _reconciliationTransactionService.GetAsync(model.ReconciliationTransactionID);
+
+      if (reconciliationTransaction == null)
+        return NotFound();
+
+      using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
+      {
+        List<JournalReconciliationTransaction> journalReconciliationTransactions
+        = await _journalReconciliationTransactionService.GetLastRelevantTransactionsAsync(reconciliationTransaction.ReconciliationTransactionID, GetOrganizationId()!.Value, true);
+
+        if (journalReconciliationTransactions.Count == 0)
+        {
+          Journal debitEntry = await _journalService.CreateAsync(new Journal
+          {
+            AccountId = model.DebitAccount,
+            Debit = reconciliationTransaction.Amount,
+            CreatedById = GetUserId(),
+            OrganizationId = GetOrganizationId()!.Value
+          });
+
+          Journal creditEntry = await _journalService.CreateAsync(new Journal
+          {
+            AccountId = model.CreditAccount,
+            Credit = reconciliationTransaction.Amount,
+            CreatedById = GetUserId(),
+            OrganizationId = GetOrganizationId()!.Value
+          });
+        }
+        else
+        {
+
+        }
+      }
+
+
+
+      return Ok(new { Instruction = "" });
     }
 
     [HttpGet("get-reconciliation-transactions")]
