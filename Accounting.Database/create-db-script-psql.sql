@@ -539,9 +539,7 @@ CREATE TABLE "JournalReconciliationTransaction"
 	"OrganizationId" INT NOT NULL,
 	FOREIGN KEY ("JournalId") REFERENCES "Journal"("JournalID"),
 	FOREIGN KEY ("ReconciliationTransactionId") REFERENCES "ReconciliationTransaction"("ReconciliationTransactionID"),
-	FOREIGN KEY ("Debit") REFERENCES "Account"("AccountID"),
-	FOREIGN KEY ("Credit") REFERENCES "Account"("AccountID"),
-	FOREIGN KEY ("ReversedJournalReconciliationTransaction") REFERENCES "JournalReconciliationTransaction"("JournalReconciliationTransactionID"),
+	FOREIGN KEY ("ReversedJournalReconciliationTransactionId") REFERENCES "JournalReconciliationTransaction"("JournalReconciliationTransactionID"),
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
