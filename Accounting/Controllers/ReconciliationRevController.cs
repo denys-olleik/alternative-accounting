@@ -1,4 +1,5 @@
 ﻿using Accounting.Business;
+using Accounting.Common;
 using Accounting.CustomAttributes;
 using Accounting.Models;
 using Accounting.Models.ReconciliationViewModels;
@@ -231,19 +232,23 @@ namespace Accounting.Controllers
     }
 
     [HttpPost("record")]
-    public async Task<IActionResult> RecordReconciliationTransactionInstruction(RecordReconciliationTransactionInstruction model)
+    public async Task<IActionResult> ToggleReconciliationTransaction(ToggleReconciliationTransactionInstructionViewModel model)
     {
       ReconciliationTransaction reconciliationTransaction = await _reconciliationTransactionService.GetAsync(model.ReconciliationTransactionID);
 
       if (reconciliationTransaction == null)
         return NotFound();
 
+      var transactionGuid = GuidExtensions.CreateSecureGuid();
+
       using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
-        List<JournalReconciliationTransaction> journalReconciliationTransactions
-        = await _journalReconciliationTransactionService.GetLastRelevantTransactionsAsync(reconciliationTransaction.ReconciliationTransactionID, GetOrganizationId()!.Value, true);
+        List<JournalReconciliationTransaction> lastTransaction
+          = await _journalReconciliationTransactionService.GetLastTransactionAsync(reconciliationTransaction.ReconciliationTransactionID, GetOrganizationId()!.Value, true);
 
-        if (journalReconciliationTransactions.Count == 0)
+        List<JournalReconciliationTransaction> thisTransaction = new();
+
+        if (lastTransaction.Count == 0)
         {
           Journal debitEntry = await _journalService.CreateAsync(new Journal
           {
@@ -260,14 +265,56 @@ namespace Accounting.Controllers
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value
           });
+
+          JournalReconciliationTransaction journalReconciliationTransactionDebit = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+          {
+            JournalId = debitEntry.JournalID,
+            ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
+            ReversedJournalReconciliationTransactionId = null,
+            CreatedById = GetUserId(),
+            OrganizationId = GetOrganizationId()!.Value,
+            TransactionGuid = transactionGuid
+          });
+
+          JournalReconciliationTransaction journalReconciliationTransactionCredit = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+          {
+            JournalId = creditEntry.JournalID,
+            ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
+            ReversedJournalReconciliationTransactionId = null,
+            CreatedById = GetUserId(),
+            OrganizationId = GetOrganizationId()!.Value,
+            TransactionGuid = transactionGuid
+          });
         }
         else
         {
+          foreach (var item in lastTransaction)
+          {
+            var undoEntry = await _journalService.CreateAsync(new Journal
+            {
+              AccountId = item.Journal.AccountId,
+              Debit = item.Journal.Credit,
+              Credit = item.Journal.Debit,
+              CreatedById = GetUserId(),
+              OrganizationId = GetOrganizationId()!.Value
+            });
 
+            lastTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+            {
+              JournalId = undoEntry.JournalID,
+              ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
+              ReversedJournalReconciliationTransactionId = item.ReconciliationTransactionId,
+              TransactionGuid = transactionGuid,
+              CreatedById = GetUserId(),
+              OrganizationId = GetOrganizationId()!.Value,
+            }));
+          }
         }
+
+        lastTransaction.AddRange(thisTransaction);
+
+        scope.Complete();
       }
-
-
 
       return Ok(new { Instruction = "" });
     }

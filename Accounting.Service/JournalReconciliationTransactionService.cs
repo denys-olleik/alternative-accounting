@@ -48,5 +48,10 @@ namespace Accounting.Service
 
       return new List<JournalReconciliationTransaction>();
     }
+
+    public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(int reconciliationTransactionID, int value, bool v)
+    {
+      throw new NotImplementedException();
+    }
   }
 }
