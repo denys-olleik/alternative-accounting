@@ -122,7 +122,20 @@
       },
       instructionSelected(reconciliationTransaction) {
         console.log('Instruction selected for transaction ID:', reconciliationTransaction);
-        // Future extension: open modal, fetch instruction details, etc.
+
+        let apiUrl = `/api/rclrev/record`;
+
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ReconciliationTransactionID: reconciliationTransaction.reconciliationTransactionID,
+            DebitAccount: this.selectedDebitAccount ? this.selectedDebitAccount.accountId : null,
+            CreditAccount: this.selectedCreditAccount ? this.selectedCreditAccount.accountId : null
+          });
+        })
       }
     },
     mounted() {

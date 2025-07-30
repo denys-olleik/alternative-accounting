@@ -321,7 +321,7 @@ namespace Accounting.Controllers
       return Ok(new
       {
         Instruction = (lastTransaction.Count > 0 && lastTransaction[0].ReversedJournalReconciliationTransactionId == null)
-          ? "unset"
+          ? "none"
           : $"D: {thisTransaction.Single(x => x.Journal.Debit != null).Journal.Account.Name}, C: {thisTransaction.Single(x => x.Journal.Credit != null).Journal.Account.Name}"
       });
     }
