@@ -317,7 +317,6 @@ namespace Accounting.Controllers
         scope.Complete();
       }
 
-      // Inline logic: if lastTransaction.Count > 0 and its first entry is not a reversal, we just did a reversal (unset)
       return Ok(new
       {
         Instruction = (lastTransaction.Count > 0 && lastTransaction[0].ReversedJournalReconciliationTransactionId == null)
