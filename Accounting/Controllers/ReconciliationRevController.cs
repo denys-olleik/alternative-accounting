@@ -236,6 +236,14 @@ namespace Accounting.Controllers
     {
       ReconciliationTransaction reconciliationTransaction = await _reconciliationTransactionService.GetAsync(model.ReconciliationTransactionID);
 
+      List<JournalReconciliationTransaction> lastTransaction =
+        await _journalReconciliationTransactionService.GetLastTransactionAsync(
+          reconciliationTransaction.ReconciliationTransactionID,
+          GetOrganizationId()!.Value,
+          true);
+
+      List<JournalReconciliationTransaction> thisTransaction = new();
+
       if (reconciliationTransaction == null)
         return NotFound();
 
@@ -243,11 +251,6 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
-        List<JournalReconciliationTransaction> lastTransaction
-          = await _journalReconciliationTransactionService.GetLastTransactionAsync(reconciliationTransaction.ReconciliationTransactionID, GetOrganizationId()!.Value, true);
-
-        List<JournalReconciliationTransaction> thisTransaction = new();
-
         if (lastTransaction.Count == 0)
         {
           Journal debitEntry = await _journalService.CreateAsync(new Journal
@@ -266,7 +269,7 @@ namespace Accounting.Controllers
             OrganizationId = GetOrganizationId()!.Value
           });
 
-          JournalReconciliationTransaction journalReconciliationTransactionDebit = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+          thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
           {
             JournalId = debitEntry.JournalID,
             ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
@@ -274,9 +277,9 @@ namespace Accounting.Controllers
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value,
             TransactionGuid = transactionGuid
-          });
+          }));
 
-          JournalReconciliationTransaction journalReconciliationTransactionCredit = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+          thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
           {
             JournalId = creditEntry.JournalID,
             ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
@@ -284,7 +287,7 @@ namespace Accounting.Controllers
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value,
             TransactionGuid = transactionGuid
-          });
+          }));
         }
         else
         {
@@ -299,11 +302,11 @@ namespace Accounting.Controllers
               OrganizationId = GetOrganizationId()!.Value
             });
 
-            lastTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+            thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
             {
               JournalId = undoEntry.JournalID,
               ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
-              ReversedJournalReconciliationTransactionId = item.ReconciliationTransactionId,
+              ReversedJournalReconciliationTransactionId = (item.ReversedJournalReconciliationTransactionId == null) ? item.ReconciliationTransactionId : null,
               TransactionGuid = transactionGuid,
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value,
@@ -311,12 +314,16 @@ namespace Accounting.Controllers
           }
         }
 
-        lastTransaction.AddRange(thisTransaction);
-
         scope.Complete();
       }
 
-      return Ok(new { Instruction = "" });
+      // Inline logic: if lastTransaction.Count > 0 and its first entry is not a reversal, we just did a reversal (unset)
+      return Ok(new
+      {
+        Instruction = (lastTransaction.Count > 0 && lastTransaction[0].ReversedJournalReconciliationTransactionId == null)
+          ? "unset"
+          : $"D: {thisTransaction.Single(x => x.Journal.Debit != null).Journal.Account.Name}, C: {thisTransaction.Single(x => x.Journal.Credit != null).Journal.Account.Name}"
+      });
     }
 
     [HttpGet("get-reconciliation-transactions")]
