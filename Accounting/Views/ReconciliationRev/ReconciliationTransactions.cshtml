@@ -16,8 +16,6 @@
   </div>
 </div>
 
-
-
 <div id="app">
   <div class="display-flex margin-bottom-5px">
     <div class="flex-1 display-flex flex-direction-column background-color-antiquewhite">
@@ -121,8 +119,6 @@
         this.selectedCreditAccount = selectedCreditAccount;
       },
       instructionSelected(reconciliationTransaction) {
-        console.log('Instruction selected for transaction ID:', reconciliationTransaction);
-
         let apiUrl = `/api/rclrev/record`;
 
         fetch(apiUrl, {
