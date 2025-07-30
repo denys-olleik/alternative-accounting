@@ -15,8 +15,6 @@ namespace Accounting.Business
     public string? Description { get; set; }
     public decimal? Amount { get; set; }
     public string? Category { get; set; }
-    //public int? ExpenseAccountId { get; set; }
-    //public int? AssetOrLiabilityAccountId { get; set; }
     public DateTime Created { get; set; }
     public int ReconciliationId { get; set; }
     public int CreatedById { get; set; }
@@ -27,36 +25,37 @@ namespace Accounting.Business
 
     #region Extra properties
     public int? RowNumber { get; set; }
+    public List<JournalReconciliationTransaction>? JournalReconciliationTransactions { get; set; } = new ();
     #endregion
 
     public int Identifiable => this.ReconciliationTransactionID;
 
-    public class ReconciliationInstructions
-    {
-      public const string Revenue = "revenue";
-      public const string Expense = "expense";
+    //public class ReconciliationInstructions
+    //{
+    //  public const string Revenue = "revenue";
+    //  public const string Expense = "expense";
 
-      private static readonly List<string> _all = new List<string>();
+    //  private static readonly List<string> _all = new List<string>();
 
-      static ReconciliationInstructions()
-      {
-        var fields = typeof(ReconciliationInstructions)
-          .GetFields(
-            BindingFlags.Public
-            | BindingFlags.Static
-            | BindingFlags.DeclaredOnly);
+    //  static ReconciliationInstructions()
+    //  {
+    //    var fields = typeof(ReconciliationInstructions)
+    //      .GetFields(
+    //        BindingFlags.Public
+    //        | BindingFlags.Static
+    //        | BindingFlags.DeclaredOnly);
 
-        foreach (var field in fields)
-        {
-          if (field.FieldType == typeof(string) && field.GetValue(null) is string value)
-          {
-            _all.Add(value);
-          }
-        }
-      }
+    //    foreach (var field in fields)
+    //    {
+    //      if (field.FieldType == typeof(string) && field.GetValue(null) is string value)
+    //      {
+    //        _all.Add(value);
+    //      }
+    //    }
+    //  }
 
-      public static IReadOnlyList<string> All => _all.AsReadOnly();
-    }
+    //  public static IReadOnlyList<string> All => _all.AsReadOnly();
+    //}
 
     public static class ImportStatuses
     {

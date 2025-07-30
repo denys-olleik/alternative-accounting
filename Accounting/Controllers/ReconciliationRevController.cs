@@ -182,10 +182,7 @@ namespace Accounting.Controllers
           });
         }
 
-        foreach (var transaction in transactions)
-        {
-          await _reconciliationTransactionService.ImportAsync(transactions);
-        }
+        await _reconciliationTransactionService.ImportAsync(transactions);
 
         scope.Complete();
       }
@@ -229,6 +226,8 @@ namespace Accounting.Controllers
     {
       _reconciliationTransactionService = new ReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _reconciliationService = new ReconciliationService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _journalReconciliationTransactionService = new JournalReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _journalService = new JournalService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
     [HttpPost("record")]
@@ -333,6 +332,13 @@ namespace Accounting.Controllers
     {
       var (transactions, nextPage) = await _reconciliationTransactionService.GetReconciliationTransactionsAsync(reconciliationId, page, pageSize, GetOrganizationId()!.Value);
 
+      foreach (ReconciliationTransaction transaction in transactions)
+      {
+        List<JournalReconciliationTransaction> lastTransaction = await _journalReconciliationTransactionService.GetLastTransactionAsync(transaction.ReconciliationTransactionID, GetOrganizationId()!.Value, true);
+
+        transaction.JournalReconciliationTransactions!.AddRange(lastTransaction);
+      }
+
       GetReconciliationTransactionsViewModel model = new GetReconciliationTransactionsViewModel
       {
         ReconciliationID = reconciliationId,
@@ -342,6 +348,7 @@ namespace Accounting.Controllers
         ReconciliationTransactions = transactions.Select(t => new GetReconciliationTransactionsViewModel.ReconciliationTransactionViewModel
         {
           ReconciliationTransactionID = t.ReconciliationTransactionID,
+          ReconciliationInstruction = $"D: {t.JournalReconciliationTransactions.Single(x => x.Journal.Debit != null).Journal.Account.Name}, C: {t.JournalReconciliationTransactions.Single(x => x.Journal.Credit != null).Journal.Account.Name}",
           RowNumber = t.RowNumber,
           TransactionDate = t.TransactionDate,
           Description = t.Description,
