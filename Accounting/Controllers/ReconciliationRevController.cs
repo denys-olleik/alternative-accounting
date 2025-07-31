@@ -154,12 +154,14 @@ namespace Accounting.Controllers
             continue;
 
           await languageModelService.GenerateResponse<ReconciliationTransactionResult>($"""
-            process this CSV row into a ReconciliationTransaction object:
+            Process this CSV row into a ReconciliationTransaction object:
             ```csv
             {row}
             ```
-
-            respond with JSON object that includes TransactionDate, Description, and Amount fields. respond without wrapping in a code block or any other text, so I can parse it easily.
+          
+            Respond with a JSON object that includes TransactionDate, Description, and Amount fields.
+            **IMPORTANT:** The TransactionDate field must be in ISO 8601 format (`yyyy-MM-dd`), for example: "2024-06-03".
+            Respond with only the JSON object, no code block or extra text.
             """,
             string.Empty,
             true,
@@ -254,7 +256,7 @@ namespace Accounting.Controllers
         {
           Journal debitEntry = await _journalService.CreateAsync(new Journal
           {
-            AccountId =  Convert.ToInt32(model.DebitAccount),
+            AccountId = Convert.ToInt32(model.DebitAccount),
             Debit = reconciliationTransaction.Amount,
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value
