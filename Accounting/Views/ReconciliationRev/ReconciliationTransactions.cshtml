@@ -119,6 +119,10 @@
         this.selectedCreditAccount = selectedCreditAccount;
       },
       instructionSelected(reconciliationTransaction) {
+        if (!this.selectedDebitAccount || !this.selectedCreditAccount) {
+          alert('Please select both Debit and Credit accounts.');
+          return;
+        }
         let apiUrl = `/api/rclrev/record`;
 
         fetch(apiUrl, {
@@ -128,8 +132,8 @@
           },
           body: JSON.stringify({
             ReconciliationTransactionID: reconciliationTransaction.reconciliationTransactionID,
-            DebitAccount: this.selectedDebitAccount ? this.selectedDebitAccount.accountId : null,
-            CreditAccount: this.selectedCreditAccount ? this.selectedCreditAccount.accountId : null
+            DebitAccount: this.selectedDebitAccount.accountId,
+            CreditAccount: this.selectedCreditAccount.accountId
           })
         })
       }

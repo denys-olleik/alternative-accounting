@@ -254,7 +254,7 @@ namespace Accounting.Controllers
         {
           Journal debitEntry = await _journalService.CreateAsync(new Journal
           {
-            AccountId = model.DebitAccount,
+            AccountId =  Convert.ToInt32(model.DebitAccount),
             Debit = reconciliationTransaction.Amount,
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value
@@ -262,7 +262,7 @@ namespace Accounting.Controllers
 
           Journal creditEntry = await _journalService.CreateAsync(new Journal
           {
-            AccountId = model.CreditAccount,
+            AccountId = Convert.ToInt32(model.CreditAccount),
             Credit = reconciliationTransaction.Amount,
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value

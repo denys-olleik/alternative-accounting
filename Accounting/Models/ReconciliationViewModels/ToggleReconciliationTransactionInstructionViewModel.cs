@@ -6,8 +6,8 @@ namespace Accounting.Models.ReconciliationViewModels
   public class ToggleReconciliationTransactionInstructionViewModel
   {
     public int ReconciliationTransactionID { get; set; }
-    public int DebitAccount { get; set; }
-    public int CreditAccount { get; set; }
+    public string DebitAccount { get; set; }
+    public string CreditAccount { get; set; }
 
     public ValidationResult ValidationResult { get; set; } = new();
 
@@ -17,8 +17,8 @@ namespace Accounting.Models.ReconciliationViewModels
       public ToggleReconciliationTransactionInstructionViewModelValidator()
       {
         RuleFor(x => x.ReconciliationTransactionID).GreaterThan(0);
-        RuleFor(x => x.DebitAccount).GreaterThan(0);
-        RuleFor(x => x.CreditAccount).GreaterThan(0);
+        RuleFor(x => x.DebitAccount).MinimumLength(1);
+        RuleFor(x => x.CreditAccount).MinimumLength(1);
       }
     }
   }
