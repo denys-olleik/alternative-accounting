@@ -348,7 +348,9 @@ namespace Accounting.Controllers
         ReconciliationTransactions = transactions.Select(t => new GetReconciliationTransactionsViewModel.ReconciliationTransactionViewModel
         {
           ReconciliationTransactionID = t.ReconciliationTransactionID,
-          ReconciliationInstruction = $"D: {t.JournalReconciliationTransactions.Single(x => x.Journal.Debit != null).Journal.Account.Name}, C: {t.JournalReconciliationTransactions.Single(x => x.Journal.Credit != null).Journal.Account.Name}",
+          ReconciliationInstruction = (t.JournalReconciliationTransactions == null || !t.JournalReconciliationTransactions.Any())
+            ? "none"
+            : $"D: {t.JournalReconciliationTransactions.Single(x => x.Journal.Debit != null).Journal.Account.Name}, C: {t.JournalReconciliationTransactions.Single(x => x.Journal.Credit != null).Journal.Account.Name}",
           RowNumber = t.RowNumber,
           TransactionDate = t.TransactionDate,
           Description = t.Description,

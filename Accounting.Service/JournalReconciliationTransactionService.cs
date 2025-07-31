@@ -49,9 +49,10 @@ namespace Accounting.Service
       return new List<JournalReconciliationTransaction>();
     }
 
-    public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(int reconciliationTransactionID, int value, bool v)
+    public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(int reconciliationTransactionID, int value, bool loadChildren)
     {
-      throw new NotImplementedException();
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetJournalReconciliationTransactionManager().GetLastTransactionAsync(reconciliationTransactionID, value, loadChildren);
     }
   }
 }
