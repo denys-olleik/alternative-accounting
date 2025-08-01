@@ -17,10 +17,10 @@ namespace Accounting.Service
 
     }
 
-    public async Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction journalExpense, bool loadJournal)
+    public async Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction journalReconciliationTransaction, bool loadJournal)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetJournalReconciliationTransactionManager().CreateAsync(journalExpense, loadJournal);
+      return await factoryManager.GetJournalReconciliationTransactionManager().CreateAsync(journalReconciliationTransaction, loadJournal);
     }
 
     public async Task<List<JournalReconciliationTransaction>> GetLastRelevantTransactionsAsync(

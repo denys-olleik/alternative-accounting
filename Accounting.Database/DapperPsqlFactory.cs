@@ -5495,7 +5495,7 @@ namespace Accounting.Database
         return result.Single();
       }
 
-      public Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction journalExpense, bool loadJournal)
+      public async Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction journalReconciliationTransaction, bool loadJournal)
       {
         throw new NotImplementedException();
       }
