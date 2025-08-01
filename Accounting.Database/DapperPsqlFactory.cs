@@ -5497,7 +5497,48 @@ namespace Accounting.Database
 
       public async Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction journalReconciliationTransaction, bool loadJournal)
       {
-        throw new NotImplementedException();
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@JournalId", journalReconciliationTransaction.JournalId);
+        p.Add("@ReconciliationTransactionId", journalReconciliationTransaction.ReconciliationTransactionId);
+        p.Add("@ReversedJournalReconciliationTransactionId", journalReconciliationTransaction.ReversedJournalReconciliationTransactionId);
+        p.Add("@TransactionGuid", journalReconciliationTransaction.TransactionGuid);
+        p.Add("@CreatedById", journalReconciliationTransaction.CreatedById);
+        p.Add("@OrganizationId", journalReconciliationTransaction.OrganizationId);
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          // Insert and get the new JournalReconciliationTransaction
+          var inserted = await con.QuerySingleAsync<JournalReconciliationTransaction>("""
+            INSERT INTO "JournalReconciliationTransaction" 
+              ("JournalId", "ReversedJournalReconciliationTransactionId", "ReconciliationTransactionId", "TransactionGuid", "CreatedById", "OrganizationId") 
+            VALUES 
+              (@JournalId, @ReversedJournalReconciliationTransactionId, @ReconciliationTransactionId, @TransactionGuid, @CreatedById, @OrganizationId)
+            RETURNING *;
+            """, p);
+
+          if (loadJournal)
+          {
+            var result = await con.QueryAsync<JournalReconciliationTransaction, Journal, JournalReconciliationTransaction>("""
+              SELECT glrt.*, gl.*
+              FROM "JournalReconciliationTransaction" glrt
+              JOIN "Journal" gl ON glrt."JournalId" = gl."JournalID"
+              WHERE glrt."JournalReconciliationTransactionID" = @Id
+              """,
+              (glrt, gl) =>
+              {
+                glrt.Journal = gl;
+                return glrt;
+              },
+              new { Id = inserted.JournalReconciliationTransactionID },
+              splitOn: "JournalID"
+            );
+            return result.Single();
+          }
+          else
+          {
+            return inserted;
+          }
+        }
       }
 
       public int Delete(int id)
@@ -5518,7 +5559,7 @@ namespace Accounting.Database
       public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(
         int reconciliationTransactionId,
         int organizationId,
-        bool loadChildren = false)
+        bool loadJournal = false)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@ReconciliationTransactionId", reconciliationTransactionId);
@@ -5526,7 +5567,7 @@ namespace Accounting.Database
 
         IEnumerable<JournalReconciliationTransaction> result;
 
-        if (loadChildren)
+        if (loadJournal)
         {
           using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
           {

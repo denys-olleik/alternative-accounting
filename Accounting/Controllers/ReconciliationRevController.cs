@@ -220,16 +220,18 @@ namespace Accounting.Controllers
     private readonly ReconciliationService _reconciliationService;
     private readonly JournalReconciliationTransactionService _journalReconciliationTransactionService;
     private readonly JournalService _journalService;
+    private readonly AccountService _accountService;
 
     public ReconciliationRevApiController(
       ReconciliationService reconciliationService,
-      ReconciliationTransactionService reconciliationTransactionService,
+      //ReconciliationTransactionService reconciliationTransactionService,
       RequestContext requestContext)
     {
       _reconciliationTransactionService = new ReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _reconciliationService = new ReconciliationService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _journalReconciliationTransactionService = new JournalReconciliationTransactionService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _journalService = new JournalService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _accountService = new AccountService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
     [HttpPost("record")]
@@ -337,6 +339,13 @@ namespace Accounting.Controllers
       foreach (ReconciliationTransaction transaction in transactions)
       {
         List<JournalReconciliationTransaction> lastTransaction = await _journalReconciliationTransactionService.GetLastTransactionAsync(transaction.ReconciliationTransactionID, GetOrganizationId()!.Value, true);
+
+        foreach (var journalReconciliationTransaction in lastTransaction)
+        {
+          Account account = await _accountService.GetAsync(journalReconciliationTransaction.Journal.AccountId, GetOrganizationId()!.Value);
+
+          journalReconciliationTransaction.Journal!.Account = account;
+        }
 
         transaction.JournalReconciliationTransactions!.AddRange(lastTransaction);
       }

@@ -65,7 +65,7 @@ namespace Accounting.Controllers
               ReconciliationTransactionId = entry.ReconciliationTransactionId,
               JournalId = reversingGlEntry.JournalID,
               TransactionGuid = transactionGuid,
-              ReversedJournalReconciliationTransactionId = entry.JournalReconciliationTransactionDebitCreditID,
+              ReversedJournalReconciliationTransactionId = entry.JournalReconciliationTransactionID,
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value,
             }, true);

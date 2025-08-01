@@ -32,7 +32,7 @@ namespace Accounting.Service
       var manager = factoryManager.GetJournalReconciliationTransactionManager();
 
       var transactions = await manager.GetLastTransactionAsync(reconciliationTransactionId, organizationId, loadChildren);
-      var lastTransaction = transactions.OrderByDescending(t => t.JournalReconciliationTransactionDebitCreditID).FirstOrDefault();
+      var lastTransaction = transactions.OrderByDescending(t => t.JournalReconciliationTransactionID).FirstOrDefault();
 
       if (lastTransaction != null)
       {
@@ -49,10 +49,10 @@ namespace Accounting.Service
       return new List<JournalReconciliationTransaction>();
     }
 
-    public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(int reconciliationTransactionID, int value, bool loadChildren)
+    public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(int reconciliationTransactionID, int organizationId, bool loadJournal)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetJournalReconciliationTransactionManager().GetLastTransactionAsync(reconciliationTransactionID, value, loadChildren);
+      return await factoryManager.GetJournalReconciliationTransactionManager().GetLastTransactionAsync(reconciliationTransactionID, organizationId, loadJournal);
     }
   }
 }
