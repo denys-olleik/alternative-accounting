@@ -278,7 +278,7 @@ namespace Accounting.Controllers
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value,
             TransactionGuid = transactionGuid
-          }));
+          }, true));
 
           thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
           {
@@ -288,7 +288,7 @@ namespace Accounting.Controllers
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value,
             TransactionGuid = transactionGuid
-          }));
+          }, true));
         }
         else
         {
@@ -311,7 +311,7 @@ namespace Accounting.Controllers
               TransactionGuid = transactionGuid,
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value,
-            }));
+            }, true));
           }
         }
 

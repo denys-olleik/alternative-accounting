@@ -68,7 +68,7 @@ namespace Accounting.Controllers
               ReversedJournalReconciliationTransactionId = entry.JournalReconciliationTransactionDebitCreditID,
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value,
-            });
+            }, true);
           }
 
           await _reconciliationTransactionService

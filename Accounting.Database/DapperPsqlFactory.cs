@@ -5495,6 +5495,11 @@ namespace Accounting.Database
         return result.Single();
       }
 
+      public Task<JournalReconciliationTransaction> CreateAsync(JournalReconciliationTransaction journalExpense, bool loadJournal)
+      {
+        throw new NotImplementedException();
+      }
+
       public int Delete(int id)
       {
         throw new NotImplementedException();
