@@ -119,23 +119,50 @@
         this.selectedCreditAccount = selectedCreditAccount;
       },
       instructionSelected(reconciliationTransaction) {
-        if (!this.selectedDebitAccount || !this.selectedCreditAccount) {
-          alert('Please select both Debit and Credit accounts.');
-          return;
-        }
-        let apiUrl = `/api/rclrev/record`;
-
-        fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            ReconciliationTransactionID: reconciliationTransaction.reconciliationTransactionID,
-            DebitAccount: this.selectedDebitAccount.accountID,
-            CreditAccount: this.selectedCreditAccount.accountID
+        // If the current instruction is "none", require account selection
+        if (
+          !reconciliationTransaction.reconciliationInstruction ||
+          reconciliationTransaction.reconciliationInstruction.trim() === '' ||
+          reconciliationTransaction.reconciliationInstruction === 'none'
+        ) {
+          if (!this.selectedDebitAccount || !this.selectedCreditAccount) {
+            alert('Please select both Debit and Credit accounts.');
+            return;
+          }
+          // Assign instruction
+          fetch('/api/rclrev/record', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              ReconciliationTransactionID: reconciliationTransaction.reconciliationTransactionID,
+              DebitAccount: this.selectedDebitAccount.accountID,
+              CreditAccount: this.selectedCreditAccount.accountID
+            })
           })
-        })
+            .then(response => response.json())
+            .then(data => {
+              reconciliationTransaction.reconciliationInstruction = data.Instruction;
+            });
+        } else {
+          // Toggle back to "none" (unassign), send 0 for both accounts
+          fetch('/api/rclrev/record', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              ReconciliationTransactionID: reconciliationTransaction.reconciliationTransactionID,
+              DebitAccount: 0,
+              CreditAccount: 0
+            })
+          })
+            .then(response => response.json())
+            .then(data => {
+              reconciliationTransaction.reconciliationInstruction = data.Instruction;
+            });
+        }
       }
     },
     mounted() {
