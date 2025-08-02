@@ -263,6 +263,7 @@ namespace Accounting.Controllers
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value
           });
+          debitEntry.Account = await _accountService.GetAsync(debitEntry.AccountId, GetOrganizationId()!.Value);
 
           Journal creditEntry = await _journalService.CreateAsync(new Journal
           {
@@ -271,6 +272,7 @@ namespace Accounting.Controllers
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value
           });
+          creditEntry.Account = await _accountService.GetAsync(creditEntry.AccountId, GetOrganizationId()!.Value);
 
           thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
           {
@@ -279,7 +281,8 @@ namespace Accounting.Controllers
             ReversedJournalReconciliationTransactionId = null,
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value,
-            TransactionGuid = transactionGuid
+            TransactionGuid = transactionGuid,
+            Journal = debitEntry
           }, true));
 
           thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
@@ -289,7 +292,8 @@ namespace Accounting.Controllers
             ReversedJournalReconciliationTransactionId = null,
             CreatedById = GetUserId(),
             OrganizationId = GetOrganizationId()!.Value,
-            TransactionGuid = transactionGuid
+            TransactionGuid = transactionGuid,
+            Journal = creditEntry
           }, true));
         }
         else
@@ -304,15 +308,17 @@ namespace Accounting.Controllers
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value
             });
+            undoEntry.Account = await _accountService.GetAsync(undoEntry.AccountId, GetOrganizationId()!.Value);
 
             thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
             {
               JournalId = undoEntry.JournalID,
               ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
-              ReversedJournalReconciliationTransactionId = (item.ReversedJournalReconciliationTransactionId == null) ? item.ReconciliationTransactionId : null,
+              ReversedJournalReconciliationTransactionId = (item.ReversedJournalReconciliationTransactionId == null) ? item.Identifiable : null,
               TransactionGuid = transactionGuid,
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value,
+              Journal = undoEntry
             }, true));
           }
         }
