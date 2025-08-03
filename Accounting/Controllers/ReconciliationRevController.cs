@@ -239,6 +239,9 @@ namespace Accounting.Controllers
     {
       ReconciliationTransaction reconciliationTransaction = await _reconciliationTransactionService.GetAsync(model.ReconciliationTransactionID);
 
+      if (reconciliationTransaction == null)
+        return NotFound();
+
       List<JournalReconciliationTransaction> lastTransaction =
         await _journalReconciliationTransactionService.GetLastTransactionAsync(
           reconciliationTransaction.ReconciliationTransactionID,
@@ -246,9 +249,6 @@ namespace Accounting.Controllers
           true);
 
       List<JournalReconciliationTransaction> thisTransaction = new();
-
-      if (reconciliationTransaction == null)
-        return NotFound();
 
       var transactionGuid = GuidExtensions.CreateSecureGuid();
 
@@ -274,7 +274,7 @@ namespace Accounting.Controllers
           });
           creditEntry.Account = await _accountService.GetAsync(creditEntry.AccountId, GetOrganizationId()!.Value);
 
-          thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+          var debitJrt = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
           {
             JournalId = debitEntry.JournalID,
             ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
@@ -283,9 +283,12 @@ namespace Accounting.Controllers
             OrganizationId = GetOrganizationId()!.Value,
             TransactionGuid = transactionGuid,
             Journal = debitEntry
-          }, true));
+          }, true);
+          
+          debitJrt.Journal.Account = debitEntry.Account;
+          thisTransaction.Add(debitJrt);
 
-          thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+          var creditJrt = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
           {
             JournalId = creditEntry.JournalID,
             ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
@@ -294,7 +297,10 @@ namespace Accounting.Controllers
             OrganizationId = GetOrganizationId()!.Value,
             TransactionGuid = transactionGuid,
             Journal = creditEntry
-          }, true));
+          }, true);
+          
+          creditJrt.Journal.Account = creditEntry.Account;
+          thisTransaction.Add(creditJrt);
         }
         else
         {
@@ -310,7 +316,7 @@ namespace Accounting.Controllers
             });
             undoEntry.Account = await _accountService.GetAsync(undoEntry.AccountId, GetOrganizationId()!.Value);
 
-            thisTransaction.Add(await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+            var undoJrt = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
             {
               JournalId = undoEntry.JournalID,
               ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
@@ -319,7 +325,11 @@ namespace Accounting.Controllers
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value,
               Journal = undoEntry
-            }, true));
+            }, true);
+
+            // Ensure Account is set for undo entries
+            undoJrt.Journal.Account = undoEntry.Account;
+            thisTransaction.Add(undoJrt);
           }
         }
 
@@ -365,9 +375,11 @@ namespace Accounting.Controllers
         ReconciliationTransactions = transactions.Select(t => new GetReconciliationTransactionsViewModel.ReconciliationTransactionViewModel
         {
           ReconciliationTransactionID = t.ReconciliationTransactionID,
-          ReconciliationInstruction = (t.JournalReconciliationTransactions == null || !t.JournalReconciliationTransactions.Any())
-            ? "none"
-            : $"D: {t.JournalReconciliationTransactions.Single(x => x.Journal.Debit != null).Journal.Account.Name}, C: {t.JournalReconciliationTransactions.Single(x => x.Journal.Credit != null).Journal.Account.Name}",
+          ReconciliationInstruction =
+            !t.JournalReconciliationTransactions.Any() ||
+            t.JournalReconciliationTransactions.Last().ReversedJournalReconciliationTransactionId != null
+              ? "none"
+              : $"D: {t.JournalReconciliationTransactions.Single(x => x.Journal.Debit != null).Journal.Account.Name}, C: {t.JournalReconciliationTransactions.Single(x => x.Journal.Credit != null).Journal.Account.Name}",
           RowNumber = t.RowNumber,
           TransactionDate = t.TransactionDate,
           Description = t.Description,
