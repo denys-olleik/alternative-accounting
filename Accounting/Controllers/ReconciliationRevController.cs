@@ -304,32 +304,87 @@ namespace Accounting.Controllers
         }
         else
         {
-          foreach (var item in lastTransaction)
+          // Determine if the last transaction was a reversal (all entries have ReversedJournalReconciliationTransactionId set)
+          bool lastWasReversal = lastTransaction.All(x => x.ReversedJournalReconciliationTransactionId != null);
+
+          if (lastWasReversal)
           {
-            var undoEntry = await _journalService.CreateAsync(new Journal
+            // This is a reassignment (toggle ON) - use accounts from the request
+            Journal debitEntry = await _journalService.CreateAsync(new Journal
             {
-              AccountId = item.Journal.AccountId,
-              Debit = item.Journal.Credit,
-              Credit = item.Journal.Debit,
+              AccountId = Convert.ToInt32(model.DebitAccount),
+              Debit = reconciliationTransaction.Amount,
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value
             });
-            undoEntry.Account = await _accountService.GetAsync(undoEntry.AccountId, GetOrganizationId()!.Value);
+            debitEntry.Account = await _accountService.GetAsync(debitEntry.AccountId, GetOrganizationId()!.Value);
 
-            var undoJrt = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+            Journal creditEntry = await _journalService.CreateAsync(new Journal
             {
-              JournalId = undoEntry.JournalID,
+              AccountId = Convert.ToInt32(model.CreditAccount),
+              Credit = reconciliationTransaction.Amount,
+              CreatedById = GetUserId(),
+              OrganizationId = GetOrganizationId()!.Value
+            });
+            creditEntry.Account = await _accountService.GetAsync(creditEntry.AccountId, GetOrganizationId()!.Value);
+
+            var debitJrt = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+            {
+              JournalId = debitEntry.JournalID,
               ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
-              ReversedJournalReconciliationTransactionId = (item.ReversedJournalReconciliationTransactionId == null) ? item.Identifiable : null,
-              TransactionGuid = transactionGuid,
+              ReversedJournalReconciliationTransactionId = null,
               CreatedById = GetUserId(),
               OrganizationId = GetOrganizationId()!.Value,
-              Journal = undoEntry
+              TransactionGuid = transactionGuid,
+              Journal = debitEntry
             }, true);
 
-            // Ensure Account is set for undo entries
-            undoJrt.Journal.Account = undoEntry.Account;
-            thisTransaction.Add(undoJrt);
+            debitJrt.Journal.Account = debitEntry.Account;
+            thisTransaction.Add(debitJrt);
+
+            var creditJrt = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+            {
+              JournalId = creditEntry.JournalID,
+              ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
+              ReversedJournalReconciliationTransactionId = null,
+              CreatedById = GetUserId(),
+              OrganizationId = GetOrganizationId()!.Value,
+              TransactionGuid = transactionGuid,
+              Journal = creditEntry
+            }, true);
+
+            creditJrt.Journal.Account = creditEntry.Account;
+            thisTransaction.Add(creditJrt);
+          }
+          else
+          {
+            // This is a reversal (toggle OFF) - undo previous entries
+            foreach (var item in lastTransaction)
+            {
+              var undoEntry = await _journalService.CreateAsync(new Journal
+              {
+                AccountId = item.Journal.AccountId,
+                Debit = item.Journal.Credit,
+                Credit = item.Journal.Debit,
+                CreatedById = GetUserId(),
+                OrganizationId = GetOrganizationId()!.Value
+              });
+              undoEntry.Account = await _accountService.GetAsync(undoEntry.AccountId, GetOrganizationId()!.Value);
+
+              var undoJrt = await _journalReconciliationTransactionService.CreateAsync(new JournalReconciliationTransaction
+              {
+                JournalId = undoEntry.JournalID,
+                ReconciliationTransactionId = reconciliationTransaction.ReconciliationTransactionID,
+                ReversedJournalReconciliationTransactionId = (item.ReversedJournalReconciliationTransactionId == null) ? item.Identifiable : null,
+                TransactionGuid = transactionGuid,
+                CreatedById = GetUserId(),
+                OrganizationId = GetOrganizationId()!.Value,
+                Journal = undoEntry
+              }, true);
+
+              undoJrt.Journal.Account = undoEntry.Account;
+              thisTransaction.Add(undoJrt);
+            }
           }
         }
 
