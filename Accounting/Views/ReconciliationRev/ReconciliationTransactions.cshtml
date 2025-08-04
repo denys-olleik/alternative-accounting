@@ -143,7 +143,7 @@
           })
             .then(response => response.json())
             .then(data => {
-              reconciliationTransaction.reconciliationInstruction = data.Instruction;
+              reconciliationTransaction.reconciliationInstruction = data.instruction;
             });
         } else {
           // Toggle back to "none" (unassign), send 0 for both accounts
