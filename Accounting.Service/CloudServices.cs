@@ -2,12 +2,8 @@
 using Accounting.Common;
 using DigitalOcean.API;
 using DigitalOcean.API.Models.Responses;
-using Google.Protobuf.WellKnownTypes;
 using Renci.SshNet;
-using System;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Accounting.Service
 {
