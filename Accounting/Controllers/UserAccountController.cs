@@ -21,8 +21,6 @@ namespace Accounting.Controllers
     private readonly OrganizationService _organizationService;
     private readonly UserOrganizationService _userOrganizationService;
     private readonly UserService _userService;
-    //private readonly LoginWithoutPasswordService _loginWithoutPasswordService;
-    private readonly EmailService _emailService;
     private readonly SecretService _secretService;
     private readonly TenantService _tenantService;
     private readonly ClaimService _claimService;
@@ -32,8 +30,6 @@ namespace Accounting.Controllers
       OrganizationService organizationService,
       UserOrganizationService userOrganizationService,
       UserService userService,
-      //LoginWithoutPasswordService loginWithoutPasswordService,
-      EmailService emailService,
       SecretService secretService,
       TenantService tenantService,
       ClaimService claimService)
@@ -43,7 +39,6 @@ namespace Accounting.Controllers
       _userService = new UserService(requestContext.DatabaseName, requestContext.DatabasePassword);
       //_loginWithoutPasswordService = new LoginWithoutPasswordService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _secretService = new SecretService(requestContext.DatabaseName, requestContext.DatabasePassword);
-      _emailService = new EmailService(_secretService);
       _tenantService = new TenantService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _claimService = new ClaimService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
@@ -158,44 +153,6 @@ namespace Accounting.Controllers
       ViewBag.Email = email;
       return View();
     }
-
-    //[AllowAnonymous]
-    //[Route("login-without-password/{email}")]
-    //[HttpPost]
-    //public async Task<IActionResult> LoginWithoutPassword(LoginWithoutPasswordViewModel model, string email)
-    //{
-    //  LoginWithoutPasswordViewModelValidator validator
-    //    = new LoginWithoutPasswordViewModelValidator(_loginWithoutPasswordService);
-    //  ValidationResult validationResult = await validator.ValidateAsync(model);
-
-    //  if (!validationResult.IsValid)
-    //  {
-    //    model.ValidationResult = validationResult;
-    //    return View(model);
-    //  }
-
-    //  var (existingUser, tenantExistingUserBelongsTo) = await _userService.GetFirstOfAnyTenantAsync(model.Email!);
-
-    //  ClaimsPrincipal claimsPrincipal = AuthenticationHelper.CreateClaimsPrincipal(
-    //    existingUser,
-    //    tenantExistingUserBelongsTo.TenantID,
-    //    await GetRolesAsync(),
-    //    null,
-    //    null,
-    //    tenantExistingUserBelongsTo.DatabaseName,
-    //    tenantExistingUserBelongsTo.DatabasePassword);
-
-    //  await HttpContext.SignInAsync(
-    //    CookieAuthenticationDefaults.AuthenticationScheme,
-    //    claimsPrincipal,
-    //    new AuthenticationProperties() { IsPersistent = true }
-    //  );
-
-    //  LoginWithoutPassword loginWithoutPassword = await _loginWithoutPasswordService.GetAsync(model.Email)!;
-    //  await _loginWithoutPasswordService.DeleteAsync(loginWithoutPassword);
-
-    //  return RedirectToAction("ChooseOrganization", "UserAccount");
-    //}
 
     [HttpGet]
     [Route("choose-organization")]

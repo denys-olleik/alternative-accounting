@@ -38,9 +38,9 @@ namespace Accounting.Controllers
       _toDoTagService = new ToDoTagService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
-    [Route("todos")]
+    [Route("tasks")]
     [HttpGet]
-    public async Task<IActionResult> ToDos()
+    public async Task<IActionResult> Tasks()
     {
       ToDosPaginatedViewModel vm = new ToDosPaginatedViewModel();
       vm.AvailableStatuses = ToDo.ToDoStatuses.All.ToList();

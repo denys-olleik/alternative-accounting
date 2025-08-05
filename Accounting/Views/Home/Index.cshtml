@@ -223,15 +223,6 @@
       </thead>
       <tbody class="font-Roboto-Mono">
         <tr>
-          <td class="padding-right-20px vertical-align-top">1</td>
-          <td class="padding-right-20px vertical-align-top">
-            <s>SendGrid</s>
-          </td>
-          <td class="text-align-left padding-right-20px">
-            <s>for sending password recovery emails</s>
-          </td>
-        </tr>
-        <tr>
           <td class="padding-right-20px vertical-align-top">2</td>
           <td class="padding-right-20px vertical-align-top">
             DigitalOcean
@@ -363,9 +354,9 @@
         </ul>
       </li>
       <li>
-        <a href="@Url.Action("ToDos", "ToDo")">Project management 🟧</a>
+        <a href="@Url.Action("Tasks", "Task")">Project management 🟧</a>
         <ul>
-          <li><a href="@Url.Action("Create", "ToDo")">Create task 🟧</a></li>
+          <li><a href="@Url.Action("Create", "Task")">Create task 🟧</a></li>
         </ul>
       </li>
       <li>
@@ -399,13 +390,7 @@
         </ul>
       </li>
       <li>
-        <a href="@Url.Action("Reconciliations", "Reconciliation")">Reconciliations 🟥</a>
-        <ul>
-          <li><a href="@Url.Action("Import", "Reconciliation")">Import 🟥</a></li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Reconciliations", "ReconciliationRev")">Reconciliations v2 🟩</a>
+        <a href="@Url.Action("Reconciliations", "ReconciliationRev")">Reconciliations 🟩</a>
       </li>
       <li>
         <a href="@Url.Action("Accounts", "Account")">Accounts 🟩 </a>

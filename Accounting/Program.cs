@@ -67,8 +67,6 @@ builder.Services.AddScoped<TenantService>();
 builder.Services.AddScoped<SecretService>();
 builder.Services.AddScoped<CloudServices>();
 builder.Services.AddScoped<DatabaseService>();
-builder.Services.AddScoped<EmailService>();
-//builder.Services.AddScoped<LoginWithoutPasswordService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<UserTaskService>();
 builder.Services.AddScoped<ToDoService>();
@@ -84,8 +82,6 @@ ConfigurationSingleton.Instance.ApplicationName =
     ? builder.Configuration["Whitelabel"]
     : builder.Configuration["ApplicationName5"];
 ConfigurationSingleton.Instance.Whitelabel = builder.Configuration["Whitelabel"];
-//ConfigurationSingleton.Instance.ConnectionStringDefaultPsql = builder.Configuration["ConnectionStrings:Psql"];
-//ConfigurationSingleton.Instance.ConnectionStringAdminPsql = builder.Configuration["ConnectionStrings:AdminPsql"];
 ConfigurationSingleton.Instance.DatabasePassword = builder.Configuration["DatabasePassword"];
 ConfigurationSingleton.Instance.SpotifyClientID = builder.Configuration["SpotifyClientID"];
 ConfigurationSingleton.Instance.SpotifyClientSecret = builder.Configuration["SpotifyClientSecret"];
@@ -128,24 +124,17 @@ if (app.Environment.IsDevelopment())
 #region LoadTenantManagementConfiguration
 ConfigurationSingleton.Instance.TenantManagement
     = Convert.ToBoolean(builder.Configuration["TenantManagement"]);
-//if (!ConfigurationSingleton.Instance.TenantManagement)
-//await LoadTenantManagementFromDatabase(app);
 #endregion
 
-// Exception handling
 if (!app.Environment.IsDevelopment())
 {
   app.UseExceptionHandler(errorApp =>
   {
     errorApp.Run(async context =>
     {
-      // Get the exception
       var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
       var exception = exceptionHandlerPathFeature?.Error;
 
-      // Log the exception
-      //var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-      //logger.LogError(exception, "Unhandled exception");
       ExceptionService exceptionService = new ();
       await exceptionService.CreateAsync(new Accounting.Business.Exception()
       {
@@ -157,7 +146,6 @@ if (!app.Environment.IsDevelopment())
         RequestLogId = (int?)context.Items["RequestLogId"],
       });
 
-      // Redirect to the error page
       context.Response.Redirect("/Home/Error");
     });
   });
@@ -206,7 +194,6 @@ app.Use(async (context, next) =>
   using var responseBody = new MemoryStream();
   context.Response.Body = responseBody;
 
-  // Create and persist the initial request log at the start of the request
   var remoteIp = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
     ?? context.Connection.RemoteIpAddress?.ToString();
 
@@ -217,7 +204,6 @@ app.Use(async (context, next) =>
     Referer = context.Request.Headers["Referer"].ToString(),
     UserAgent = context.Request.Headers["User-Agent"].ToString(),
     Path = context.Request.Path,
-    // Optionally add other initial fields
   };
 
   log = await logService.CreateAsync(log);
@@ -232,10 +218,9 @@ app.Use(async (context, next) =>
   context.Response.Body.Seek(0, SeekOrigin.Begin);
   await responseBody.CopyToAsync(originalBodyStream);
 
-  // Update the initial log with new info
   log.StatusCode = context.Response.StatusCode.ToString();
   log.ResponseLengthBytes = responseLength;
-  // (Optionally update CountryCode, etc.)
+
 
   int rowsUpdated = await logService.UpdateResponseAsync(log.RequestLogID, context.Response.StatusCode.ToString(), responseLength);
 });

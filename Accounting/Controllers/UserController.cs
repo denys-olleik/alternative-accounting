@@ -292,7 +292,6 @@ namespace Accounting.Controllers
 
       var (existingUser2, tenant) = await _userService.GetFirstOfAnyTenantAsync(model.Email);
 
-      EmailService emailService = new EmailService(_secretService);
       using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
         User user = await _userService.CreateAsync(new User()

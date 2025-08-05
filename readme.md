@@ -26,10 +26,10 @@ The goal of this project is to create one accounting system used by the whole wo
 Core concepts:
 
 * Journal - chronological record of all financial transactions good enough to satisfy an audit.
+	* Double-entry - method for recording journal entries.
+	* Forward-only - rule that dictates journal entries cannot be modified or deleted.
 * Account - appropriate architecture around chart of accounts.
 * Transaction - grouping of multiple journal entries.
-* Double-entry - method for recording journal entries.
-* Forward-only - rule that dictates journal entries cannot be modified or deleted.
 
 ![Double-entry_example_from_1926.png](Double-entry_example_from_1926.png)
 
