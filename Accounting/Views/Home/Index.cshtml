@@ -26,7 +26,18 @@
   }
 </script>
 
-<div id="app" class="width-100 height-500px margin-bottom-5px"></div>
+<div class="display-flex margin-bottom-5px">
+    <div class="flex-1 display-flex flex-direction-column">
+      <img class="width-100" src="~/images/cat.png" />
+      <div class="flex-1">test</div>
+      </div>
+    <div class="width-5px"></div>
+    <div class="flex-1">
+      <div id="app" class="width-100 height-500px"></div>
+    </div>
+</div>
+
+
 
 <script type="module">
   import * as THREE from 'three';
@@ -214,10 +225,10 @@
         <tr>
           <td class="padding-right-20px vertical-align-top">1</td>
           <td class="padding-right-20px vertical-align-top">
-            SendGrid
+            <s>SendGrid</s>
           </td>
           <td class="text-align-left padding-right-20px">
-            for sending password recovery emails
+            <s>for sending password recovery emails</s>
           </td>
         </tr>
         <tr>
@@ -227,6 +238,24 @@
           </td>
           <td class="text-align-left padding-right-20px vertical-align-top">
             for provisioning independent instances of this application
+          </td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">3</td>
+          <td class="padding-right-20px vertical-align-top">
+            OpenAI
+          </td>
+          <td class="text-align-left padding-right-20px">
+            Automation
+          </td>
+        </tr>
+        <tr>
+          <td class="padding-right-20px vertical-align-top">4</td>
+          <td class="padding-right-20px vertical-align-top">
+            AbuseIPDB
+          </td>
+          <td class="text-align-left padding-right-20px">
+            Diagnostics
           </td>
         </tr>
       </tbody>
@@ -376,7 +405,7 @@
         </ul>
       </li>
       <li>
-        <a href="@Url.Action("Reconciliations", "ReconciliationRev")">Reconciliations v2 🟨</a>
+        <a href="@Url.Action("Reconciliations", "ReconciliationRev")">Reconciliations v2 🟩</a>
       </li>
       <li>
         <a href="@Url.Action("Accounts", "Account")">Accounts 🟩 </a>

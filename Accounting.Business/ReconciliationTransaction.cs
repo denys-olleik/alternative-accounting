@@ -9,7 +9,6 @@ namespace Accounting.Business
     public int ReconciliationTransactionID { get; set; }
     public string? Status { get; set; }
     public string? RawData { get; set; }
-    public string? ReconciliationInstruction { get; set; }
     public Guid? TransactionGuid { get; set; }
     public DateTime? TransactionDate { get; set; }
     public string? Description { get; set; }
@@ -29,33 +28,6 @@ namespace Accounting.Business
     #endregion
 
     public int Identifiable => this.ReconciliationTransactionID;
-
-    //public class ReconciliationInstructions
-    //{
-    //  public const string Revenue = "revenue";
-    //  public const string Expense = "expense";
-
-    //  private static readonly List<string> _all = new List<string>();
-
-    //  static ReconciliationInstructions()
-    //  {
-    //    var fields = typeof(ReconciliationInstructions)
-    //      .GetFields(
-    //        BindingFlags.Public
-    //        | BindingFlags.Static
-    //        | BindingFlags.DeclaredOnly);
-
-    //    foreach (var field in fields)
-    //    {
-    //      if (field.FieldType == typeof(string) && field.GetValue(null) is string value)
-    //      {
-    //        _all.Add(value);
-    //      }
-    //    }
-    //  }
-
-    //  public static IReadOnlyList<string> All => _all.AsReadOnly();
-    //}
 
     public static class ImportStatuses
     {

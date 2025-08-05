@@ -118,7 +118,6 @@ CREATE TABLE "ReconciliationTransaction"
 	"ReconciliationTransactionID" SERIAL PRIMARY KEY NOT NULL,
 	"Status" VARCHAR(20) CHECK ("Status" IN ('pending', 'processed', 'error')) DEFAULT 'pending' NOT NULL,
 	"RawData" TEXT NULL,
-	"ReconciliationInstruction" VARCHAR(20) NULL CHECK ("ReconciliationInstruction" IN ('expense', 'revenue')),
 	"TransactionDate" TIMESTAMPTZ NOT NULL,
 	"Description" VARCHAR(1000) NOT NULL,
 	"Amount" DECIMAL(18, 2) NOT NULL,
