@@ -196,7 +196,7 @@ namespace Accounting.Controllers
       return RedirectToAction("Customers");
     }
 
-    private async Task CreateCustomerAndAddressesAsync(CreateBusinessEntityViewModel model)
+    private async System.Threading.Tasks.Task CreateCustomerAndAddressesAsync(CreateBusinessEntityViewModel model)
     {
       BusinessEntity customer = await _customerService.CreateAsync(new BusinessEntity
       {
@@ -227,7 +227,7 @@ namespace Accounting.Controllers
       }
     }
 
-    private async Task InitializeCreateViewModelAsync(CreateBusinessEntityViewModel model)
+    private async System.Threading.Tasks.Task InitializeCreateViewModelAsync(CreateBusinessEntityViewModel model)
     {
       model.CustomerTypes = CustomerTypeConstants.All.ToList();
       model.AvailableBusinessEntityTypesCsv = string.Join(",", BusinessEntityTypeConstants.All);

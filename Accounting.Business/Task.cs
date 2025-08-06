@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Accounting.Business
 {
-  public class ToDo : IIdentifiable<int>
+  public class Task : IIdentifiable<int>
   {
     public int ToDoID { get; set; }
     public string? Title { get; set; }
@@ -16,7 +16,7 @@ namespace Accounting.Business
     public DateTime Created { get; set; }
 
     #region Extra properties.
-    public List<ToDo> Children { get; set; } = new List<ToDo>();
+    public List<Task> Children { get; set; } = new List<Task>();
     public List<User>? Users { get; set; }
     #endregion
 

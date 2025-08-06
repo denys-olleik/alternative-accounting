@@ -52,7 +52,7 @@ namespace Accounting.Service
       }
     }
 
-    public async Task RemoveRoleAsync(int userID, int organizationId, string role)
+    public async System.Threading.Tasks.Task RemoveRoleAsync(int userID, int organizationId, string role)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       var claimManager = factoryManager.GetClaimManager();

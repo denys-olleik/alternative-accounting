@@ -42,7 +42,7 @@ namespace Accounting.Service
       return await factoryManager.ReconciliationManager().GetByIdAsync(id, organizationId);
     }
 
-    public async Task ProcessAsync(int reconciliationId, int organizationId)
+    public async System.Threading.Tasks.Task ProcessAsync(int reconciliationId, int organizationId)
     {
       var reconciliation = await GetByIdAsync(reconciliationId, organizationId);
       throw new NotImplementedException();

@@ -59,25 +59,25 @@ namespace Accounting.Service
       return await factoryManager.GetTenantManager().UpdateEmailAsync(tenantId, email);
     }
 
-    public async Task UpdateDatabaseName(int tenantID, string? databaseName)
+    public async System.Threading.Tasks.Task UpdateDatabaseName(int tenantID, string? databaseName)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetTenantManager().UpdateDatabaseName(tenantID, databaseName);
     }
 
-    public async Task UpdateDropletIdAsync(int tenantId, long dropletId)
+    public async System.Threading.Tasks.Task UpdateDropletIdAsync(int tenantId, long dropletId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetTenantManager().UpdateDropletIdAsync(tenantId, dropletId);
     }
 
-    public async Task UpdateSshPrivateAsync(int tenantId, string sshPrivate)
+    public async System.Threading.Tasks.Task UpdateSshPrivateAsync(int tenantId, string sshPrivate)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetTenantManager().UpdateSshPrivateAsync(tenantId, sshPrivate);
     }
 
-    public async Task UpdateSshPublicAsync(int tenantId, string sshPublicKey)
+    public async System.Threading.Tasks.Task UpdateSshPublicAsync(int tenantId, string sshPublicKey)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetTenantManager().UpdateSshPublicAsync(tenantId, sshPublicKey);

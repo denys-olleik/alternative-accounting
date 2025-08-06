@@ -17,7 +17,7 @@ namespace Accounting.Service
 
     }
 
-    public async Task CreateAsync(Inventory inventory)
+    public async System.Threading.Tasks.Task CreateAsync(Inventory inventory)
     {
       var factoryManager = new FactoryManager(_databasePassword, _databaseName);
       await factoryManager.GetInventoryManager().CreateAsync(inventory);

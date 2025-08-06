@@ -45,13 +45,13 @@ namespace Accounting.Service
       return await factoryManager.GetReconciliationTransactionManager().ImportAsync(reconciliationTransactions);
     }
 
-    public async Task UpdateAssetOrLiabilityAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationLiabilitiesAndAssetsAccountId)
+    public async System.Threading.Tasks.Task UpdateAssetOrLiabilityAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationLiabilitiesAndAssetsAccountId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetReconciliationTransactionManager().UpdateAssetOrLiabilityAccountIdAsync(reconciliationTransactionID, selectedReconciliationLiabilitiesAndAssetsAccountId);
     }
 
-    public async Task UpdateExpenseAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationExpenseAccountId)
+    public async System.Threading.Tasks.Task UpdateExpenseAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationExpenseAccountId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetReconciliationTransactionManager().UpdateExpenseAccountIdAsync(reconciliationTransactionID, selectedReconciliationExpenseAccountId);

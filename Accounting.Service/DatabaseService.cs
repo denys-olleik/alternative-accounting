@@ -16,7 +16,7 @@ namespace Accounting.Service
     {
     }
 
-    public async Task ResetDatabase()
+    public async System.Threading.Tasks.Task ResetDatabase()
     {
       var factoryManager = new FactoryManager(null, _databasePassword);
       await factoryManager.GetDatabaseManager().ResetDatabaseAsync();
@@ -28,13 +28,13 @@ namespace Accounting.Service
       return await factoryManager.GetDatabaseManager().CreateDatabase(tenantId);
     }
 
-    public async Task RunSQLScript(string script, string databaseName)
+    public async System.Threading.Tasks.Task RunSQLScript(string script, string databaseName)
     {
       var factoryManager = new FactoryManager(null, _databasePassword);
       await factoryManager.GetDatabaseManager().RunSQLScript(script, databaseName);
     }
 
-    public async Task DeleteAsync(string databaseName)
+    public async System.Threading.Tasks.Task DeleteAsync(string databaseName)
     {
       var factoryManager = new FactoryManager(null, _databasePassword);
       await factoryManager.GetDatabaseManager().DeleteAsync(databaseName);
@@ -46,7 +46,7 @@ namespace Accounting.Service
       return await factoryManager.GetDatabaseManager().BackupDatabaseAsync(databaseName);
     }
 
-    public async Task RestoreDatabase(string databaseName, Common.File file, int tenantId)
+    public async System.Threading.Tasks.Task RestoreDatabase(string databaseName, Common.File file, int tenantId)
     {
       var factoryManager = new FactoryManager(null, _databasePassword);
       await factoryManager.GetDatabaseManager().RestoreDatabase(databaseName, file);

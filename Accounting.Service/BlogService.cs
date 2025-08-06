@@ -17,7 +17,7 @@ namespace Accounting.Service
 
     }
 
-    public async Task CreateAsync(Blog blog)
+    public async System.Threading.Tasks.Task CreateAsync(Blog blog)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       var blogManager = factoryManager.GetBlogManager();

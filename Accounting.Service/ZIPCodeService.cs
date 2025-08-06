@@ -26,7 +26,7 @@ namespace Accounting.Service
       return await factoryManager.GetZIPCodeManager().GetAllAsync(locationIsNull);
     }
 
-    public async Task UpdateNewZIPCodeLocations()
+    public async System.Threading.Tasks.Task UpdateNewZIPCodeLocations()
     {
       var csvFilePath = "uszips.csv";
 

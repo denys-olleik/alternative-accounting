@@ -36,7 +36,7 @@ namespace Accounting.Service
       return await factoryManager.GetPaymentManager().GetAsync(id, organizationId);
     }
 
-    public async Task VoidAsync(
+    public async System.Threading.Tasks.Task VoidAsync(
       Payment payment,
       string? voidReason,
       int userId,

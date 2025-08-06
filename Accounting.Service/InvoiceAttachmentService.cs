@@ -91,7 +91,7 @@ namespace Accounting.Service
       return await factoryManager.GetInvoiceAttachmentManager().GetAllAsync(invoiceId, organizationId);
     }
 
-    public async Task DeleteAttachmentsAsync(List<int> invoiceAttachmentIds, int invoiceID, int organizationId)
+    public async System.Threading.Tasks.Task DeleteAttachmentsAsync(List<int> invoiceAttachmentIds, int invoiceID, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       var invoiceAttachmentManager = factoryManager.GetInvoiceAttachmentManager();

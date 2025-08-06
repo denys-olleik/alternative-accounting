@@ -29,7 +29,7 @@ namespace Accounting.Service
       return await factoryManager.GetOrganizationManager().CreateAsync(organizationName, databaseName);
     }
 
-    public async Task InsertSampleOrganizationDataAsync(string sampleSqlDataToInsert)
+    public async System.Threading.Tasks.Task InsertSampleOrganizationDataAsync(string sampleSqlDataToInsert)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetOrganizationManager().InsertSampleOrganizationDataAsync(sampleSqlDataToInsert);
@@ -71,25 +71,25 @@ namespace Accounting.Service
       return await factoryManager.GetOrganizationManager().GetPaymentInstructions(organizationId);
     }
 
-    public async Task UpdateAccountsPayableEmailAsync(int organizationId, string accountsPayableEmail)
+    public async System.Threading.Tasks.Task UpdateAccountsPayableEmailAsync(int organizationId, string accountsPayableEmail)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetOrganizationManager().UpdateAccountsPayableEmailAsync(organizationId, accountsPayableEmail);
     }
 
-    public async Task UpdateAccountsPayablePhoneAsync(int organizationId, string accountsPayablePhone)
+    public async System.Threading.Tasks.Task UpdateAccountsPayablePhoneAsync(int organizationId, string accountsPayablePhone)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetOrganizationManager().UpdateAccountsPayablePhoneAsync(organizationId, accountsPayablePhone);
     }
 
-    public async Task UpdateAccountsReceivableEmailAsync(int organizationId, string accountsReceivableEmail)
+    public async System.Threading.Tasks.Task UpdateAccountsReceivableEmailAsync(int organizationId, string accountsReceivableEmail)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetOrganizationManager().UpdateAccountsReceivableEmailAsync(organizationId, accountsReceivableEmail);
     }
 
-    public async Task UpdateAccountsReceivablePhoneAsync(int organizationId, string accountsReceivablePhone)
+    public async System.Threading.Tasks.Task UpdateAccountsReceivablePhoneAsync(int organizationId, string accountsReceivablePhone)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetOrganizationManager().UpdateAccountsReceivablePhoneAsync(organizationId, accountsReceivablePhone);
@@ -101,7 +101,7 @@ namespace Accounting.Service
       return await factoryManager.GetOrganizationManager().UpdateAddressAsync(organizationId, address);
     }
 
-    public async Task UpdateAsync(int organizationId, string name, string databaseName)
+    public async System.Threading.Tasks.Task UpdateAsync(int organizationId, string name, string databaseName)
     {
       var factoryManager = new FactoryManager(databaseName, _databasePassword);
       await factoryManager.GetOrganizationManager().UpdateAsync(organizationId, name, databaseName);

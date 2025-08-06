@@ -95,7 +95,7 @@ namespace Accounting.Service
       return await factoryManager.GetLocationService().IsLocationInUseAsync(locationId, organizationId);
     }
 
-    public async Task UpdateAsync(int locationId, string? name)
+    public async System.Threading.Tasks.Task UpdateAsync(int locationId, string? name)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetLocationService().UpdateAsync(locationId, name);

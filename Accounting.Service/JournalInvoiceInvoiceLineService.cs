@@ -34,7 +34,7 @@ namespace Accounting.Service
       return await factoryManager.GetJournalInvoiceInvoiceLineManager().CreateAsync(journalInvoiceInvoiceLine);
     }
 
-    public async Task UpdateInvoiceLinesAsync(
+    public async System.Threading.Tasks.Task UpdateInvoiceLinesAsync(
         List<InvoiceLine> existingLines,
         List<InvoiceLine> newLines,
         List<InvoiceLine> deletedLines,

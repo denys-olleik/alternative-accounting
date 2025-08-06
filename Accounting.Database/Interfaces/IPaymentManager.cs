@@ -6,6 +6,6 @@ namespace Accounting.Database.Interfaces
     {
     Task<List<Payment>> GetAllByInvoiceIdAsync(int invoiceId, int organizationId);
     Task<Payment> GetAsync(int id, int organizationId);
-    Task UpdateVoidReasonAsync(int paymentId, string? voidReason, int organizationId);
+    System.Threading.Tasks.Task UpdateVoidReasonAsync(int paymentId, string? voidReason, int organizationId);
   }
 }

@@ -17,20 +17,20 @@ namespace Accounting.Service
 
     }
 
-    public async Task<ToDo> CreateAsync(ToDo taskItem)
+    public async Task<Business.Task> CreateAsync(Business.Task taskItem)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetTaskManager().CreateAsync(taskItem);
     }
 
-    public async Task<List<ToDo>> GetAllAsync(int organizationId)
+    public async Task<List<Business.Task>> GetAllAsync(int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      List<ToDo> taskItems = await factoryManager.GetTaskManager().GetAllAsync(organizationId);
+      List<Business.Task> taskItems = await factoryManager.GetTaskManager().GetAllAsync(organizationId);
 
-      List<ToDo> rootTasks = taskItems.Where(t => t.ParentToDoId == null).ToList();
+      List<Business.Task> rootTasks = taskItems.Where(t => t.ParentToDoId == null).ToList();
 
-      foreach (ToDo rootTask in rootTasks)
+      foreach (Business.Task rootTask in rootTasks)
       {
         BuildTree(taskItems, rootTask);
       }
@@ -38,30 +38,30 @@ namespace Accounting.Service
       return rootTasks;
     }
 
-    public async Task<List<ToDo>> GetChildrenAsync(int parentId, int organizationId)
+    public async Task<List<Business.Task>> GetChildrenAsync(int parentId, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetTaskManager().GetChildrenAsync(parentId, organizationId);
     }
 
-    private void BuildTree(List<ToDo> allTasks, ToDo parentTask)
+    private void BuildTree(List<Business.Task> allTasks, Business.Task parentTask)
     {
-      List<ToDo> children = allTasks.Where(t => t.ParentToDoId == parentTask.ToDoID).ToList();
+      List<Business.Task> children = allTasks.Where(t => t.ParentToDoId == parentTask.ToDoID).ToList();
 
-      foreach (ToDo child in children)
+      foreach (Business.Task child in children)
       {
         BuildTree(allTasks, child);
         parentTask.Children.Add(child);
       }
     }
 
-    public async Task<ToDo> GetAsync(int id, int organizationId)
+    public async Task<Business.Task> GetAsync(int id, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetTaskManager().GetAsync(id, organizationId);
     }
 
-    public async Task<ToDo> UpdateContentAsync(int taskId, string content, int organizationId)
+    public async Task<Business.Task> UpdateContentAsync(int taskId, string content, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetTaskManager().UpdateContentAsync(taskId, content, organizationId);
@@ -73,11 +73,11 @@ namespace Accounting.Service
       return await factoryManager.GetTaskManager().UpdateParentToDoIdAsync(taskId, newParentId, organizationId);
     }
 
-    public async Task<List<ToDo>> GetTaskChildren(int id, int organizationId)
+    public async Task<List<Business.Task>> GetTaskChildren(int id, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      ToDo rootTask = await GetAsync(id, organizationId);
-      List<ToDo> descendants = await factoryManager.GetTaskManager().GetDescendantsAsync(id, organizationId);
+      Business.Task rootTask = await GetAsync(id, organizationId);
+      List<Business.Task> descendants = await factoryManager.GetTaskManager().GetDescendantsAsync(id, organizationId);
       BuildTree(descendants, rootTask);
       return rootTask.Children;
     }

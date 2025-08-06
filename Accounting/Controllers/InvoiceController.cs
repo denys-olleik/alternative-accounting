@@ -275,7 +275,7 @@ namespace Accounting.Controllers
       return invoice;
     }
 
-    private async Task CreateLedgerEntries(List<InvoiceLine> invoiceLines, Guid transactionGuid)
+    private async System.Threading.Tasks.Task CreateLedgerEntries(List<InvoiceLine> invoiceLines, Guid transactionGuid)
     {
       foreach (var line in invoiceLines)
       {
@@ -317,14 +317,14 @@ namespace Accounting.Controllers
       }
     }
 
-    private async Task MoveFileFromTempToPermDirectory(InvoiceAttachment invoiceAttachment)
+    private async System.Threading.Tasks.Task MoveFileFromTempToPermDirectory(InvoiceAttachment invoiceAttachment)
     {
       string tempFilePath = Path.Combine(ConfigurationSingleton.Instance.TempPath, invoiceAttachment.OriginalFileName);
       string permFilePath = Path.Combine(ConfigurationSingleton.Instance.PermPath, invoiceAttachment.OriginalFileName);
 
       if (System.IO.File.Exists(tempFilePath))
       {
-        await Task.Run(() => System.IO.File.Move(tempFilePath, permFilePath));
+        await System.Threading.Tasks.Task.Run(() => System.IO.File.Move(tempFilePath, permFilePath));
       }
     }
 
@@ -710,7 +710,7 @@ namespace Accounting.Controllers
       }).ToList();
     }
 
-    private async Task SetupAccrualAccounting(CreateInvoiceViewModel model, int organizationId)
+    private async System.Threading.Tasks.Task SetupAccrualAccounting(CreateInvoiceViewModel model, int organizationId)
     {
       var creditAccounts = await _accountService.GetAccountOptionsForInvoiceCreationCredit(organizationId);
       var debitAccounts = await _accountService.GetAccountOptionsForInvoiceCreationDebit(organizationId);

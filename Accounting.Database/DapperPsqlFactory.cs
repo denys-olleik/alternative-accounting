@@ -2770,9 +2770,9 @@ namespace Accounting.Database
             }
           }
 
-          async Task LoadInventoriesAsync(NpgsqlConnection con, Item item, int organizationId)
+          async System.Threading.Tasks.Task LoadInventoriesAsync(NpgsqlConnection con, Item item, int organizationId)
           {
-            var inventories = await con.QueryAsync<Inventory, Item, Location, Inventory>($"""
+            var inventories = await con.QueryAsync($"""
           SELECT i.*, it.*, l.*
           FROM "Inventory" i
           INNER JOIN "Item" it ON i."ItemId" = it."ItemID"
@@ -2780,7 +2780,7 @@ namespace Accounting.Database
           WHERE i."ItemId" = @ItemId
           AND i."OrganizationId" = @OrganizationId
           """,
-                (inventory, inventoryItem, location) =>
+                (Inventory inventory, Item inventoryItem, Location location) =>
                 {
                   inventory.Location = location;
                   return inventory;
@@ -3250,7 +3250,7 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
-      public async Task InsertSampleOrganizationDataAsync(string sampleSqlDataToInsert)
+      public async System.Threading.Tasks.Task InsertSampleOrganizationDataAsync(string sampleSqlDataToInsert)
       {
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
@@ -3441,7 +3441,7 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task UpdateVoidReasonAsync(int paymentId, string? voidReason, int organizationId)
+      public async System.Threading.Tasks.Task UpdateVoidReasonAsync(int paymentId, string? voidReason, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@PaymentID", paymentId);
@@ -4199,12 +4199,12 @@ namespace Accounting.Database
         _connectionString = connectionString;
       }
 
-      public ToDo Create(ToDo entity)
+      public Business.Task Create(Business.Task entity)
       {
         throw new NotImplementedException();
       }
 
-      public async Task<ToDo> CreateAsync(ToDo entity)
+      public async Task<Business.Task> CreateAsync(Business.Task entity)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@Title", entity.Title);
@@ -4214,11 +4214,11 @@ namespace Accounting.Database
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
 
-        IEnumerable<ToDo> result;
+        IEnumerable<Business.Task> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          result = await con.QueryAsync<ToDo>("""
+          result = await con.QueryAsync<Business.Task>("""
             INSERT INTO "ToDo" 
             ("Title", "Content", "ParentToDoId", "Status", "CreatedById", "OrganizationId") 
             VALUES 
@@ -4235,26 +4235,26 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public ToDo Get(int id)
+      public Business.Task Get(int id)
       {
         throw new NotImplementedException();
       }
 
-      public IEnumerable<ToDo> GetAll()
+      public IEnumerable<Business.Task> GetAll()
       {
         throw new NotImplementedException();
       }
 
-      public async Task<List<ToDo>> GetAllAsync(int organizationId)
+      public async Task<List<Business.Task>> GetAllAsync(int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@OrganizationId", organizationId);
 
-        List<ToDo> result;
+        List<Business.Task> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          result = (await con.QueryAsync<ToDo>("""
+          result = (await con.QueryAsync<Business.Task>("""
             SELECT "ToDoID", "Title", "Content", "ParentToDoId", "Status", "Created", "CreatedById", "OrganizationId"
             FROM "ToDo"
             WHERE "OrganizationId" = @OrganizationId
@@ -4263,9 +4263,9 @@ namespace Accounting.Database
         return result;
       }
 
-      public async Task<ToDo> GetAsync(int id, int organizationId)
+      public async Task<Business.Task> GetAsync(int id, int organizationId)
       {
-        ToDo? result;
+        Business.Task? result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
@@ -4273,7 +4273,7 @@ namespace Accounting.Database
           p.Add("@ToDoID", id);
           p.Add("@OrganizationId", organizationId);
 
-          result = await con.QuerySingleOrDefaultAsync<ToDo>("""
+          result = await con.QuerySingleOrDefaultAsync<Business.Task>("""
             SELECT * 
             FROM "ToDo"
             WHERE "ToDoID" = @ToDoID
@@ -4284,9 +4284,9 @@ namespace Accounting.Database
         return result!;
       }
 
-      public async Task<List<ToDo>> GetChildrenAsync(int parentId, int organizationId)
+      public async Task<List<Business.Task>> GetChildrenAsync(int parentId, int organizationId)
       {
-        IEnumerable<ToDo> result;
+        IEnumerable<Business.Task> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
@@ -4294,7 +4294,7 @@ namespace Accounting.Database
           p.Add("@ParentId", parentId);
           p.Add("@OrganizationId", organizationId);
 
-          result = await con.QueryAsync<ToDo>("""
+          result = await con.QueryAsync<Business.Task>("""
             SELECT * FROM "ToDo"
             WHERE "ParentToDoId" = @ParentId
             AND "OrganizationId" = @OrganizationId
@@ -4304,9 +4304,9 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      public async Task<List<ToDo>> GetDescendantsAsync(int id, int organizationId)
+      public async Task<List<Business.Task>> GetDescendantsAsync(int id, int organizationId)
       {
-        IEnumerable<ToDo> result;
+        IEnumerable<Business.Task> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
@@ -4340,23 +4340,23 @@ namespace Accounting.Database
             WHERE "OrganizationId" = @OrganizationId
             """;
 
-          result = await con.QueryAsync<ToDo>(sql, p);
+          result = await con.QueryAsync<Business.Task>(sql, p);
         }
 
         return result.ToList();
       }
 
-      public async Task<List<ToDo>> GetToDoChildrenAsync(int id, int organizationId)
+      public async Task<List<Business.Task>> GetToDoChildrenAsync(int id, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@ToDoID", id);
         p.Add("@OrganizationId", organizationId);
 
-        IEnumerable<ToDo> result;
+        IEnumerable<Business.Task> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          result = await con.QueryAsync<ToDo>("""
+          result = await con.QueryAsync<Business.Task>("""
             SELECT * 
             FROM "ToDo" 
             WHERE "ParentToDoId" = @ToDoID
@@ -4367,14 +4367,14 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      public int Update(ToDo entity)
+      public int Update(Business.Task entity)
       {
         throw new NotImplementedException();
       }
 
-      public async Task<ToDo> UpdateContentAsync(int toDoId, string content, int organizationId)
+      public async Task<Business.Task> UpdateContentAsync(int toDoId, string content, int organizationId)
       {
-        ToDo result;
+        Business.Task result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
@@ -4383,7 +4383,7 @@ namespace Accounting.Database
           p.Add("@Content", content);
           p.Add("@OrganizationId", organizationId);
 
-          IEnumerable<ToDo> updatedToDos = await con.QueryAsync<ToDo>("""
+          IEnumerable<Business.Task> updatedToDos = await con.QueryAsync<Business.Task>("""
             UPDATE "ToDo"
             SET "Content" = @Content
             WHERE "ToDoID" = @ToDoID
@@ -5818,7 +5818,7 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task DeleteAsync(string databaseName)
+      public async System.Threading.Tasks.Task DeleteAsync(string databaseName)
       {
         string sanitizedDbName = Regex.Replace(databaseName, @"[^a-zA-Z0-9_]", "");
 
@@ -5844,7 +5844,7 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task ResetDatabaseAsync()
+      public async System.Threading.Tasks.Task ResetDatabaseAsync()
       {
         string resetCreateDbScriptPath = Path.Combine(AppContext.BaseDirectory, "reset-and-create-database.sql");
         string createSchemaScriptPath = Path.Combine(AppContext.BaseDirectory, "create-db-script-psql.sql");
@@ -5870,7 +5870,7 @@ namespace Accounting.Database
         }
       }
 
-      public async Task RestoreDatabase(string databaseName, Common.File file)
+      public async System.Threading.Tasks.Task RestoreDatabase(string databaseName, Common.File file)
       {
         // Get connection parameters from the connection string
         var builder = new NpgsqlConnectionStringBuilder(_connectionString);
@@ -5945,7 +5945,7 @@ namespace Accounting.Database
         }
       }
 
-      public async Task RunSQLScript(string script, string databaseName)
+      public async System.Threading.Tasks.Task RunSQLScript(string script, string databaseName)
       {
         var builder = new NpgsqlConnectionStringBuilder(_connectionString);
 
@@ -7111,7 +7111,7 @@ namespace Accounting.Database
         return result.SingleOrDefault();
       }
 
-      public async Task UpdateTenantDatabasePassword(int tenantId, string databasePassword)
+      public async System.Threading.Tasks.Task UpdateTenantDatabasePassword(int tenantId, string databasePassword)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@TenantId", tenantId);
@@ -8398,7 +8398,7 @@ namespace Accounting.Database
         }
       }
 
-      public async Task ReportPosition(
+      public async System.Threading.Tasks.Task ReportPosition(
         string userId,
         int x,
         int y,

@@ -15,7 +15,7 @@ namespace Accounting.Events
 
     }
 
-    public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
+    public override async System.Threading.Tasks.Task ValidatePrincipal(CookieValidatePrincipalContext context)
     {
       var principal = context.Principal;
 
@@ -100,7 +100,7 @@ namespace Accounting.Events
       }
     }
 
-    private async Task CompareAuthorizationClaimsExcept(
+    private async System.Threading.Tasks.Task CompareAuthorizationClaimsExcept(
       CookieValidatePrincipalContext context,
       UserOrganization userOrganization,
       List<string>? roleClaims,

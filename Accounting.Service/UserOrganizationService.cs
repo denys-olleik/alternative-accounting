@@ -35,7 +35,7 @@ namespace Accounting.Service
       return await factoryManager.GetUserOrganizationManager().CreateAsync(userOrganization);
     }
 
-    public async Task CreateAsync(UserOrganization userOrganization, string databaseName, string databasePassword)
+    public async System.Threading.Tasks.Task CreateAsync(UserOrganization userOrganization, string databaseName, string databasePassword)
     {
       var factoryManager = new FactoryManager(databaseName, databasePassword);
       await factoryManager.GetUserOrganizationManager().CreateAsync(userOrganization, databaseName);
@@ -71,7 +71,7 @@ namespace Accounting.Service
       return await factoryManager.GetUserOrganizationManager().CreateAsync(userID, organizationId, databaseName);
     }
 
-    public async Task UpdateUserOrganizationsAsync(int userID, List<int> selectedOrganizationIds, string databaseName, string databasePassword)
+    public async System.Threading.Tasks.Task UpdateUserOrganizationsAsync(int userID, List<int> selectedOrganizationIds, string databaseName, string databasePassword)
     {
       var factoryManager = new FactoryManager(databaseName, databasePassword);
       await factoryManager.GetUserOrganizationManager().UpdateUserOrganizationsAsync(userID, selectedOrganizationIds, databasePassword, databaseName);

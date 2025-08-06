@@ -82,7 +82,7 @@ namespace Accounting.Service
       return await factoryManager.GetInvoiceManager().SearchInvoicesAsync(inPaymentStatus, invoiceNumbersSpaceSeparated, company, organizationId);
     }
 
-    public async Task VoidAsync(Invoice invoice, string? voidReason, int userId, int organizationId)
+    public async System.Threading.Tasks.Task VoidAsync(Invoice invoice, string? voidReason, int userId, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       var journalInvoiceInvoiceLineManager = factoryManager.GetJournalInvoiceInvoiceLineManager();
@@ -137,7 +137,7 @@ namespace Accounting.Service
       return await factoryManager.GetInvoiceManager().ComputeAndUpdateTotalAmountAndReceivedAmount(invoiceId, organizationId);
     }
 
-    public async Task UpdateLastUpdated(int invoiceId, int organizationId)
+    public async System.Threading.Tasks.Task UpdateLastUpdated(int invoiceId, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetInvoiceManager().UpdateLastUpdated(invoiceId, organizationId);

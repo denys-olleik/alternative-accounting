@@ -15,7 +15,7 @@ namespace Accounting.Controllers
 {
   [AuthorizeWithOrganizationId]
   [Route("t")]
-  public class ToDoController : BaseController
+  public class TaskController : BaseController
   {
     private readonly TagService _tagService;
     private readonly UserService _userService;
@@ -23,7 +23,7 @@ namespace Accounting.Controllers
     private readonly ToDoService _toDoService;
     private readonly ToDoTagService _toDoTagService;
 
-    public ToDoController(
+    public TaskController(
       RequestContext requestContext, 
       TagService tagService, 
       UserService userService, 
@@ -43,7 +43,7 @@ namespace Accounting.Controllers
     public async Task<IActionResult> Tasks()
     {
       ToDosPaginatedViewModel vm = new ToDosPaginatedViewModel();
-      vm.AvailableStatuses = ToDo.ToDoStatuses.All.ToList();
+      vm.AvailableStatuses = Business.Task.ToDoStatuses.All.ToList();
 
       return View(vm);
     }
@@ -71,7 +71,7 @@ namespace Accounting.Controllers
 
       createToDoViewModel.ParentToDoId = parentToDoId;
 
-      ToDo? toDo = parentToDoId.HasValue ? await _toDoService.GetAsync(parentToDoId.Value, GetOrganizationId()!.Value) : null;
+      Business.Task? toDo = parentToDoId.HasValue ? await _toDoService.GetAsync(parentToDoId.Value, GetOrganizationId()!.Value) : null;
       createToDoViewModel.ParentToDo = toDo != null ? new ToDoViewModel
       {
         ToDoID = toDo.ToDoID,
@@ -79,7 +79,7 @@ namespace Accounting.Controllers
         HtmlContent = toDo.Content
       } : null;
 
-      createToDoViewModel.ToDoStatuses = ToDo.ToDoStatuses.All.Select(s => s.ToLower()).ToList();
+      createToDoViewModel.ToDoStatuses = Business.Task.ToDoStatuses.All.Select(s => s.ToLower()).ToList();
 
       return View(createToDoViewModel);
     }
@@ -93,7 +93,7 @@ namespace Accounting.Controllers
 
       var deserializedSelectedTagIds = JsonConvert.DeserializeObject<List<int>>(model.SelectedTagIds!);
 
-      ToDo? parentToDoItem = model.ParentToDoId.HasValue ? await _toDoService.GetAsync(model.ParentToDoId.Value, GetOrganizationId()!.Value) : null;
+      Business.Task? parentToDoItem = model.ParentToDoId.HasValue ? await _toDoService.GetAsync(model.ParentToDoId.Value, GetOrganizationId()!.Value) : null;
       model.ParentToDo = parentToDoItem != null ? new ToDoViewModel
       {
         ToDoID = parentToDoItem.ToDoID,
@@ -118,7 +118,7 @@ namespace Accounting.Controllers
         }
 
         model.ParentToDoId = model.ParentToDoId;
-        model.ToDoStatuses = ToDo.ToDoStatuses.All.Select(s => s.ToLower()).ToList();
+        model.ToDoStatuses = Business.Task.ToDoStatuses.All.Select(s => s.ToLower()).ToList();
 
         model.Users = (await _userService.GetAllAsync(GetOrganizationId()!.Value)).Select(user => new UserViewModel
         {
@@ -140,12 +140,12 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        ToDo taskItem = await _toDoService.CreateAsync(new ToDo()
+        Business.Task taskItem = await _toDoService.CreateAsync(new Business.Task()
         {
           Title = model.Title,
           Content = model.Content,
           ParentToDoId = model.ParentToDoId,
-          Status = ToDo.ToDoStatuses.Open,
+          Status = Business.Task.ToDoStatuses.Open,
           CreatedById = GetUserId(),
           OrganizationId = GetOrganizationId()!.Value
         });
@@ -186,7 +186,7 @@ namespace Accounting.Controllers
     [Route("details/{id}")]
     public async Task<IActionResult> Details(int id)
     {
-      ToDo taskItem = await _toDoService.GetAsync(id, GetOrganizationId()!.Value);
+      Business.Task taskItem = await _toDoService.GetAsync(id, GetOrganizationId()!.Value);
 
       MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
@@ -195,7 +195,7 @@ namespace Accounting.Controllers
       return View(taskViewModel);
     }
 
-    private async Task<ToDoViewModel> ConvertToTaskViewModel(ToDo task, ToDoService taskService, MarkdownPipeline pipeline)
+    private async Task<ToDoViewModel> ConvertToTaskViewModel(Business.Task task, ToDoService taskService, MarkdownPipeline pipeline)
     {
       var taskViewModel = new ToDoViewModel()
       {

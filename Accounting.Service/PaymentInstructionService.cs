@@ -17,7 +17,7 @@ namespace Accounting.Service
 
     }
 
-    public Task CreateAsync(PaymentInstruction paymentInstruction)
+    public System.Threading.Tasks.Task CreateAsync(PaymentInstruction paymentInstruction)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return factoryManager.GetPaymentInstructionManager()

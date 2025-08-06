@@ -10,12 +10,12 @@ namespace Accounting.Controllers
   [AuthorizeWithOrganizationId]
   [ApiController]
   [Route("api/t")]
-  public class ToDoApiController : BaseController
+  public class TaskApiController : BaseController
   {
     private readonly ToDoService _toDoService;
     private readonly UserTaskService _userTaskService;
 
-    public ToDoApiController(RequestContext requestContext, ToDoService toDoService, UserTaskService userTaskService)
+    public TaskApiController(RequestContext requestContext, ToDoService toDoService, UserTaskService userTaskService)
     {
       _toDoService = new ToDoService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _userTaskService = new UserTaskService(requestContext.DatabaseName, requestContext.DatabasePassword);
@@ -24,7 +24,7 @@ namespace Accounting.Controllers
     [HttpGet("get-todos")]
     public async Task<IActionResult> GetTasks()
     {
-      List<ToDo> toDos = await _toDoService.GetAllAsync(GetOrganizationId()!.Value);
+      List<Business.Task> toDos = await _toDoService.GetAllAsync(GetOrganizationId()!.Value);
 
       foreach (var task in toDos)
       {
@@ -48,7 +48,7 @@ namespace Accounting.Controllers
     [HttpPost("update-content")]
     public async Task<IActionResult> UpdateContent([FromBody] UpdateContentModel model)
     {
-      ToDo task = await _toDoService.UpdateContentAsync(model.ToDoId, model.Content, GetOrganizationId()!.Value);
+      Business.Task task = await _toDoService.UpdateContentAsync(model.ToDoId, model.Content, GetOrganizationId()!.Value);
 
       var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
@@ -91,7 +91,7 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> GetTaskChildren(int toDoID)
     {
-      List<ToDo> children = await _toDoService.GetTaskChildren(toDoID, GetOrganizationId()!.Value);
+      List<Business.Task> children = await _toDoService.GetTaskChildren(toDoID, GetOrganizationId()!.Value);
 
       foreach (var task in children)
       {
@@ -128,7 +128,7 @@ namespace Accounting.Controllers
       return Ok();
     }
 
-    private void ConvertContentToHtml(ToDo taskItem, MarkdownPipeline pipeline)
+    private void ConvertContentToHtml(Business.Task taskItem, MarkdownPipeline pipeline)
     {
       if (!string.IsNullOrWhiteSpace(taskItem.Content))
       {
@@ -141,7 +141,7 @@ namespace Accounting.Controllers
       }
     }
 
-    private ToDoItemsApiModel.ToDoViewModel MapToDoToViewModel(ToDo task)
+    private ToDoItemsApiModel.ToDoViewModel MapToDoToViewModel(Business.Task task)
     {
       var viewModel = new ToDoItemsApiModel.ToDoViewModel
       {
@@ -171,7 +171,7 @@ namespace Accounting.Controllers
       return viewModel;
     }
 
-    private async Task LoadUsersForTaskAndSubtasks(ToDo task, UserTaskService userTaskService, int organizationId)
+    private async System.Threading.Tasks.Task LoadUsersForTaskAndSubtasks(Business.Task task, UserTaskService userTaskService, int organizationId)
     {
       task.Users = await userTaskService.GetUsers(task.ToDoID, organizationId);
 

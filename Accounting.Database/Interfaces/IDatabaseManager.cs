@@ -6,9 +6,9 @@ namespace Accounting.Database.Interfaces
   {
     Task<string> BackupDatabaseAsync(string databaseName);
     Task<DatabaseThing> CreateDatabase(string tenantId);
-    Task DeleteAsync(string databaseName);
-    Task ResetDatabaseAsync();
-    Task RestoreDatabase(string databaseName, Common.File file);
-    Task RunSQLScript(string script, string databaseName);
+    System.Threading.Tasks.Task DeleteAsync(string databaseName);
+    System.Threading.Tasks.Task ResetDatabaseAsync();
+    System.Threading.Tasks.Task RestoreDatabase(string databaseName, Common.File file);
+    System.Threading.Tasks.Task RunSQLScript(string script, string databaseName);
   }
 }
