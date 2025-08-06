@@ -1,5 +1,3 @@
-The goal of this project is to create one accounting system used by the whole world to reduce administrative costs of running any organization, from laundramat to an aircraft carrier.
-
 # Getting started
 
 1. Clone this repository.

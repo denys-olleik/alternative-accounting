@@ -1,13 +1,13 @@
 ﻿@model Accounting.Models.ToDoViewModels.CreateToDoViewModel
 
 @{
-  ViewData["Title"] = "Create Task - " + ConfigurationSingleton.Instance.ApplicationName;
+  ViewData["Title"] = "Create task - " + ConfigurationSingleton.Instance.ApplicationName;
 }
 
 <script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
 
 @{
-  string headerText = "Create Task";
+  string headerText = "Create task";
 }
 <partial name="_H1HeaderPartial" model="@headerText" />
 
@@ -24,11 +24,11 @@
   <input type="hidden" asp-for="ParentToDoId" />
   <input type="hidden" name="SelectedTagIds" v-model="selectedTagsValue">
   <div class="display-flex flex-direction-column">
-    <label asp-for="Title"></label>
+    <label asp-for="Title" class="background-color-antiquewhite"></label>
     <input asp-for="Title" class="margin-bottom-5px font-size-20px" />
   </div>
   <div class="display-flex flex-direction-column">
-    <label asp-for="Content"></label>
+    <label asp-for="Content" class="background-color-antiquewhite"></label>
     <textarea asp-for="Content" class="margin-bottom-5px font-size-20px" rows="6"></textarea>
   </div>
 
@@ -46,7 +46,7 @@
     }
   </fieldset>
 
-  <button type="submit" class="full-width-regular-button">Create Task</button>
+  <button type="submit" class="full-width-regular-button">Create task</button>
 </form>
 
 @if (Model != null && Model.ValidationResult != null)
