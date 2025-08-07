@@ -10,5 +10,7 @@ namespace Accounting.Models.UserViewModels
     public string? Email { get; set; }
 
     public List<ClaimViewModel>? Claims { get; set; }
+
+    public string FullName => $"{FirstName} {LastName}".Trim();
   }
 }

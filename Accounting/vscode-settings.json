@@ -1,0 +1,10 @@
+{
+  "editor.tabSize": 2,
+  "html.format.wrapLineLength": 0,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "html.format.contentUnformatted": "",
+  "html.format.extraLiners": "",
+  "html.format.wrapAttributes": "preserve",
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "files.autoSave": "afterDelay"
+}
