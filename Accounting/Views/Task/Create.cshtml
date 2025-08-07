@@ -13,7 +13,7 @@
 
 <template id="tag-template">
   <div class="display-flex margin-bottom-5px margin-right-5px"
-       :data-tag-id="tag.id">
+    :data-tag-id="tag.id">
     <a href="" @@click.prevent="selectTag" class="text-decoration-none background-color-dodgerblue padding-2px color-white border-radius-5px padding-sides-5px">
       {{ tag.name }}
     </a>
@@ -23,6 +23,7 @@
 <form id="app" asp-action="Create" asp-controller="ToDo" method="post" class="display-flex flex-direction-column margin-bottom-5px">
   <input type="hidden" asp-for="ParentToDoId" />
   <input type="hidden" name="SelectedTagIds" v-model="selectedTagsValue">
+  <input type="hidden" name="SelectedUsers" :value="JSON.stringify(selectedUsers.map(u => u.userID))">
   <div class="display-flex flex-direction-column">
     <label asp-for="Title" class="background-color-antiquewhite"></label>
     <input asp-for="Title" class="margin-bottom-5px font-size-20px" />
@@ -32,19 +33,14 @@
     <textarea asp-for="Content" class="margin-bottom-5px font-size-20px" rows="6"></textarea>
   </div>
 
-  <fieldset class="margin-bottom-5px">
-    <legend>Users</legend>
-    @if (Model != null && Model.Users != null)
-    {
-      foreach (var user in Model.Users)
-      {
-        <div>
-          <input type="checkbox" id="user-@user.UserID" name="SelectedUsers" value="@user.UserID" @(User.FindFirstValue(ClaimTypes.NameIdentifier) == user.UserID.ToString() ? "checked" : "")>
-          <label for="user-@user.UserID">@user.FirstName @user.LastName</label>
-        </div>
-      }
-    }
-  </fieldset>
+  <universal-selector
+    :items="users"
+    :selected-items="selectedUsers"
+    label="Assign users"
+    placeholder="Search users"
+    item-key="userID"
+    item-label="fullName"
+    @@update:selectedItems="selectedUsers = $event"></universal-selector>
 
   <button type="submit" class="full-width-regular-button">Create task</button>
 </form>
@@ -76,6 +72,8 @@
   </fieldset>
 }
 
+<script src="~/js/UniversalSelector.js" asp-append-version="true"></script>
+
 <script>
   const { createApp } = Vue;
 
@@ -90,43 +88,47 @@
     }
   };
 
-  const app = createApp({
-    components: {
-      'tag': Tag
-    },
-    data() {
-      return {
-        availableTags: @Html.Raw(Json.Serialize(Model.AvailableTags)),
-        selectedTags: @Html.Raw(Model.SelectedTags != null ? Json.Serialize(Model.SelectedTags) : "[]"),
-      };
-    },
-    methods: {
-      addTag(event) {
-        event.preventDefault();
+  // Move your app creation into a function so you can register UniversalSelector after loading its template
+  createUniversalSelectorComponent().then(UniversalSelector => {
+    const app = createApp({
+      components: {
+        'tag': Tag,
+        'universal-selector': UniversalSelector
       },
-      moveToSelected(tag) {
-        const index = this.availableTags.indexOf(tag);
-        console.log("Index of tag in availableTags:", index);
-        if (index > -1) {
-          this.availableTags = [...this.availableTags.slice(0, index), ...this.availableTags.slice(index + 1)];
-          this.selectedTags = [...this.selectedTags, tag];
+      data() {
+        return {
+          availableTags: @Html.Raw(Json.Serialize(Model.AvailableTags)),
+          selectedTags: @Html.Raw(Model.SelectedTags != null ? Json.Serialize(Model.SelectedTags) : "[]"),
+          users: @Html.Raw(Model.Users != null ? Json.Serialize(Model.Users) : "[]"),
+          selectedUsers: @Html.Raw(Model.SelectedUsers != null ? Json.Serialize(Model.SelectedUsers) : "[]")
+        };
+      },
+      methods: {
+        addTag(event) {
+          event.preventDefault();
+        },
+        moveToSelected(tag) {
+          const index = this.availableTags.indexOf(tag);
+          if (index > -1) {
+            this.availableTags = [...this.availableTags.slice(0, index), ...this.availableTags.slice(index + 1)];
+            this.selectedTags = [...this.selectedTags, tag];
+          }
+        },
+        moveToAvailable(tag) {
+          const index = this.selectedTags.indexOf(tag);
+          if (index > -1) {
+            this.selectedTags = [...this.selectedTags.slice(0, index), ...this.selectedTags.slice(index + 1)];
+            this.availableTags = [...this.availableTags, tag];
+          }
         }
-        console.log("Updated selectedTags:", this.selectedTags);
       },
-      moveToAvailable(tag) {
-        const index = this.selectedTags.indexOf(tag);
-        if (index > -1) {
-          this.selectedTags = [...this.selectedTags.slice(0, index), ...this.selectedTags.slice(index + 1)];
-          this.availableTags = [...this.availableTags, tag];
+      computed: {
+        selectedTagsValue() {
+          return JSON.stringify(this.selectedTags.map(tag => tag.id));
         }
       }
-    },
-    computed: {
-      selectedTagsValue() {
-        return JSON.stringify(this.selectedTags.map(tag => tag.id));
-      }
-    }
-  });
+    });
 
-  app.mount('#app');
+    app.mount('#app');
+  });
 </script>

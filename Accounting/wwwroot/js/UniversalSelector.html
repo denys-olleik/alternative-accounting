@@ -1,0 +1,42 @@
+﻿<div class="display-flex flex-direction-column">
+  <label v-if="label" class="font-size-16px">{{ label }}</label>
+  <input ref="inputElement"
+         type="text"
+         class="font-size-20px font-Roboto-Mono"
+         v-model="inputText"
+         @keydown="handleKeyDown"
+         @focus="handleFocus"
+         @blur="handleBlur"
+         :placeholder="placeholder"
+         autocomplete="off" />
+  <span>
+    <input type="checkbox" v-model="remember" class="margin-bottom-5px" />
+    <label>remember</label>
+  </span>
+  <div v-if="dropdownVisible && filteredItems.length" class="display-flex flex-direction-column background-color-black font-Roboto-Mono padding-5px">
+    <div v-for="(item, index) in filteredItems"
+         :key="getItemKey(item)"
+         @click="selectItem(item)"
+         class="display-flex font-size-16px color-white cursor-pointer">
+      <div>
+        <span :class="['margin-right-10px', index === preselectedIndex ? 'blinking-cursor' : '']">█</span>
+      </div>
+      <div>
+        {{ getItemLabel(item) }}
+      </div>
+    </div>
+  </div>
+  <div v-if="selectedItems.length" class="display-flex flex-direction-column background-color-black font-Roboto-Mono padding-5px margin-top-5px">
+    <div v-for="(item, index) in selectedItems"
+         :key="getItemKey(item)"
+         @click="removeItem(item)"
+         class="display-flex font-size-16px color-white cursor-pointer align-items-center">
+      <div>
+        <span class="margin-right-10px color-lawngreen">█</span>
+      </div>
+      <div>
+        {{ getItemLabel(item) }}
+      </div>
+    </div>
+  </div>
+</div>
