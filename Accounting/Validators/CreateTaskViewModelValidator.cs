@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Accounting.Validators
 {
-  public class CreateTaskViewModelValidator : AbstractValidator<CreateToDoViewModel>
+  public class CreateTaskViewModelValidator : AbstractValidator<CreateTaskViewModel>
   {
     public CreateTaskViewModelValidator()
     {

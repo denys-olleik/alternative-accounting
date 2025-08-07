@@ -54,7 +54,7 @@ namespace Accounting.Controllers
     {
       List<Tag> tags = await _tagService.GetAllAsync();
 
-      CreateToDoViewModel createToDoViewModel = new CreateToDoViewModel();
+      CreateTaskViewModel createToDoViewModel = new CreateTaskViewModel();
       createToDoViewModel.Users = (await _userService.GetAllAsync(GetOrganizationId()!.Value)).Select(user => new UserViewModel
       {
         UserID = user.UserID,
@@ -86,7 +86,7 @@ namespace Accounting.Controllers
 
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> Create(CreateToDoViewModel model)
+    public async Task<IActionResult> Create(CreateTaskViewModel model)
     {
       CreateTaskViewModelValidator validator = new CreateTaskViewModelValidator();
       ValidationResult validationResult = await validator.ValidateAsync(model);

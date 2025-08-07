@@ -4,7 +4,7 @@ using FluentValidation.Results;
 
 namespace Accounting.Models.ToDoViewModels
 {
-  public class CreateToDoViewModel
+  public class CreateTaskViewModel
   {
     public string? Title { get; set; }
     public string? Content { get; set; }
