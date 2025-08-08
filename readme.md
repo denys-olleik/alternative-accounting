@@ -26,8 +26,8 @@
 Core concepts:
 
 * Journal - chronological record of all financial transactions good enough to satisfy an audit.
-	* Double-entry - method for recording journal entries.
-	* Forward-only - rule that dictates journal entries cannot be modified or deleted.
+	* Double-entry - credits and debits.
+	* Forward-only - journal entries cannot be modified or deleted.
 * Accounts - chart of accounts.
 * Transaction - grouping of multiple journal entries.
 
