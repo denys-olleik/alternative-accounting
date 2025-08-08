@@ -67,8 +67,8 @@ public int Delete(int id)
 }
 ```
 
-## Examples
+## Implemented examples
 
-* Invoice
-* Payment
+* Creating invoice
+* Receiving payment
 * Reconciliations
