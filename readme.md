@@ -1,3 +1,5 @@
+![Double-entry_example_from_1926.png](Double-entry_example_from_1926.png)
+
 # Getting started
 
 1. Clone this repository.
@@ -28,8 +30,6 @@ Core concepts:
 	* Forward-only - rule that dictates journal entries cannot be modified or deleted.
 * Account - appropriate architecture around chart of accounts.
 * Transaction - grouping of multiple journal entries.
-
-![Double-entry_example_from_1926.png](Double-entry_example_from_1926.png)
 
 ### Journal, Chart of Accounts, and Transactions
 
@@ -72,51 +72,3 @@ public int Delete(int id)
 * Invoice
 * Payment
 * Reconciliations
-
-### Invoice
-
-* Creating invoice
-* Updating invoice line-items
-* Removing line-items from invoice
-* Void invoice
-
-Order of operations:
-
-1. Create invoice.
-2. Create line-items.
-3. Record journal entries
-4. Join journal entries with invoice line-items and invoice.
-  * Wrapping journal entries in a transaction using `TransactionGuid` column.
-
-For each line item in the invoice, create the required journal entries.
-
-```sql
--- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "JournalInvoiceInvoiceLine";'
-CREATE TABLE "JournalInvoiceInvoiceLine"
-(
-	"JournalInvoiceInvoiceLineID" SERIAL PRIMARY KEY NOT NULL,
-	"JournalId" INT NOT NULL,
-	"InvoiceId" INT NOT NULL,
-	"InvoiceLineId" INT NOT NULL,
-	"ReversedJournalInvoiceInvoiceLineId" INT NULL,
-	"TransactionGuid" UUID NOT NULL,
-	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
-	"CreatedById" INT NOT NULL,
-	"OrganizationId" INT NOT NULL,
-	FOREIGN KEY ("JournalId") REFERENCES "Journal"("JournalID"),
-	FOREIGN KEY ("InvoiceId") REFERENCES "Invoice"("InvoiceID"),
-	FOREIGN KEY ("InvoiceLineId") REFERENCES "InvoiceLine"("InvoiceLineID"),
-	FOREIGN KEY ("ReversedJournalInvoiceInvoiceLineId") REFERENCES "JournalInvoiceInvoiceLine"("JournalInvoiceInvoiceLineID"),
-	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
-	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
-);
-```
-
-### Payment
-
-* Creating payment
-  * one invoice multiple payments
-	* one payment multuple invoices
-* Void payment
-
-### Reconciliations
