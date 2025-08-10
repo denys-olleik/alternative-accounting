@@ -17,95 +17,94 @@
 
 @if (!User.Identity.IsAuthenticated)
 {
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/"
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/"
+      }
     }
-  }
-</script>
+  </script>
 
-<div class="display-flex margin-bottom-5px">
+  <div class="display-flex margin-bottom-5px">
     <div class="flex-1 display-flex flex-direction-column">
       <img class="width-100" src="~/images/cat.png" />
-      <div class="color-white">Hello.</div>
-      </div>
+    </div>
     <div class="width-5px"></div>
     <div class="flex-1">
       <div id="app" class="width-100 height-500px"></div>
     </div>
-</div>
+  </div>
 
 
 
-<script type="module">
-  import * as THREE from 'three';
+  <script type="module">
+    import * as THREE from 'three';
 
-  // Scene
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xdddddd);
+    // Scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xdddddd);
 
-  // Camera
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    document.getElementById('app').clientWidth / 500,
-    0.1,
-    1000
-  );
-  camera.position.set(0, 2, 5);
-  camera.lookAt(0, 1, 0);
+    // Camera
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      document.getElementById('app').clientWidth / 500,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 2, 5);
+    camera.lookAt(0, 1, 0);
 
-  // Renderer
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(document.getElementById('app').clientWidth, 500);
-  document.getElementById('app').appendChild(renderer.domElement);
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(document.getElementById('app').clientWidth, 500);
+    document.getElementById('app').appendChild(renderer.domElement);
 
-  // Plane
-  const planeGeometry = new THREE.PlaneGeometry(10, 10);
-  const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
-  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  plane.rotation.x = -Math.PI / 2;
-  scene.add(plane);
+    // Plane
+    const planeGeometry = new THREE.PlaneGeometry(10, 10);
+    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.x = -Math.PI / 2;
+    scene.add(plane);
 
-  // Cube
-  const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0x3366ff });
-  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-  cube.position.y = 1;
-  scene.add(cube);
+    // Cube
+    const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0x3366ff });
+    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cube.position.y = 1;
+    scene.add(cube);
 
-  // Light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-  scene.add(ambientLight);
+    // Light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  directionalLight.position.set(5, 10, 7.5);
-  scene.add(directionalLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
 
-  // Animation loop
-  function animate() {
-    requestAnimationFrame(animate);
-    cube.rotation.y += 0.01;
-    cube.rotation.x += 0.005;
-    renderer.render(scene, camera);
-  }
-  animate();
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.y += 0.01;
+      cube.rotation.x += 0.005;
+      renderer.render(scene, camera);
+    }
+    animate();
 
-  // Responsive resizing (optional)
-  window.addEventListener('resize', () => {
-    const width = document.getElementById('app').clientWidth;
-    const height = 500;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
-  });
-</script>
+    // Responsive resizing (optional)
+    window.addEventListener('resize', () => {
+      const width = document.getElementById('app').clientWidth;
+      const height = 500;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    });
+  </script>
 }
 
 @if (!User.Identity.IsAuthenticated)
 {
-  <div class="display-flex margin-bottom-5px">
+  @* <div class="display-flex margin-bottom-5px">
     <div class="flex-1 background-color-A62626 text-align-center">
       <a href="#" class="font-Oswald color-white font-size-40px">screenshots</a>
     </div>
@@ -147,196 +146,67 @@
         <img src="/images/tenants.png" alt="Screenshot" class="width-150px border-5pxsolid-A62626">
       </div>
     </div>
-  </div>
+  </div> *@
 
   <div class="display-flex margin-bottom-5px">
     <div class="flex-1 background-color-A62626 text-align-center">
-      <a href="https://github.com/denys-olleik/accounting" class="font-Oswald color-white font-size-40px">source</a>
+      <a href="https://github.com/denys-olleik/alternative-accounting" class="font-Oswald color-white font-size-40px">source</a>
     </div>
     <div class="width-5px"></div>
     <div class="flex-1 background-color-A62626 text-align-center">
       <a asp-action="Register" asp-controller="Registration" class="font-Oswald color-white font-size-40px">demo</a>
     </div>
   </div>
-  <div class="background-color-antiquewhite padding-sides-10px padding-bottom-10px font-Oswald">
-    <div class="font-size-20px">Hosting options</div>
-    <table class="border-collapse width-100 background-color-antiquewhite">
-      <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
-        <tr>
-          <th class="text-align-left width-1px padding-right-20px">#</th>
-          <th class="text-align-left width-1px padding-right-20px">Option</th>
-          <th class="text-align-left width-1px white-space-nowrap padding-right-20px">SSH</th>
-          <th class="text-align-left width-1px white-space-nowrap padding-right-20px">DNS</th>
-          <th class="text-align-right white-space-nowrap">Support</th>
-        </tr>
-      </thead>
-      <tbody class="font-Roboto-Mono">
-        <tr>
-          <td class="padding-right-20px vertical-align-top">1</td>
-          <td class="padding-right-20px vertical-align-top">
-            Shared
-          </td>
-          <td class="text-align-left padding-right-20px vertical-align-top">no</td>
-          <td class="text-align-left padding-right-20px vertical-align-top">no</td>
-          <td class="text-align-right vertical-align-top">free</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">2</td>
-          <td class="padding-right-20px vertical-align-top">
-            Dedicated
-          </td>
-          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">no</td>
-          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">yes</td>
-          <td class="text-align-right vertical-align-top">$1,000/year + cloud usage</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">3</td>
-          <td class="padding-right-20px vertical-align-top">
-            Independent
-          </td>
-          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">yes</td>
-          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">yes</td>
-          <td class="text-align-right vertical-align-top">no</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">4</td>
-          <td class="padding-right-20px vertical-align-top">
-            localhost
-          </td>
-          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">n/a</td>
-          <td class="text-align-left white-space-nowrap padding-right-20px vertical-align-top">n/a</td>
-          <td class="text-align-right vertical-align-top">n/a</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="background-color-antiquewhite padding-sides-10px margin-top-5px padding-bottom-10px font-Oswald margin-bottom-5px">
-    <div class="font-size-20px">3rd party integrations</div>
-    <table class="border-collapse width-100 background-color-antiquewhite">
-      <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
-        <tr>
-          <th class="text-align-left width-1px padding-right-20px">#</th>
-          <th class="text-align-left width-1px padding-right-20px">Vendor</th>
+  <div class="background-color-antiquewhite padding-10px font-Roboto-Mono">
+    <p class="font-size-20px">Implementatio of forward-only double-entry accounting method with a relational database.</p>
 
-          <th class="text-align-left white-space-nowrap padding-right-20px">Purpose</th>
-        </tr>
-      </thead>
-      <tbody class="font-Roboto-Mono">
-        <tr>
-          <td class="padding-right-20px vertical-align-top">2</td>
-          <td class="padding-right-20px vertical-align-top">
-            DigitalOcean
-          </td>
-          <td class="text-align-left padding-right-20px vertical-align-top">
-            for provisioning independent instances of this application
-          </td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">3</td>
-          <td class="padding-right-20px vertical-align-top">
-            OpenAI
-          </td>
-          <td class="text-align-left padding-right-20px">
-            Automation
-          </td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">4</td>
-          <td class="padding-right-20px vertical-align-top">
-            AbuseIPDB
-          </td>
-          <td class="text-align-left padding-right-20px">
-            Diagnostics
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="display-flex margin-bottom-5px">
-    <div class="flex-1 background-color-A62626 text-align-center">
-      <a href="#" class="font-Oswald color-white font-size-40px letter-spacing-10px">unlimited</a>
-    </div>
-  </div>
-  <div class="background-color-antiquewhite padding-sides-10px padding-bottom-10px font-Oswald margin-bottom-5px">
-    <div class="font-size-20px">Features</div>
-    <table class="border-collapse width-100 background-color-antiquewhite">
-      <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
-        <tr>
-          <th class="text-align-left width-1px padding-right-20px">#</th>
-          <th class="text-align-left width-1px padding-right-20px">Feature</th>
-          <th class="text-align-right white-space-nowrap">Demo limits</th>
-        </tr>
-      </thead>
-      <tbody class="font-Roboto-Mono">
-        <tr>
-          <td class="padding-right-20px vertical-align-top">1</td>
-          <td class="padding-right-20px vertical-align-top">
-            Organizations
-          </td>
-          <td class="text-align-right vertical-align-top">max <b>two</b> on <b>shared</b></td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">2</td>
-          <td class="padding-right-20px vertical-align-top">
-            Users
-          </td>
-          <td class="text-align-right vertical-align-top">unlimited</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">3</td>
-          <td class="padding-right-20px vertical-align-top">
-            Accounts
-          </td>
-          <td class="text-align-right vertical-align-top">unlimited</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">4</td>
-          <td class="padding-right-20px vertical-align-top">
-            Invoices
-          </td>
-          <td class="text-align-right vertical-align-top">unlimited</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">5</td>
-          <td class="padding-right-20px vertical-align-top">
-            Payments
-          </td>
-          <td class="text-align-right vertical-align-top">unlimited</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">6</td>
-          <td class="padding-right-20px vertical-align-top">
-            Attachments
-          </td>
-          <td class="text-align-right vertical-align-top"><b>three</b> second upload limit on <b>shared</b></td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">7</td>
-          <td class="padding-right-20px vertical-align-top">
-            Inventories
-          </td>
-          <td class="text-align-right vertical-align-top">unlimited</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">8</td>
-          <td class="padding-right-20px vertical-align-top">
-            Locations
-          </td>
-          <td class="text-align-right vertical-align-top">unlimited</td>
-        </tr>
-        <tr>
-          <td class="padding-right-20px vertical-align-top">9</td>
-          <td class="padding-right-20px vertical-align-top">
-            Blogs
-          </td>
-          <td class="text-align-right vertical-align-top">unlimited</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="display-flex">
-    <div class="flex-1"></div>
-    <div class="color-white">v25</div>
+    <h2>Getting started</h2>
+
+    <ul>
+      <li>Clone this repository.</li>
+      <li>Have PostgreSQL installed.</li>
+      <li>Update <code>appsettings.json</code>.<code>DatabasePassword</code>.</li>
+      <li>Set <code>database-reset.json</code>.<code>Reset</code> to <code>true</code>.</li>
+      <li>Run the application.</li>
+    </ul>
+
+    <h2>Model any financial operation</h2>
+
+    <ul>
+      <li>Create invoice</li>
+      <li>Receive payment</li>
+      <li>Record foreign currency transaction</li>
+      <li>Issue or assign equity (e.g., owner’s capital, shares issued)</li>
+      <li>Purchase inventory</li>
+      <li>Move inventory between locations</li>
+      <li>Record expense payment (e.g., rent, utilities)</li>
+      <li>Record payroll</li>
+      <li>Record depreciation of assets</li>
+      <li>Accrue liabilities (e.g., taxes payable, interest payable)</li>
+      <li>...</li>
+    </ul>
+
+    <h2>Core concepts</h2>
+
+    <ul>
+      <li>
+        Journal - chronological record of all financial transactions good enough to satisfy an audit.
+        <ul>
+          <li>Double-entry - credits and debits.</li>
+          <li>Forward-only - journal entries cannot be modified or deleted.</li>
+        </ul>
+      </li>
+      <li>Accounts - chart of accounts.</li>
+      <li>Transaction - grouping of multiple journal entries.</li>
+    </ul>
+
+    <h2>Implemented functionality</h2>
+
+    <ul>
+      <li>Creating invoice</li>
+      <li>Receiving payment</li>
+      <li>Reconciliations</li>
+    </ul>
   </div>
 }
 
