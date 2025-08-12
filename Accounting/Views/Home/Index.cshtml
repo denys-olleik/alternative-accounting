@@ -29,15 +29,16 @@
   <div class="display-flex margin-bottom-5px">
     <div class="flex-1 display-flex flex-direction-column">
       <img class="width-100" src="~/images/cat.png" />
-      <div class="padding-5px flex-1 color-white background-color-black font-Roboto-Mono"><span class="blinking-cursor">█</span> Listen up you maggots! You may use this system for <span class="color-lawngreen blinking-cursor">FREE</span> until you can afford to pay one ounce of <span class="color-lawngreen blinking-cursor">gold</span> coin per year. </div>
+      <div class="padding-5px flex-1 color-white background-color-black font-Roboto-Mono"><span class="blinking-cursor">█</span> Listen up you maggots! You may use this system for <span class="color-lawngreen blinking-cursor">FREE</span> until you can afford to <u>pay one ounce of</u> <span class="color-lawngreen blinking-cursor"><u>gold</u></span> <u>coin per year</u>. Work with us and get paid in gold <span class="blinking-cursor color-lawngreen">coin</span>. Join us and no one will ever fuck with you again.</div>
     </div>
     <div class="width-5px"></div>
-    <div class="flex-1">
+    <div class="flex-1 display-flex flex-direction-column">
       <div id="app" class="width-100 height-500px"></div>
+      <div class="flex-1 background-color-black">
+
+      </div>
     </div>
   </div>
-
-
 
   <script type="module">
     import * as THREE from 'three';
@@ -159,31 +160,31 @@
     </div>
   </div>
   <div class="background-color-antiquewhite padding-10px font-Roboto-Mono">
-    <p class="font-size-20px">Implementatio of forward-only double-entry accounting method with a relational database.</p>
+    <p class="font-size-20px">Implementation of forward-only double-entry accounting method with a relational database.</p>
 
     <h2>Getting started</h2>
 
     <ul>
-      <li>Clone this repository.</li>
-      <li>Have PostgreSQL installed.</li>
-      <li>Update <code>appsettings.json</code>.<code>DatabasePassword</code>.</li>
-      <li>Set <code>database-reset.json</code>.<code>Reset</code> to <code>true</code>.</li>
-      <li>Run the application.</li>
+      <li>Clone this repository</li>
+      <li>Have PostgreSQL installed</li>
+      <li>Update <code>appsettings.json</code>.<code>DatabasePassword</code></li>
+      <li>Set <code>database-reset.json</code>.<code>Reset</code> to <code>true</code></li>
+      <li>Run the application</li>
     </ul>
 
     <h2>Model any financial operation</h2>
 
     <ul>
-      <li>Create invoice</li>
-      <li>Receive payment</li>
-      <li>Record foreign currency transaction</li>
-      <li>Issue or assign equity (e.g., owner’s capital, shares issued)</li>
-      <li>Purchase inventory</li>
-      <li>Move inventory between locations</li>
-      <li>Record expense payment (e.g., rent, utilities)</li>
-      <li>Record payroll</li>
-      <li>Record depreciation of assets</li>
-      <li>Accrue liabilities (e.g., taxes payable, interest payable)</li>
+      <li>Create invoice.</li>
+      <li>Receive payment.</li>
+      <li>Record foreign currency transaction.</li>
+      <li>Issue or assign equity (e.g., owner’s capital, shares issued).</li>
+      <li>Purchase inventory.</li>
+      <li>Move inventory between locations.</li>
+      <li>Record expense payment (e.g., rent, utilities).</li>
+      <li>Record payroll.</li>
+      <li>Record depreciation of assets.</li>
+      <li>Accrue liabilities (e.g., taxes payable, interest payable).</li>
       <li>...</li>
     </ul>
 
@@ -198,7 +199,7 @@
         </ul>
       </li>
       <li>Accounts - chart of accounts.</li>
-      <li>Transaction - grouping of multiple journal entries.</li>
+      <li>Transaction - groups of journal entries.</li>
     </ul>
 
     <h2>Implemented functionality</h2>

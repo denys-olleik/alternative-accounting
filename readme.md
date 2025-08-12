@@ -1,4 +1,4 @@
-Implementatio of forward-only double-entry accounting method with a relational database.
+Implementation of forward-only double-entry accounting method with a relational database.
 
 ![Double-entry_example_from_1926.png](Double-entry_example_from_1926.png)
 
