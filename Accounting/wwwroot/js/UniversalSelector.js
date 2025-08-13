@@ -42,7 +42,8 @@ function createUniversalSelectorComponent() {
         inputText: '',
         preselectedIndex: 0,
         dropdownVisible: false,
-        remember: false
+        remember: false,
+        rememberId: 'remember_' + Math.random().toString(36).slice(2)
       };
     },
     computed: {
