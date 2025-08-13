@@ -7,7 +7,7 @@ function loadTemplate(url) {
 
 // Factory function that returns a Promise resolving to the component definition
 function createUniversalSelectorComponent() {
-  return loadTemplate('/js/UniversalSelector.html').then(templateHtml => ({
+  return loadTemplate(`/js/UniversalSelector.html?v=${document.currentScript?.src.split('=')[1] || Date.now()}`).then(templateHtml => ({
     name: 'UniversalSelector',
     template: templateHtml,
     props: {
