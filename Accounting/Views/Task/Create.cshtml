@@ -20,10 +20,10 @@
   </div>
 </template>
 
-<form id="app" asp-action="Create" asp-controller="ToDo" method="post" class="display-flex flex-direction-column margin-bottom-5px">
+<form id="app" asp-action="Create" asp-controller="Task" method="post" class="display-flex flex-direction-column margin-bottom-5px">
   <input type="hidden" asp-for="ParentToDoId" />
   <input type="hidden" name="SelectedTagIds" v-model="selectedTagsValue">
-  <input type="hidden" name="SelectedUsers" :value="JSON.stringify(selectedUsers.map(u => u.userID))">
+  <input type="hidden" name="SelectedUsersJson" :value="JSON.stringify(selectedUsers.map(u => u.userID))">
   <div class="display-flex flex-direction-column">
     <label asp-for="Title" class="background-color-antiquewhite"></label>
     <input asp-for="Title" class="margin-bottom-5px font-size-20px" />
@@ -97,7 +97,6 @@
       },
       data() {
         return {
-          availableTags: @Html.Raw(Json.Serialize(Model.AvailableTags)),
           selectedTags: @Html.Raw(Model.SelectedTags != null ? Json.Serialize(Model.SelectedTags) : "[]"),
           users: @Html.Raw(Model.Users != null ? Json.Serialize(Model.Users) : "[]"),
           selectedUsers: @Html.Raw(Model.SelectedUsers != null ? Json.Serialize(Model.SelectedUsers) : "[]")

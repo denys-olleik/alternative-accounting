@@ -63,12 +63,6 @@ namespace Accounting.Controllers
         LastName = user.LastName
       }).ToList();
 
-      createToDoViewModel.AvailableTags = tags.Select(tag => new TagViewModel
-      {
-        ID = tag.TagID,
-        Name = tag.Name
-      }).ToList();
-
       createToDoViewModel.ParentToDoId = parentToDoId;
 
       Business.Task? toDo = parentToDoId.HasValue ? await _toDoService.GetAsync(parentToDoId.Value, GetOrganizationId()!.Value) : null;
@@ -92,6 +86,7 @@ namespace Accounting.Controllers
       ValidationResult validationResult = await validator.ValidateAsync(model);
 
       var deserializedSelectedTagIds = JsonConvert.DeserializeObject<List<int>>(model.SelectedTagIds!);
+      model.SelectedUsers = JsonConvert.DeserializeObject<List<int>>(model.SelectedUsersJson!);
 
       Business.Task? parentToDoItem = model.ParentToDoId.HasValue ? await _toDoService.GetAsync(model.ParentToDoId.Value, GetOrganizationId()!.Value) : null;
       model.ParentToDo = parentToDoItem != null ? new ToDoViewModel
@@ -126,12 +121,6 @@ namespace Accounting.Controllers
           Email = user.Email,
           FirstName = user.FirstName,
           LastName = user.LastName
-        }).ToList();
-
-        model.AvailableTags = tags.Select(tag => new TagViewModel
-        {
-          ID = tag.TagID,
-          Name = tag.Name
         }).ToList();
 
         model.ValidationResult = validationResult;

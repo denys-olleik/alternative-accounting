@@ -10,9 +10,9 @@ namespace Accounting.Models.ToDoViewModels
     public string? Content { get; set; }
     public List<UserViewModel>? Users { get; set; }
     public List<int>? SelectedUsers { get; set; }
+    public string? SelectedUsersJson { get; set; }
     public string? SelectedToDoStatus { get; set; }
     public List<string>? ToDoStatuses { get; set; }
-    public List<TagViewModel>? AvailableTags { get; set; }
     public List<TagViewModel>? SelectedTags { get; set; }
     public string? SelectedTagIds { get; set; }
 
