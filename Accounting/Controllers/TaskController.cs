@@ -42,10 +42,19 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Tasks()
     {
-      ToDosPaginatedViewModel vm = new ToDosPaginatedViewModel();
-      vm.AvailableStatuses = Business.Task.ToDoStatuses.All.ToList();
+      TasksPaginatedViewModel vm = new TasksPaginatedViewModel();
+      vm.AvailableStatuses = Business.Task.TaskStatuses.All.ToList();
 
       return View(vm);
+    }
+
+    [Route("tasks-rev")]
+    [HttpGet]
+    public async Task<IActionResult> TasksRev()
+    {
+      TasksPaginatedViewModel vm = new ();
+      vm.AvailableStatuses = Business.Task.TaskStatuses.All.ToList();
+      return View("Tasks", vm);
     }
 
     [HttpGet]
@@ -73,7 +82,7 @@ namespace Accounting.Controllers
         HtmlContent = toDo.Content
       } : null;
 
-      createToDoViewModel.ToDoStatuses = Business.Task.ToDoStatuses.All.Select(s => s.ToLower()).ToList();
+      createToDoViewModel.ToDoStatuses = Business.Task.TaskStatuses.All.Select(s => s.ToLower()).ToList();
 
       return View(createToDoViewModel);
     }
@@ -113,7 +122,7 @@ namespace Accounting.Controllers
         }
 
         model.ParentToDoId = model.ParentToDoId;
-        model.ToDoStatuses = Business.Task.ToDoStatuses.All.Select(s => s.ToLower()).ToList();
+        model.ToDoStatuses = Business.Task.TaskStatuses.All.Select(s => s.ToLower()).ToList();
 
         model.Users = (await _userService.GetAllAsync(GetOrganizationId()!.Value)).Select(user => new UserViewModel
         {
@@ -134,7 +143,7 @@ namespace Accounting.Controllers
           Title = model.Title,
           Content = model.Content,
           ParentToDoId = model.ParentToDoId,
-          Status = Business.Task.ToDoStatuses.Open,
+          Status = Business.Task.TaskStatuses.Open,
           CreatedById = GetUserId(),
           OrganizationId = GetOrganizationId()!.Value
         });
@@ -168,7 +177,7 @@ namespace Accounting.Controllers
         scope.Complete();
       }
 
-      return RedirectToAction("ToDos");
+      return RedirectToAction("Tasks");
     }
 
     [HttpGet]

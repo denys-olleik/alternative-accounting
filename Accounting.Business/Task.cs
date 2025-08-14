@@ -22,7 +22,7 @@ namespace Accounting.Business
 
     public int Identifiable => ToDoID;
 
-    public static class ToDoStatuses
+    public static class TaskStatuses
     {
       public const string Open = "open";
       public const string Closed = "closed";
@@ -30,9 +30,9 @@ namespace Accounting.Business
 
       private static readonly List<string> _all = new List<string>();
 
-      static ToDoStatuses()
+      static TaskStatuses()
       {
-        var fields = typeof(ToDoStatuses).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+        var fields = typeof(TaskStatuses).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
         foreach (var field in fields)
         {
           if (field.FieldType == typeof(string) && field.GetValue(null) is string value)
