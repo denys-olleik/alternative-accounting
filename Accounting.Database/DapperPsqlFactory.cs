@@ -3822,15 +3822,53 @@ namespace Accounting.Database
         return (resultList, nextPageNumber);
       }
 
+      public async Task<int> ImportAsync(ReconciliationTransaction transaction)
+      {
+        using (var con = new NpgsqlConnection(_connectionString))
+        {
+          var p = new DynamicParameters();
+          p.Add("@ReconciliationId", transaction.ReconciliationId);
+          p.Add("@RawData", transaction.RawData);
+          p.Add("@TransactionDate", transaction.TransactionDate);
+          p.Add("@Description", transaction.Description);
+          p.Add("@Amount", transaction.Amount);
+          p.Add("@CreatedById", transaction.CreatedById);
+          p.Add("@OrganizationId", transaction.OrganizationId);
+          
+          return await con.ExecuteAsync("""
+            INSERT INTO "ReconciliationTransaction" 
+            (
+              "ReconciliationId",    
+              "RawData", 
+              "TransactionDate", 
+              "Description", 
+              "Amount", 
+              "CreatedById", 
+              "OrganizationId"
+            ) 
+            VALUES 
+            (
+              @ReconciliationId,
+              @RawData, 
+              @TransactionDate, 
+              @Description, 
+              @Amount, 
+              @CreatedById, 
+              @OrganizationId
+            );
+            """, p);
+        }
+      }
+
       public async Task<int> ImportAsync(List<ReconciliationTransaction> reconciliationTransactions)
       {
         int rowsAffected = 0;
 
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        foreach (var reconciliationTransaction in reconciliationTransactions)
         {
-          foreach (var reconciliationTransaction in reconciliationTransactions)
+          using (var con = new Npgsql.NpgsqlConnection(_connectionString))
           {
-            DynamicParameters p = new DynamicParameters();
+            var p = new Dapper.DynamicParameters();
             p.Add("@ReconciliationId", reconciliationTransaction.ReconciliationId);
             p.Add("@RawData", reconciliationTransaction.RawData);
             p.Add("@TransactionDate", reconciliationTransaction.TransactionDate);
@@ -3839,29 +3877,28 @@ namespace Accounting.Database
             p.Add("@CreatedById", reconciliationTransaction.CreatedById);
             p.Add("@OrganizationId", reconciliationTransaction.OrganizationId);
 
-            rowsAffected += await con.ExecuteAsync(
-                """
-                INSERT INTO "ReconciliationTransaction" 
-                (
-                  "ReconciliationId",    
-                  "RawData", 
-                  "TransactionDate", 
-                  "Description", 
-                  "Amount", 
-                  "CreatedById", 
-                  "OrganizationId"
-                ) 
-                VALUES 
-                (
-                  @ReconciliationId,
-                  @RawData, 
-                  @TransactionDate, 
-                  @Description, 
-                  @Amount, 
-                  @CreatedById, 
-                  @OrganizationId
-                );
-                """, p);
+            rowsAffected += await con.ExecuteAsync("""
+              INSERT INTO "ReconciliationTransaction" 
+              (
+                "ReconciliationId",    
+                "RawData", 
+                "TransactionDate", 
+                "Description", 
+                "Amount", 
+                "CreatedById", 
+                "OrganizationId"
+              ) 
+              VALUES 
+              (
+                @ReconciliationId,
+                @RawData, 
+                @TransactionDate, 
+                @Description, 
+                @Amount, 
+                @CreatedById, 
+                @OrganizationId
+              );
+              """, p);
           }
         }
 
@@ -4903,9 +4940,9 @@ namespace Accounting.Database
         DynamicParameters p = new DynamicParameters();
         p.Add("@UserId", userID);
         p.Add("@OrganizationId", organizationId);
-        
+
         int rowsAffected;
-        
+
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           rowsAffected = await con.ExecuteAsync("""

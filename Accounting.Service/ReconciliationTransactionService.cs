@@ -45,6 +45,12 @@ namespace Accounting.Service
       return await factoryManager.GetReconciliationTransactionManager().ImportAsync(reconciliationTransactions);
     }
 
+    public async Task<int> ImportAsync(ReconciliationTransaction transaction)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetReconciliationTransactionManager().ImportAsync(transaction);
+    }
+
     public async System.Threading.Tasks.Task UpdateAssetOrLiabilityAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationLiabilitiesAndAssetsAccountId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);

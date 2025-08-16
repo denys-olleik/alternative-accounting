@@ -99,92 +99,108 @@ namespace Accounting.Controllers
       if (!validationResult.IsValid)
       {
         model.ValidationResult = validationResult;
-        // Repopulate dropdowns or other data if needed
         return View(model);
       }
 
-      // 1. Create Reconciliation
-      // 2. Process statement transactions into ReconciliationTransaction
-      // 3. Create ReconciliationAttachment
-      // 4. Save CSV file to disk
-      // have private methods for each step if needed
-      using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
+      // Scope only around DB work (create reconciliation + insert transactions)
+      Reconciliation reconciliation;
+      List<ReconciliationTransaction> transactions = new();
+
+      // Everything outside DB scope
+      string allLines = string.Empty;
+      if (model.StatementCsv != null && model.StatementCsv.Length > 0)
       {
-        Reconciliation reconciliation = await _reconciliationService.CreateAsync(new Reconciliation
+        using (var reader = new StreamReader(model.StatementCsv.OpenReadStream()))
+        {
+          allLines = await reader.ReadToEndAsync();
+        }
+      }
+      else
+      {
+        allLines = model.StatementCsvText!;
+      }
+
+      LanguageModelService languageModelService = new LanguageModelService();
+      var (response, structuredResponse) = await languageModelService.GenerateResponse<CsvAnalysisResult>(
+        """
+    is this a CSV file and on what line is the first row of data?
+
+    example response:
+    {
+      "isCsv": true,
+      "firstDataRow": 2
+    }
+    """,
+        string.Join("\n", allLines.Split('\n').Take(10)),
+        false,
+        true
+      );
+
+      if (structuredResponse?.isCsv != true)
+        throw new InvalidOperationException("The uploaded file is not a valid CSV file.");
+
+      var lines = allLines.Split('\n');
+      // Build transactions in memory (no DB yet)
+      for (int i = structuredResponse.firstDataRow - 1; i < lines.Length; i++)
+      {
+        string row = lines[i].Trim();
+        if (string.IsNullOrWhiteSpace(row))
+          continue;
+
+        await languageModelService.GenerateResponse<ReconciliationTransactionResult>($"""
+        Process this CSV row into a ReconciliationTransaction object:
+        ```csv
+        {row}
+        ```
+      
+        Respond with a JSON object that includes TransactionDate, Description, and Amount fields.
+        **IMPORTANT:** The TransactionDate field must be in ISO 8601 format (`yyyy-MM-dd`), for example: "2024-06-03".
+        Respond with only the JSON object, no code block or extra text.
+        """,
+          string.Empty,
+          true,
+          true
+        ).ContinueWith(t =>
+        {
+          if (t.Result.structuredResponse != null)
+          {
+            // ReconciliationId is not known yet; set placeholder, assign after create
+            transactions.Add(new ReconciliationTransaction
+            {
+              ReconciliationId = 0,
+              RawData = row,
+              TransactionDate = t.Result.structuredResponse.TransactionDate,
+              Description = t.Result.structuredResponse.Description,
+              Amount = t.Result.structuredResponse.Amount,
+              CreatedById = GetUserId(),
+              OrganizationId = GetOrganizationId()!.Value,
+            });
+          }
+        });
+      }
+
+      // Only DB work inside this scope
+      using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+      {
+        reconciliation = await _reconciliationService.CreateAsync(new Reconciliation
         {
           Name = model.Name,
           CreatedById = GetUserId(),
           OrganizationId = GetOrganizationId()!.Value
         });
 
-        string allLines = string.Empty;
+        // Assign the generated ReconciliationID now that we have it
+        foreach (var t in transactions)
+          t.ReconciliationId = reconciliation.ReconciliationID;
 
-        if (model.StatementCsv != null && model.StatementCsv.Length > 0)
+        // Option A: bulk insert (single call)
+        //await _reconciliationTransactionService.ImportAsync(transactions);
+
+        //Option B: per - row insert(uncomment this block and comment Option A to use foreach style)
+        foreach (var transaction in transactions)
         {
-          using (var reader = new StreamReader(model.StatementCsv.OpenReadStream()))
-          {
-            allLines = await reader.ReadToEndAsync();
-          }
+          await _reconciliationTransactionService.ImportAsync(transaction);
         }
-        else
-        {
-          allLines = model.StatementCsvText!;
-        }
-
-        LanguageModelService languageModelService = new LanguageModelService();
-        var (response, structuredResponse) = await languageModelService.GenerateResponse<CsvAnalysisResult>("""
-          is this a CSV file and on what line is the first row of data?
-
-          example response:
-          {
-            "isCsv": true,
-            "firstDataRow": 2
-          }
-          """, string.Join("\n", allLines.Split('\n').Take(10)), false, true);
-
-        if (structuredResponse?.isCsv != true)
-          throw new InvalidOperationException("The uploaded file is not a valid CSV file.");
-
-        List<ReconciliationTransaction> transactions = new();
-        var lines = allLines.Split('\n');
-        for (int i = structuredResponse.firstDataRow - 1; i < lines.Length; i++)
-        {
-          string row = lines[i].Trim();
-          if (string.IsNullOrWhiteSpace(row))
-            continue;
-
-          await languageModelService.GenerateResponse<ReconciliationTransactionResult>($"""
-            Process this CSV row into a ReconciliationTransaction object:
-            ```csv
-            {row}
-            ```
-          
-            Respond with a JSON object that includes TransactionDate, Description, and Amount fields.
-            **IMPORTANT:** The TransactionDate field must be in ISO 8601 format (`yyyy-MM-dd`), for example: "2024-06-03".
-            Respond with only the JSON object, no code block or extra text.
-            """,
-            string.Empty,
-            true,
-            true
-          ).ContinueWith(t =>
-          {
-            if (t.Result.structuredResponse != null)
-            {
-              transactions.Add(new ReconciliationTransaction
-              {
-                ReconciliationId = reconciliation.ReconciliationID,
-                RawData = row,
-                TransactionDate = t.Result.structuredResponse.TransactionDate,
-                Description = t.Result.structuredResponse.Description,
-                Amount = t.Result.structuredResponse.Amount,
-                CreatedById = GetUserId(),
-                OrganizationId = GetOrganizationId()!.Value,
-              });
-            }
-          });
-        }
-
-        await _reconciliationTransactionService.ImportAsync(transactions);
 
         scope.Complete();
       }
@@ -284,7 +300,7 @@ namespace Accounting.Controllers
             TransactionGuid = transactionGuid,
             Journal = debitEntry
           }, true);
-          
+
           debitJrt.Journal.Account = debitEntry.Account;
           thisTransaction.Add(debitJrt);
 
@@ -298,7 +314,7 @@ namespace Accounting.Controllers
             TransactionGuid = transactionGuid,
             Journal = creditEntry
           }, true);
-          
+
           creditJrt.Journal.Account = creditEntry.Account;
           thisTransaction.Add(creditJrt);
         }
