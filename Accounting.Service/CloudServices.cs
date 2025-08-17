@@ -241,6 +241,9 @@ dotnet workload update >> /var/log/accounting/dotnet-install.log 2>&1
 # Install PostgreSQL
 sudo apt-get install -y postgresql > /var/log/accounting/postgresql-install.log 2>&1
 
+# Install apgdiff (schema diff tool)
+sudo apt-get install -y apgdiff > /var/log/accounting/apgdiff-install.log 2>&1
+
 # Set PostgreSQL password
 sudo -i -u postgres psql -c "ALTER USER postgres WITH PASSWORD '{databasePassword}';" > /var/log/accounting/postgres-password.log 2>&1
 
