@@ -162,65 +162,60 @@ namespace Accounting.Controllers
 
       await PopulateUpdateUserViewModelAsync(model, true);
 
-      using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+      if (user.UserID == GetUserId())
       {
-        if (user.UserID == GetUserId())
-        {
-          await _tenantService.UpdateUserAsync(user.Email!, model.FirstName!, model.LastName!);
-        }
+        await _tenantService.UpdateUserAsync(user.Email!, model.FirstName!, model.LastName!);
+      }
 
-        if (User.IsInRole(UserRoleClaimConstants.RoleManager))
+      if (User.IsInRole(UserRoleClaimConstants.RoleManager))
+      {
+        foreach (var role in model.AvailableRoles)
         {
-          foreach (var role in model.AvailableRoles)
+          int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId()!.Value);
+          Claim roleClaim = await _claimService.GetAsync(user.UserID, GetOrganizationId()!.Value, Claim.CustomClaimTypeConstants.Role, role);
+
+          if (roleClaim != null && !model.SelectedRoles.Contains(role))
           {
-            int count = await _claimService.GetUserCountWithRoleAsync(role, GetOrganizationId()!.Value);
-            Claim roleClaim = await _claimService.GetAsync(user.UserID, GetOrganizationId()!.Value, Claim.CustomClaimTypeConstants.Role, role);
-
-            if (roleClaim != null && !model.SelectedRoles.Contains(role))
-            {
-              if (count > 1)
-              {
-                await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
-              }
-            }
-            else if (model.SelectedRoles.Contains(role) && roleClaim == null)
-            {
-              EnsureOrganizationSelectedForRole(model, GetOrganizationId()!.Value);
-              await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
-            }
-            //
-            else if (!model.SelectedRoles.Any())
+            if (count > 1)
             {
               await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
             }
           }
-        }
-
-        if (User.IsInRole(UserRoleClaimConstants.OrganizationManager))
-        {
-          List<Organization> currentOrganizations = await _userOrganizationService.GetByUserIdAsync(
-            user.UserID, GetDatabaseName(), GetDatabasePassword());
-          var currentOrgIds = currentOrganizations.Select(o => o.OrganizationID).ToHashSet();
-
-          foreach (var organization in model.AvailableOrganizations)
+          else if (model.SelectedRoles.Contains(role) && roleClaim == null)
           {
-            bool isSelected = !string.IsNullOrEmpty(model.SelectedOrganizationIdsCsv) &&
-                  model.SelectedOrganizationIdsCsv.Split(',').Contains(organization.OrganizationID.ToString());
-            bool isCurrentlyAssociated = currentOrgIds.Contains(organization.OrganizationID);
-
-            if (isSelected && !isCurrentlyAssociated)
-            {
-              await _userOrganizationService.CreateAsync(
-                user.UserID, organization.OrganizationID, GetDatabaseName(), GetDatabasePassword());
-            }
-            else if (!isSelected && isCurrentlyAssociated)
-            {
-              await _userOrganizationService.DeleteAsync(user.UserID, organization.OrganizationID);
-            }
+            EnsureOrganizationSelectedForRole(model, GetOrganizationId()!.Value);
+            await _claimService.CreateRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
+          }
+          //
+          else if (!model.SelectedRoles.Any())
+          {
+            await _claimService.RemoveRoleAsync(user.UserID, GetOrganizationId()!.Value, role);
           }
         }
+      }
 
-        scope.Complete();
+      if (User.IsInRole(UserRoleClaimConstants.OrganizationManager))
+      {
+        List<Organization> currentOrganizations = await _userOrganizationService.GetByUserIdAsync(
+          user.UserID, GetDatabaseName(), GetDatabasePassword());
+        var currentOrgIds = currentOrganizations.Select(o => o.OrganizationID).ToHashSet();
+
+        foreach (var organization in model.AvailableOrganizations)
+        {
+          bool isSelected = !string.IsNullOrEmpty(model.SelectedOrganizationIdsCsv) &&
+                model.SelectedOrganizationIdsCsv.Split(',').Contains(organization.OrganizationID.ToString());
+          bool isCurrentlyAssociated = currentOrgIds.Contains(organization.OrganizationID);
+
+          if (isSelected && !isCurrentlyAssociated)
+          {
+            await _userOrganizationService.CreateAsync(
+              user.UserID, organization.OrganizationID, GetDatabaseName(), GetDatabasePassword());
+          }
+          else if (!isSelected && isCurrentlyAssociated)
+          {
+            await _userOrganizationService.DeleteAsync(user.UserID, organization.OrganizationID);
+          }
+        }
       }
 
       return RedirectToAction("Users");
