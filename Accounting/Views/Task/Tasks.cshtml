@@ -54,25 +54,22 @@
             </div>
           </div>
 
-          <!-- Information strip -->
+          <!-- Assignees strip -->
           <div class="display-flex">
             <div class="display-flex flex-direction-column background-color-darkcyan padding-left-5px padding-right-5px">
               <div class="flex-1"></div>
-              <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">information:</a>
+              <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">assignees:</a>
               <div class="flex-1"></div>
             </div>
 
-            <!-- Assigned users -->
-            <div class="display-flex flex-direction-row background-color-darkcyan padding-right-5px padding-left-5px border-radius-5px margin-left-2px">
+            <!-- Assignees list -->
+            <div class="display-flex flex-direction-row margin-left-2px">
               <div class="display-flex">
-                <span class="font-size-16px font-Roboto color-white text-decoration-none margin-right-5px">
-                  Assigned:
-                </span>
                 <template v-if="toDo.users && toDo.users.length">
                   <a v-for="user in toDo.users"
                      :key="user.userID"
                      :href="`/u/details/${user.userID}`"
-                     class="font-size-16px font-Roboto color-white text-decoration-none border-radius-2px margin-sides-2px padding-sides-2px">
+                     class="font-size-16px font-Roboto color-white background-color-darkcyan text-decoration-none border-radius-5px border-1px-solid-white margin-sides-2px padding-sides-5px padding-top-bottom-1px">
                     {{ user.firstName }} {{ user.lastName }}
                   </a>
                 </template>
