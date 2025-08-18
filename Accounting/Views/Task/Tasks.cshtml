@@ -13,7 +13,6 @@
 
 <template id="todo-template">
   <div class="background-color-antiquewhite">
-    <!-- Single row for the task -->
     <div class="display-flex border-bottom-1px-solid-lightgray padding-top-bottom-2px"
          :data-to-do-id="toDo.toDoID"
          draggable="true"
@@ -24,12 +23,11 @@
 
       <!-- Left: +/- toggle, title -->
       <div class="display-flex flex-1 align-items-center">
-        <!-- Expand/collapse toggle exactly like Accounts -->
         <a v-if="toDo.children && toDo.children.length"
            href="#"
            class="margin-right-5px text-decoration-none"
            @@click.prevent="toggleChildren">
-          <span v-if="state.childrenExpanded">-</span>
+          <span v-if="childrenExpanded">-</span>
           <span v-else>+</span>
         </a>
 
@@ -39,8 +37,8 @@
           {{ toDo.title }}
         </a>
 
-        <!-- Options / Information panel (visible when selected) -->
-        <div v-if="state.optionsExpanded" class="display-flex flex-direction-column margin-left-5px">
+        <!-- Options / Information panel (visible when this node is the globally selected one) -->
+        <div v-if="optionsExpanded" class="display-flex flex-direction-column margin-left-5px">
           <!-- Options strip -->
           <div class="display-flex margin-bottom-2px">
             <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
@@ -66,7 +64,7 @@
 
             <!-- Assigned users -->
             <div class="display-flex flex-direction-row background-color-darkcyan padding-right-5px padding-left-5px border-radius-5px margin-left-2px">
-              <div class="display-flex align-items-center">
+              <div class="display-flex">
                 <span class="font-size-16px font-Roboto color-white text-decoration-none margin-right-5px">
                   Assigned:
                 </span>
@@ -74,7 +72,7 @@
                   <a v-for="user in toDo.users"
                      :key="user.userID"
                      :href="`/u/details/${user.userID}`"
-                     class="font-size-16px font-Roboto color-white text-decoration-none border-1px-solid-white border-radius-2px margin-sides-2px padding-sides-2px">
+                     class="font-size-16px font-Roboto color-white text-decoration-none border-radius-2px margin-sides-2px padding-sides-2px">
                     {{ user.firstName }} {{ user.lastName }}
                   </a>
                 </template>
@@ -87,11 +85,11 @@
         </div>
       </div>
 
-      <!-- Right: status (aligned right), clickable to change -->
-      <div class="display-flex align-items-center">
+      <!-- Right: status -->
+      <div class="display-flex">
         <to-do-status-component v-if="availableStatuses && availableStatuses.length"
                                 :to-do="toDo"
-                                :status="state.status"
+                                :status="statusLower"
                                 :available-statuses="availableStatuses"
                                 :key="toDo.toDoID"
                                 @@status-changed="onStatusChanged">
@@ -100,12 +98,14 @@
     </div>
 
     <!-- Children -->
-    <div v-if="state.childrenExpanded && toDo.children && toDo.children.length" class="margin-left-25px">
+    <div v-if="childrenExpanded && toDo.children && toDo.children.length" class="margin-left-25px">
       <template v-for="child in toDo.children" :key="child.toDoID">
         <to-do :to-do="child"
                :available-statuses="availableStatuses"
-               @@todo-clicked="onChildClicked"
-               @@request-refresh-branch="onRequestRefreshBranch">
+               :selected-id="selectedId"
+               :expanded-path="expandedPath"
+               @@todo-clicked="forwardClicked"
+               @@request-refresh-branch="forwardRefresh">
         </to-do>
       </template>
     </div>
@@ -149,7 +149,9 @@
     <template v-for="toDo in toDos" :key="toDo.toDoID">
       <to-do :to-do="toDo"
              :available-statuses="availableStatuses"
-             @@todo-clicked="onRootClicked"
+             :selected-id="selectedToDoId"
+             :expanded-path="expandedPath"
+             @@todo-clicked="onNodeClicked"
              @@request-refresh-branch="refreshBranch">
       </to-do>
     </template>
@@ -192,7 +194,6 @@
           if (!resp.ok) {
             console.error('Failed to update status');
           }
-          // Update immediately in UI
           this.internalStatus = (newStatus || '').toLowerCase();
           this.$emit('status-changed', { toDoId, status: this.internalStatus });
         } catch (e) {
@@ -210,34 +211,52 @@
   const ToDo = {
     name: 'to-do',
     template: '#todo-template',
-    props: ['toDo', 'availableStatuses'],
+    props: ['toDo', 'availableStatuses', 'selectedId', 'expandedPath'],
     components: {
       'to-do-status-component': ToDoStatusComponent
     },
     data() {
       return {
-        state: {
-          childrenExpanded: true,
-          optionsExpanded: false,
-          status: (this.toDo.status || '').toLowerCase(),
-        }
+        localChildrenExpanded: false // default collapsed for every node
       };
     },
-    methods: {
-      toggleChildren() {
-        this.state.childrenExpanded = !this.state.childrenExpanded;
+    computed: {
+      // Determine if this node should show options/info (selected)
+      optionsExpanded() {
+        return this.selectedId === this.toDo.toDoID;
       },
+      // Determine children expansion:
+      // - expanded if this.toDo is in the expanded path (ancestors of selection) OR local toggle says expanded
+      // - root-level collapse rule handled at root by setting expandedPath accordingly
+      childrenExpanded() {
+        const inPath = Array.isArray(this.expandedPath) && this.expandedPath.includes(this.toDo.toDoID);
+        return inPath || this.localChildrenExpanded;
+      },
+      statusLower() {
+        return (this.toDo.status || '').toLowerCase();
+      }
+    },
+    methods: {
+      // Clicking the title selects this node. Root will compute expandedPath so that only ancestors
+      // of the selected node expand and all others collapse; clicking the same selected node again
+      // collapses everything to roots-only (no expandedPath).
       handleToDoClick() {
-        this.state.optionsExpanded = !this.state.optionsExpanded;
         this.$emit('todo-clicked', this.toDo.toDoID);
       },
+      // +/- toggle only affects this node's local collapsed state when it's present in expandedPath.
+      // If the node is in expandedPath, user can manually collapse/expand it; if not in path and user expands it,
+      // it will expand its children locally until selection changes.
+      toggleChildren() {
+        this.localChildrenExpanded = !this.localChildrenExpanded;
+      },
+
       onStatusChanged({ toDoId, status }) {
         if (toDoId === this.toDo.toDoID) {
-          this.state.status = status; // reflect immediately
+          this.toDo.status = status;
         }
       },
 
-      // Drag-and-drop handlers
+      // Drag-and-drop
       beginDraggingToDo(event, toDo) {
         this.$root.draggedToDo = toDo;
         this.$root.originalParent = this.findParentOf(toDo.toDoID, this.$root.toDos) || null;
@@ -267,7 +286,6 @@
           return;
         }
 
-        // Guard: prevent dropping onto a descendant to avoid cycles client-side
         if (this.isDescendant(newParentId, draggedToDoId)) {
           console.warn('Blocked dropping onto a descendant to avoid cycle.');
           this.endDraggingToDo();
@@ -277,17 +295,10 @@
         const updated = await this.updateToDoParentOnServer(draggedToDoId, newParentId);
 
         if (updated) {
-          // Remove dragged from current parent in UI
           this.removeDraggedFromUI(draggedToDoId, this.$root.toDos);
-          // Refresh drop target's children from server
           await this.updateToDoChildrenFromServer(dropTarget);
-          // Ensure drop target expands to show the newly added child
-          if (!(dropTarget.children && dropTarget.children.length)) {
-            dropTarget.children = [];
-          }
-          if (!this.state.childrenExpanded && dropTarget.toDoID === this.toDo.toDoID) {
-            this.state.childrenExpanded = true;
-          }
+          // Ensure the drop target shows its children after successful drop
+          this.localChildrenExpanded = true;
         }
 
         this.endDraggingToDo();
@@ -296,7 +307,6 @@
         this.$root.draggedToDo = null;
         this.$root.potentialParent = null;
       },
-
       async updateToDoParentOnServer(draggedToDoId, newParentId) {
         try {
           const response = await fetch('/api/t/update-todo-parent', {
@@ -310,7 +320,7 @@
             try {
               const data = await response.json();
               msg = data?.error || msg;
-            } catch { /* ignore */ }
+            } catch {}
             console.error('Failed to update parent:', msg);
             return false;
           }
@@ -320,7 +330,6 @@
           return false;
         }
       },
-
       async updateToDoChildrenFromServer(parentToDo) {
         try {
           const childrenResponse = await fetch(`/api/t/get-todo-children/${parentToDo.toDoID}`);
@@ -332,12 +341,10 @@
         }
       },
 
-      // Helpers
+      // Utilities
       isDescendant(potentialAncestorId, potentialDescendantId) {
-        // Returns true if potentialAncestorId exists within the subtree of potentialDescendantId
         const node = this.findNodeById(potentialDescendantId, this.$root.toDos);
         if (!node) return false;
-
         const stack = [...(node.children || [])];
         while (stack.length) {
           const current = stack.pop();
@@ -384,10 +391,11 @@
         return false;
       },
 
-      onChildClicked(toDoId) {
-        this.$emit('todo-clicked', toDoId);
+      // Bubble events upward
+      forwardClicked(id) {
+        this.$emit('todo-clicked', id);
       },
-      onRequestRefreshBranch(parentId) {
+      forwardRefresh(parentId) {
         this.$emit('request-refresh-branch', parentId);
       }
     }
@@ -404,7 +412,8 @@
         availableStatuses: @Html.Raw(Json.Serialize(Model.AvailableStatuses ?? new List<string>())),
         draggedToDo: null,
         potentialParent: null,
-        selectedToDoId: null
+        selectedToDoId: null,   // which task has options/information expanded
+        expandedPath: []        // array of IDs from root to selected to auto-expand ancestors
       };
     },
     methods: {
@@ -413,13 +422,52 @@
           const response = await fetch('/api/t/get-todos');
           const data = await response.json();
           this.toDos = (data && data.toDos) ? data.toDos : [];
+          // Ensure initial state: everything collapsed, nothing selected
+          this.selectedToDoId = null;
+          this.expandedPath = [];
         } catch (error) {
           console.error('Failed to fetch tasks:', error);
         }
       },
-      onRootClicked(toDoId) {
-        this.selectedToDoId = (this.selectedToDoId === toDoId) ? null : toDoId;
+
+      // Handle clicks to enforce "only one expanded at a time" and root-only collapse on second click
+      onNodeClicked(clickedId) {
+        if (this.selectedToDoId === clickedId) {
+          // Clicking the currently selected node collapses to roots only
+          this.selectedToDoId = null;
+          this.expandedPath = [];
+          return;
+        }
+
+        // Select new node and compute ancestors path to expand only along that path
+        this.selectedToDoId = clickedId;
+        this.expandedPath = this.computeAncestorPath(clickedId);
       },
+
+      computeAncestorPath(targetId) {
+        // Returns an array of IDs from root down to the parent(s) of the target, including the target
+        const path = [];
+        const found = this.findPathDFS(this.toDos, targetId, path);
+        return found ? path : [];
+      },
+
+      // Depth-first search to build path list [root...target]
+      findPathDFS(nodes, targetId, path) {
+        for (const n of nodes) {
+          path.push(n.toDoID);
+          if (n.toDoID === targetId) {
+            return true;
+          }
+          if (n.children && n.children.length) {
+            if (this.findPathDFS(n.children, targetId, path)) {
+              return true;
+            }
+          }
+          path.pop();
+        }
+        return false;
+      },
+
       async refreshBranch(parentId) {
         try {
           const parentNode = this.findNodeById(parentId, this.toDos);
@@ -431,6 +479,7 @@
           console.error('Failed to refresh branch:', e);
         }
       },
+
       findNodeById(id, list) {
         for (const item of list) {
           if (item.toDoID === id) return item;
