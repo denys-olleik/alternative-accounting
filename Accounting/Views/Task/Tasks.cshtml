@@ -11,77 +11,126 @@
 }
 <partial name="_H1HeaderPartial" model="@headerText" />
 
+<template id="todo-template">
+  <div class="background-color-antiquewhite">
+    <!-- Single row for the task -->
+    <div class="display-flex border-bottom-1px-solid-lightgray padding-top-bottom-2px"
+         :data-to-do-id="toDo.toDoID"
+         draggable="true"
+         @@dragstart="beginDraggingToDo($event, toDo)"
+         @@dragover="onDragOver($event, toDo)"
+         @@drop="performToDoDrop($event, toDo)"
+         @@dragend="endDraggingToDo">
+
+      <!-- Left: +/- toggle, title -->
+      <div class="display-flex flex-1 align-items-center">
+        <!-- Expand/collapse toggle exactly like Accounts -->
+        <a v-if="toDo.children && toDo.children.length"
+           href="#"
+           class="margin-right-5px text-decoration-none"
+           @@click.prevent="toggleChildren">
+          <span v-if="state.childrenExpanded">-</span>
+          <span v-else>+</span>
+        </a>
+
+        <a href="#"
+           class="text-decoration-none"
+           @@click.prevent="handleToDoClick(toDo.toDoID)">
+          {{ toDo.title }}
+        </a>
+
+        <!-- Options / Information panel (visible when selected) -->
+        <div v-if="state.optionsExpanded" class="display-flex flex-direction-column margin-left-5px">
+          <!-- Options strip -->
+          <div class="display-flex margin-bottom-2px">
+            <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+              <div class="flex-1"></div>
+              <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+              <div class="flex-1"></div>
+            </div>
+            <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+              <div class="flex-1"></div>
+              <a class="font-size-16px font-Roboto color-white text-decoration-none"
+                 :href="`/t/create?parentToDoId=${toDo.toDoID}`">add subtask</a>
+              <div class="flex-1"></div>
+            </div>
+          </div>
+
+          <!-- Information strip -->
+          <div class="display-flex">
+            <div class="display-flex flex-direction-column background-color-darkcyan padding-left-5px padding-right-5px">
+              <div class="flex-1"></div>
+              <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">information:</a>
+              <div class="flex-1"></div>
+            </div>
+
+            <!-- Assigned users -->
+            <div class="display-flex flex-direction-row background-color-darkcyan padding-right-5px padding-left-5px border-radius-5px margin-left-2px">
+              <div class="display-flex align-items-center">
+                <span class="font-size-16px font-Roboto color-white text-decoration-none margin-right-5px">
+                  Assigned:
+                </span>
+                <template v-if="toDo.users && toDo.users.length">
+                  <a v-for="user in toDo.users"
+                     :key="user.userID"
+                     :href="`/u/details/${user.userID}`"
+                     class="font-size-16px font-Roboto color-white text-decoration-none border-1px-solid-white border-radius-2px margin-sides-2px padding-sides-2px">
+                    {{ user.firstName }} {{ user.lastName }}
+                  </a>
+                </template>
+                <span v-else class="font-size-16px font-Roboto color-white text-decoration-none">
+                  none
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: status (aligned right), clickable to change -->
+      <div class="display-flex align-items-center">
+        <to-do-status-component v-if="availableStatuses && availableStatuses.length"
+                                :to-do="toDo"
+                                :status="state.status"
+                                :available-statuses="availableStatuses"
+                                :key="toDo.toDoID"
+                                @@status-changed="onStatusChanged">
+        </to-do-status-component>
+      </div>
+    </div>
+
+    <!-- Children -->
+    <div v-if="state.childrenExpanded && toDo.children && toDo.children.length" class="margin-left-25px">
+      <template v-for="child in toDo.children" :key="child.toDoID">
+        <to-do :to-do="child"
+               :available-statuses="availableStatuses"
+               @@todo-clicked="onChildClicked"
+               @@request-refresh-branch="onRequestRefreshBranch">
+        </to-do>
+      </template>
+    </div>
+  </div>
+</template>
+
 <template id="todo-status-template">
   <div>
     <a v-if="!isChangingStatus"
        :key="status"
        href="#"
-       class="text-decoration-none color-white"
+       class="text-decoration-none color-white padding-sides-5px border-radius-3px"
        @@click.prevent="startChangeStatus"
        :class="getStatusClass(status)">
       {{ status }}
     </a>
     <div v-else>
-      <a v-for="status in availableStatuses"
-         :key="status"
+      <a v-for="st in availableStatuses"
+         :key="st"
          href="#"
-         class="text-decoration-none color-white"
-         @@click.prevent="changeStatus(status)"
-         :class="getStatusClass(status)">
-        {{ status }}
+         class="text-decoration-none color-white padding-sides-5px border-radius-3px margin-right-3px"
+         @@click.prevent="changeStatus(st)"
+         :class="getStatusClass(st)">
+        {{ st }}
       </a>
-    </div>
-  </div>
-</template>
-
-<template id="todo-template">
-  <div class="display-flex margin-bottom-2px border-bottom-2px-solid-gray"
-       :data-to-do-id="toDo.toDoID"
-       :class="{ 'border-1px-solid-red': $root.potentialParent === toDo }"
-       @@dragstart="beginDraggingToDo($event, toDo)"
-       @@dragover="setPotentialParent($event, toDo)"
-       @@drop="performToDoDrop($event, toDo)"
-       @@dragend="endDraggingToDo($event, toDo)">
-    <a href="javascript:void(0)"
-       class="width-15px background-color-gray text-decoration-none text-align-center color-white"
-       @@click="toggleChildrenVisibility">
-      {{ isChildrenVisible ? '-' : '+' }}
-    </a>
-    <div class="display-flex flex-direction-column flex-1 padding-left-2px">
-      <div class="display-flex flex-direction-column border-2px-solid-gray margin-bottom-2px">
-        <div class="display-flex">
-          <div class="width-25px background-color-gray" draggable="true"></div>
-          <div class="flex-1">
-            <a :href="`/t/details/${toDo.toDoID}`" class="font-size-20px text-decoration-none">{{ toDo.title }}</a>
-          </div>
-          <div>
-            <to-do-status-component v-if="availableStatuses"
-                                   :to-do="toDo"
-                                   :status="toDo.status"
-                                   :available-statuses="availableStatuses"
-                                    :key="toDo.toDoID">
-            </to-do-status-component>
-          </div>
-        </div>
-        <div v-html="toDo.content"></div>
-        <div class="display-flex">
-          <div class="flex-1 padding-bottom-2px">
-            <a v-for="user in toDo.users"
-               :key="user.userID"
-               :href="`/u/details/${user.userID}`"
-               class="text-decoration-none border-1px-solid-darkgray border-radius-2px margin-sides-1px">
-              {{ user.firstName + ' ' + user.lastName }}
-            </a>
-          </div>
-          <a :href="`/t/create?parentToDoId=${toDo.toDoID}`" class="text-decoration-none background-color-24ACF2 color-white padding-sides-2px">Add Subtask</a>
-        </div>
-      </div>
-      <to-do v-show="isChildrenVisible"
-            v-for="subtodo in toDo.children"
-            :to-do="subtodo"
-            :available-statuses="availableStatuses"
-            :key="subtodo.toDoID">
-      </to-do>
     </div>
   </div>
 </template>
@@ -91,17 +140,20 @@
     <a asp-action="Create" asp-controller="Task" class="font-Roboto font-size-16px color-blue">Create task</a>
   </div>
   <div class="flex-1 text-align-right">
-    <a asp-action="Index" asp-controller="Home"
-       class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
   </div>
 </div>
 
-<div id="app">
-  <to-do v-for="toDo in toDos"
-        :to-do="toDo"
-        :available-statuses="availableStatuses"
-        :key="toDo.toDoID">
-  </to-do>
+<div id="app" class="display-flex flex-direction-column font-Roboto-Mono">
+  <div>
+    <template v-for="toDo in toDos" :key="toDo.toDoID">
+      <to-do :to-do="toDo"
+             :available-statuses="availableStatuses"
+             @@todo-clicked="onRootClicked"
+             @@request-refresh-branch="refreshBranch">
+      </to-do>
+    </template>
+  </div>
 </div>
 
 <script>
@@ -109,48 +161,45 @@
 
   const ToDoStatusComponent = {
     template: '#todo-status-template',
-    props: ['toDo', 'availableStatuses'],
+    props: ['toDo', 'status', 'availableStatuses'],
     data() {
       return {
         isChangingStatus: false,
-        status: this.toDo.status,
+        internalStatus: (this.status || '').toLowerCase()
       };
+    },
+    watch: {
+      status(newVal) {
+        this.internalStatus = (newVal || '').toLowerCase();
+      }
     },
     methods: {
       getStatusClass(status) {
-        if (status === 'open') {
-          return 'background-color-red';
-        } else if (status === 'closed') {
-          return 'background-color-black';
-        } else if (status === 'completed') {
-          return 'background-color-green';
-        } else {
-          return '';
-        }
+        const s = (status || this.internalStatus || '').toLowerCase();
+        if (s === 'open') return 'background-color-red';
+        if (s === 'closed') return 'background-color-black';
+        if (s === 'completed') return 'background-color-green';
+        return 'background-color-gray';
       },
-      changeStatus(status) {
+      async changeStatus(newStatus) {
         const toDoId = this.toDo.toDoID;
-
-        console.log(`Changing status of task ${toDoId} to: ${status}`);
-
-        fetch(`/api/t/update-todo-status`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ToDoId: toDoId,
-            Status: status,
-          }),
-        })
-          .then(() => {
-            this.status = status;
-            this.isChangingStatus = false;
-            console.log('Task status change initiated');
-          })
-          .catch((error) => {
-            console.error('An error occurred:', error);
+        try {
+          const resp = await fetch(`/api/t/update-todo-status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ToDoId: toDoId, Status: newStatus }),
           });
+          if (!resp.ok) {
+            console.error('Failed to update status');
+          }
+          // Update immediately in UI
+          this.internalStatus = (newStatus || '').toLowerCase();
+          this.$emit('status-changed', { toDoId, status: this.internalStatus });
+        } catch (e) {
+          console.error('An error occurred updating status:', e);
+        } finally {
+          this.isChangingStatus = false;
+        }
       },
       startChangeStatus() {
         this.isChangingStatus = true;
@@ -159,7 +208,7 @@
   };
 
   const ToDo = {
-    name: 'ToDo',
+    name: 'to-do',
     template: '#todo-template',
     props: ['toDo', 'availableStatuses'],
     components: {
@@ -167,94 +216,179 @@
     },
     data() {
       return {
-        isChildrenVisible: true,
+        state: {
+          childrenExpanded: true,
+          optionsExpanded: false,
+          status: (this.toDo.status || '').toLowerCase(),
+        }
       };
     },
     methods: {
-      toggleChildrenVisibility() {
-        this.isChildrenVisible = !this.isChildrenVisible;
+      toggleChildren() {
+        this.state.childrenExpanded = !this.state.childrenExpanded;
       },
-      preventEventPropagation(event) {
-        event.stopPropagation();
+      handleToDoClick() {
+        this.state.optionsExpanded = !this.state.optionsExpanded;
+        this.$emit('todo-clicked', this.toDo.toDoID);
       },
+      onStatusChanged({ toDoId, status }) {
+        if (toDoId === this.toDo.toDoID) {
+          this.state.status = status; // reflect immediately
+        }
+      },
+
+      // Drag-and-drop handlers
       beginDraggingToDo(event, toDo) {
-        this.preventEventPropagation(event);
         this.$root.draggedToDo = toDo;
-        this.$root.originalParent = toDo.parent || null;
-        console.log('Started dragging task with id: ', toDo.toDoID);
+        this.$root.originalParent = this.findParentOf(toDo.toDoID, this.$root.toDos) || null;
+        if (event && event.dataTransfer) {
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', String(toDo.toDoID));
+        }
       },
-      setPotentialParent(event, toDo) {
+      onDragOver(event, potentialParent) {
         event.preventDefault();
-        this.$root.potentialParent = toDo;
+        this.$root.potentialParent = potentialParent;
       },
-      async performToDoDrop(event, toDo) {
-        this.preventEventPropagation(event);
-        const draggedToDoId = this.$root.draggedToDo.toDoID;
-        console.log('Dropped task with id: ', draggedToDoId, ' onto task with id: ', toDo.idToID);
+      async performToDoDrop(event, dropTarget) {
+        event.preventDefault();
 
-        if (await this.updateToDoParentOnServer(draggedToDoId, toDo.toDoID)) {
-          this.removeDraggedToDoFromUI(draggedToDoId);
+        const dragged = this.$root.draggedToDo;
+        if (!dragged || !dropTarget) {
+          this.endDraggingToDo();
+          return;
+        }
 
-          await this.updateToDoChildrenFromServer(toDo);
+        const draggedToDoId = dragged.toDoID;
+        const newParentId = dropTarget.toDoID;
+
+        if (draggedToDoId === newParentId) {
+          this.endDraggingToDo();
+          return;
+        }
+
+        // Guard: prevent dropping onto a descendant to avoid cycles client-side
+        if (this.isDescendant(newParentId, draggedToDoId)) {
+          console.warn('Blocked dropping onto a descendant to avoid cycle.');
+          this.endDraggingToDo();
+          return;
+        }
+
+        const updated = await this.updateToDoParentOnServer(draggedToDoId, newParentId);
+
+        if (updated) {
+          // Remove dragged from current parent in UI
+          this.removeDraggedFromUI(draggedToDoId, this.$root.toDos);
+          // Refresh drop target's children from server
+          await this.updateToDoChildrenFromServer(dropTarget);
+          // Ensure drop target expands to show the newly added child
+          if (!(dropTarget.children && dropTarget.children.length)) {
+            dropTarget.children = [];
+          }
+          if (!this.state.childrenExpanded && dropTarget.toDoID === this.toDo.toDoID) {
+            this.state.childrenExpanded = true;
+          }
         }
 
         this.endDraggingToDo();
       },
-      endDraggingToDo(event, toDo) {
-        this.preventEventPropagation(event);
-        this.$root.draggedToDo = null;
-        this.$root.potentialParent = null;
-      },
-      async updateToDoParentOnServer(draggedToDoId, newParentId) {
-        const response = await fetch('/api/t/update-todo-parent', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ToDoId: draggedToDoId,
-            NewParentToDoId: newParentId
-          }),
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          console.error('An error occurred:', data.error);
-          return false;
-        }
-
-        console.log('Parent task updated successfully');
-        return true;
-      },
-      removeDraggedToDoFromUI(draggedToDoId) {
-        const removeDraggedToDo = (todos) => {
-          for (let i = 0; i < todos.length; i++) {
-            if (todos[i].toDoID === draggedToDoId) {
-              todos.splice(i, 1);
-              return true;
-            }
-
-            if (todos[i].children) {
-              if (removeDraggedToDo(todos[i].children)) {
-                return true;
-              }
-            }
-          }
-          return false;
-        };
-
-        removeDraggedToDo(this.$root.toDos);
-      },
-      async updateToDoChildrenFromServer(toDo) {
-        toDo.children = [];
-
-        const childrenResponse = await fetch(`/api/t/get-todo-children/${toDo.toDoID}`);
-        const data = await childrenResponse.json();
-        toDo.children = data;
-      },
       endDraggingToDo() {
         this.$root.draggedToDo = null;
         this.$root.potentialParent = null;
+      },
+
+      async updateToDoParentOnServer(draggedToDoId, newParentId) {
+        try {
+          const response = await fetch('/api/t/update-todo-parent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ToDoId: draggedToDoId, NewParentToDoId: newParentId }),
+          });
+
+          if (!response.ok) {
+            let msg = 'Unknown error updating parent';
+            try {
+              const data = await response.json();
+              msg = data?.error || msg;
+            } catch { /* ignore */ }
+            console.error('Failed to update parent:', msg);
+            return false;
+          }
+          return true;
+        } catch (e) {
+          console.error('Error updating parent:', e);
+          return false;
+        }
+      },
+
+      async updateToDoChildrenFromServer(parentToDo) {
+        try {
+          const childrenResponse = await fetch(`/api/t/get-todo-children/${parentToDo.toDoID}`);
+          const data = await childrenResponse.json();
+          parentToDo.children = data || [];
+          this.$emit('request-refresh-branch', parentToDo.toDoID);
+        } catch (e) {
+          console.error('Failed to refresh children:', e);
+        }
+      },
+
+      // Helpers
+      isDescendant(potentialAncestorId, potentialDescendantId) {
+        // Returns true if potentialAncestorId exists within the subtree of potentialDescendantId
+        const node = this.findNodeById(potentialDescendantId, this.$root.toDos);
+        if (!node) return false;
+
+        const stack = [...(node.children || [])];
+        while (stack.length) {
+          const current = stack.pop();
+          if (!current) continue;
+          if (current.toDoID === potentialAncestorId) return true;
+          if (current.children && current.children.length) {
+            stack.push(...current.children);
+          }
+        }
+        return false;
+      },
+      findNodeById(id, list) {
+        for (const item of list) {
+          if (item.toDoID === id) return item;
+          if (item.children && item.children.length) {
+            const found = this.findNodeById(id, item.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      },
+      findParentOf(childId, list, parent = null) {
+        for (const item of list) {
+          if (item.toDoID === childId) return parent;
+          if (item.children && item.children.length) {
+            const maybe = this.findParentOf(childId, item.children, item);
+            if (maybe) return maybe;
+          }
+        }
+        return null;
+      },
+      removeDraggedFromUI(draggedId, list) {
+        for (let i = 0; i < list.length; i++) {
+          const item = list[i];
+          if (item.toDoID === draggedId) {
+            list.splice(i, 1);
+            return true;
+          }
+          if (item.children && item.children.length) {
+            const removed = this.removeDraggedFromUI(draggedId, item.children);
+            if (removed) return true;
+          }
+        }
+        return false;
+      },
+
+      onChildClicked(toDoId) {
+        this.$emit('todo-clicked', toDoId);
+      },
+      onRequestRefreshBranch(parentId) {
+        this.$emit('request-refresh-branch', parentId);
       }
     }
   };
@@ -269,7 +403,8 @@
         toDos: [],
         availableStatuses: @Html.Raw(Json.Serialize(Model.AvailableStatuses ?? new List<string>())),
         draggedToDo: null,
-        potentialParent: null
+        potentialParent: null,
+        selectedToDoId: null
       };
     },
     methods: {
@@ -277,11 +412,34 @@
         try {
           const response = await fetch('/api/t/get-todos');
           const data = await response.json();
-          this.toDos = data.toDos;
-          //this.availableStatuses = data.toDoStatuses;
+          this.toDos = (data && data.toDos) ? data.toDos : [];
         } catch (error) {
-          console.error(error);
+          console.error('Failed to fetch tasks:', error);
         }
+      },
+      onRootClicked(toDoId) {
+        this.selectedToDoId = (this.selectedToDoId === toDoId) ? null : toDoId;
+      },
+      async refreshBranch(parentId) {
+        try {
+          const parentNode = this.findNodeById(parentId, this.toDos);
+          if (!parentNode) return;
+          const childrenResponse = await fetch(`/api/t/get-todo-children/${parentId}`);
+          const data = await childrenResponse.json();
+          parentNode.children = data || [];
+        } catch (e) {
+          console.error('Failed to refresh branch:', e);
+        }
+      },
+      findNodeById(id, list) {
+        for (const item of list) {
+          if (item.toDoID === id) return item;
+          if (item.children && item.children.length) {
+            const found = this.findNodeById(id, item.children);
+            if (found) return found;
+          }
+        }
+        return null;
       }
     },
     mounted() {
