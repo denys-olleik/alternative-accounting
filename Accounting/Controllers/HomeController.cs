@@ -22,9 +22,9 @@ namespace Accounting.Controllers
 
     public async Task<IActionResult> Index()
     {
-      if (!string.IsNullOrWhiteSpace(ConfigurationSingleton.Instance.Whitelabel))
+      if (!string.IsNullOrWhiteSpace(ConfigurationSingleton.Instance.ControllerAction))
       {
-        return WhiteLabelIndex();
+        return RedirectToAction(ConfigurationSingleton.Instance.ControllerAction);
       }
 
       Blog latestPublicPost = await _blogService.GetFirstPublicAsync();

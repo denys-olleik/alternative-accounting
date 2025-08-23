@@ -20,6 +20,7 @@ namespace Accounting.Common
     public string SpotifyClientSecret { get; set; }
     public string SpotifyBearerToken { get; set; }
     public string? Whitelabel { get; set; }
+    public string? ControllerAction { get; set; }
 
     private ConfigurationSingleton()
     {

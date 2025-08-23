@@ -117,7 +117,8 @@ namespace Accounting.Service
         string fullyQualifiedDomainName,
         string cloudApiKey = null,
         string noReplyEmailAddress = null,
-        string? whitelabel = null)
+        string? whitelabel = null,
+        string? controllerAction = null)
       {
         Secret? cloudSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Cloud, 1);
         if (cloudSecret == null)
@@ -199,6 +200,7 @@ echo 'OwnerLast={ownerLast}' | sudo tee -a /etc/environment >> /var/log/accounti
 echo 'NoReplyEmailAddress={noReplyEmailAddress}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 [ -n '{cloudApiKey}' ] && echo 'CloudApiKey={cloudApiKey}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 [ -n '{whitelabel}' ] && echo 'Whitelabel={whitelabel}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
+[ -n '{controllerAction}' ] && echo 'ControllerAction={controllerAction}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 echo 'FullyQualifiedDomainName={fullyQualifiedDomainName}' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 echo 'TenantCreated=false' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1
 echo 'UserCreated=false' | sudo tee -a /etc/environment >> /var/log/accounting/env-setup.log 2>&1

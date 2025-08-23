@@ -121,16 +121,15 @@ namespace Accounting.Controllers
       }
 
       LanguageModelService languageModelService = new LanguageModelService();
-      var (response, structuredResponse) = await languageModelService.GenerateResponse<CsvAnalysisResult>(
-        """
-    is this a CSV file and on what line is the first row of data?
+      var (response, structuredResponse) = await languageModelService.GenerateResponse<CsvAnalysisResult>("""
+        is this a CSV file and on what line is the first row of data?
 
-    example response:
-    {
-      "isCsv": true,
-      "firstDataRow": 2
-    }
-    """,
+        example response:
+        {
+          "isCsv": true,
+          "firstDataRow": 2
+        }
+        """,
         string.Join("\n", allLines.Split('\n').Take(10)),
         false,
         true

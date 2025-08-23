@@ -12,7 +12,8 @@ namespace Accounting.Models.TenantViewModels
     public string? ApplicationName { get; set; }
     public string? DefaultNoReplyEmailAddress { get; set; }
     public string? NoReplyEmailAddress { get; set; }
-    public string? Password { get; set; } 
+    public string? Password { get; set; }
+    public string? ControllerAction { get; set; }
 
     public ValidationResult? ValidationResult { get; set; } = new();
     public bool EnableTenantManagement { get; set; }

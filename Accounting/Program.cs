@@ -82,6 +82,7 @@ ConfigurationSingleton.Instance.ApplicationName =
     ? builder.Configuration["Whitelabel"]
     : builder.Configuration["ApplicationName5"];
 ConfigurationSingleton.Instance.Whitelabel = builder.Configuration["Whitelabel"];
+ConfigurationSingleton.Instance.ControllerAction = builder.Configuration["ControllerAction"];
 ConfigurationSingleton.Instance.DatabasePassword = builder.Configuration["DatabasePassword"];
 ConfigurationSingleton.Instance.SpotifyClientID = builder.Configuration["SpotifyClientID"];
 ConfigurationSingleton.Instance.SpotifyClientSecret = builder.Configuration["SpotifyClientSecret"];
@@ -221,12 +222,22 @@ app.Use(async (context, next) =>
   log.StatusCode = context.Response.StatusCode.ToString();
   log.ResponseLengthBytes = responseLength;
 
-
   int rowsUpdated = await logService.UpdateResponseAsync(log.RequestLogID, context.Response.StatusCode.ToString(), responseLength);
 });
 
+var controllerAction = ConfigurationSingleton.Instance.ControllerAction;
+if (!string.IsNullOrWhiteSpace(controllerAction))
+{
+  // Map the root path "/" directly to Home/{ControllerAction} (no redirect)
+  app.MapControllerRoute(
+    name: "whitelabel-root",
+    pattern: "",
+    defaults: new { controller = "Home", action = controllerAction });
+}
+
+// Default MVC route as fallback
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+  name: "default",
+  pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

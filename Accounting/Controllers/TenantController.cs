@@ -730,7 +730,7 @@ namespace Accounting.Controllers
               model.EnableTenantManagement, 
               model.FullyQualifiedDomainName,
               cloudSecret.Value,
-              noReplySecret.Value, whitelabel: model.ApplicationName);
+              noReplySecret.Value, whitelabel: model.ApplicationName, controllerAction: model.ControllerAction);
           }
           catch (ApiException e)
           {
