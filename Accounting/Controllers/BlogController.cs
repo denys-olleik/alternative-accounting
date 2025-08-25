@@ -76,9 +76,16 @@ namespace Accounting.Controllers
     [HttpGet("view/{id}")]
     public async Task<IActionResult> View(string id)
     {
-      Blog blog;
+      Blog blog = null;
 
-      blog = await _blogService.GetByPublicIdAsync(id);
+      if (int.TryParse(id, out var numericId))
+      {
+        blog = await _blogService.GetAsync(numericId);
+      }
+      else
+      {
+        blog = await _blogService.GetByPublicIdAsync(id);
+      }
 
       if (blog == null)
       {
