@@ -1,10 +1,8 @@
 ﻿using Accounting.Business;
 using Accounting.CustomAttributes;
-using Accounting.Database.Interfaces;
 using Accounting.Models.Item;
 using Accounting.Models.ItemViewModels;
 using Accounting.Service;
-using Accounting.Validators;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +25,21 @@ namespace Accounting.Controllers
     {
       _accountService = new AccountService(requestContext.DatabaseName, requestContext.DatabasePassword);
       _itemService = new ItemService(requestContext.DatabaseName, requestContext.DatabasePassword);
+    }
+
+    [HttpGet]
+    [Route("update/{itemId}")]
+    public async Task<IActionResult> Update(int itemId)
+    {
+      Item item = await _itemService.GetAsync(itemId, GetOrganizationId()!.Value);
+
+      if (item == null)
+        return NotFound();
+
+      return View(new UpdateItemViewModel
+      {
+
+      });
     }
 
     [HttpGet]
@@ -381,6 +394,11 @@ namespace Accounting.Controllers
 
 namespace Accounting.Models.Item
 {
+  public class UpdateItemViewModel
+  {
+
+  }
+
   public class ItemViewModel
   {
     public int ItemID { get; set; }
