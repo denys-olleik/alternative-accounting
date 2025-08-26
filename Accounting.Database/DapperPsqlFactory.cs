@@ -2612,8 +2612,8 @@ namespace Accounting.Database
         p.Add("@ItemType", entity.ItemType);
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
-        p.Add("@RevenueAccountId", entity.RevenueAccountId);
-        p.Add("@AssetsAccountId", entity.AssetsAccountId);
+        p.Add("@CreditAccountId", entity.CreditAccountId);
+        p.Add("@DebitAccountId", entity.DebitAccountId);
         p.Add("@ParentItemId", entity.ParentItemId);
 
         IEnumerable<Item> result;
@@ -2621,10 +2621,10 @@ namespace Accounting.Database
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           result = await con.QueryAsync<Item>("""
-        INSERT INTO "Item" ("Name", "Description", "Quantity", "AssemblyQuantity", "SellFor", "InventoryMethod", "ItemType", "RevenueAccountId", "AssetsAccountId", "CreatedById", "OrganizationId", "ParentItemId")
-        VALUES (@Name, @Description, @Quantity, @AssemblyQuantity, @SellFor, @InventoryMethod, @ItemType, @RevenueAccountId, @AssetsAccountId, @CreatedById, @OrganizationId, @ParentItemId)
-        RETURNING *;
-        """, p);
+            INSERT INTO "Item" ("Name", "Description", "Quantity", "AssemblyQuantity", "SellFor", "InventoryMethod", "ItemType", "CreditAccountId", "DebitAccountId", "CreatedById", "OrganizationId", "ParentItemId")
+            VALUES (@Name, @Description, @Quantity, @AssemblyQuantity, @SellFor, @InventoryMethod, @ItemType, @CreditAccountId, @DebitAccountId, @CreatedById, @OrganizationId, @ParentItemId)
+            RETURNING *;
+            """, p);
         }
 
         return result.Single();

@@ -14,8 +14,8 @@ namespace Accounting.Business
     public int? UnitTypeId { get; set; }
     public string? ItemType { get; set; }
     public string InventoryMethod { get; set; } = InventoryMethods.FIFO;
-    public int? RevenueAccountId { get; set; }
-    public int? AssetsAccountId { get; set; }
+    public int? CreditAccountId { get; set; }
+    public int? DebitAccountId { get; set; }
     public int? ParentItemId { get; set; }
     public DateTime Created { get; set; }
     public int CreatedById { get; set; }

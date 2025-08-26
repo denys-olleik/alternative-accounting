@@ -703,8 +703,8 @@ namespace Accounting.Controllers
         ItemID = x.ItemID,
         Name = x.Name,
         Description = x.Description,
-        RevenueAccountId = x.RevenueAccountId,
-        AssetsAccountId = x.AssetsAccountId,
+        RevenueAccountId = x.CreditAccountId,
+        AssetsAccountId = x.DebitAccountId,
         Quantity = x.Quantity,
         SellFor = x.SellFor,
       }).ToList();

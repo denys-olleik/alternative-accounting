@@ -77,7 +77,7 @@ values
 ('Attention Shipping', '456 Main St.', 'Anytown', 'CA', '12345', 'USA', 10, 1, 1);
 
  -- Inserting realistic Products for a manufacturing company
-INSERT INTO "Item" ("Name", "Description", "ItemType", "RevenueAccountId", "AssetsAccountId", "CreatedById", "OrganizationId") VALUES
+INSERT INTO "Item" ("Name", "Description", "ItemType", "CreditAccountId", "DebitAccountId", "CreatedById", "OrganizationId") VALUES
 ('Industrial Pump', 'High-capacity industrial water pump for manufacturing and agricultural applications.', 'product', 4, 1, 1, 1),
 ('CNC Milling Machine', 'Precision CNC milling machine for metalworking and fabrication.', 'product', 4, 1, 1, 1),
 ('Hydraulic Press', '20-ton hydraulic press for shaping and forging metal components.', 'product', 4, 1, 1, 1),
@@ -85,7 +85,7 @@ INSERT INTO "Item" ("Name", "Description", "ItemType", "RevenueAccountId", "Asse
 ('Electric Motor', 'High-efficiency electric motor for industrial machinery.', 'product', 4, 1, 1, 1);
 
 -- Inserting realistic Services for a manufacturing company
-INSERT INTO "Item" ("Name", "Description", "ItemType", "RevenueAccountId", "AssetsAccountId", "CreatedById", "OrganizationId") VALUES
+INSERT INTO "Item" ("Name", "Description", "ItemType", "CreditAccountId", "DebitAccountId", "CreatedById", "OrganizationId") VALUES
 ('Machine Maintenance', 'Comprehensive maintenance service for industrial machinery, including diagnostics, repair, and parts replacement.', 'service', 3, 1, 1, 1),
 ('Custom Fabrication', 'Custom fabrication services for metal components based on client specifications.', 'service', 3, 1, 1, 1),
 ('Consulting Services', 'Expert consulting on manufacturing process optimization and equipment selection.', 'service', 3, 1, 1, 1),
