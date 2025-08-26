@@ -19,20 +19,10 @@
   </select>
 </template>
 
-<template id="account-template">
-  <a href="#" @@click.prevent="selectAccount(account.accountID)"
-     :class="{
-       'background-color-blue color-white':
-         account.accountID === $parent.selectedRevenueAccountId || account.accountID === $parent.selectedAssetsAccountId
-     }">
-    <div>{{ account.name }}</div>
-  </a>
-</template>
-
 <form id="app" asp-action="Create" asp-controller="Item" method="post" class="display-flex flex-direction-column margin-bottom-5px">
   <input type="hidden" asp-for="ParentItemId" />
-  <input type="hidden" name="SelectedRevenueAccountId" v-model="selectedRevenueAccountId" />
-  <input type="hidden" name="SelectedAssetsAccountId" v-model="selectedAssetsAccountId" />
+  <input type="hidden" name="SelectedCreditAccountId" v-model="selectedCreditAccountId"  />
+  <input type="hidden" name="SelectedDebitAccountId" v-model="selectedDebitAccountId" />
 
   @if (Model.ParentItemId != null)
   {
@@ -99,28 +89,34 @@
 
   <div class="margin-bottom-5px background-color-antiquewhite">
     <label>Increase (credit) this revenue account during revenue recognition for this item.</label>
-    <div class="display-flex flex-direction-column">
-      <account v-for="account in accounts.filter(account => account.type === '@Accounting.Business.Account.AccountTypeConstants.Revenue')"
-               :key="account.accountID"
-               :account="account"
-               @@select-account="updateSelectedAccountId">
-      </account>
-    </div>
+    <universal-selector :items="accounts"
+                        :selected-items="selectedCreditAccount"
+                        label="Credit account"
+                        placeholder="Search accounts"
+                        item-key="accountID"
+                        item-label="name"
+                        :single-select="true"
+                        @@update:selected-items="selectedCreditAccount = $event">
+    </universal-selector>
   </div>
 
   <div class="margin-bottom-5px background-color-antiquewhite">
     <label>Increase (debit) this asset account, usually accounts-receivable, check-in-transit, cash, etc.</label>
-    <div class="display-flex flex-direction-column">
-      <account v-for="account in accounts.filter(account => account.type === '@Accounting.Business.Account.AccountTypeConstants.Assets')"
-               :key="account.accountID"
-               :account="account"
-               @@select-account="updateSelectedAccountId">
-      </account>
-    </div>
+    <universal-selector :items="accounts"
+                        :selected-items="selectedDebitAccount"
+                        label="Debit account"
+                        placeholder="Search accounts"
+                        item-key="accountID"
+                        item-label="name"
+                        :single-select="true"
+                        @@update:selected-items="selectedDebitAccount = $event">
+    </universal-selector>
   </div>
 
   <button type="submit" class="full-width-regular-button">Create product or service</button>
 </form>
+
+<script src="~/js/UniversalSelector.js" asp-append-version="true"></script>
 
 @if (Model != null && Model.ValidationResult != null)
 {
@@ -137,24 +133,7 @@
 <script>
   const { createApp } = Vue;
 
-  const Account = {
-    name: 'Account',
-    template: '#account-template',
-    props: ['account'],
-    methods: {
-      selectAccount(accountID) {
-        const accountType = this.account.type;
-        const isAlreadySelected = this.$parent.selectedRevenueAccountId === accountID ||
-          this.$parent.selectedAssetsAccountId === accountID;
-        if (isAlreadySelected) {
-          this.$emit('select-account', null, accountType);
-        } else {
-          this.$emit('select-account', accountID, accountType);
-        }
-      }
-    }
-  };
-
+  // Keep ItemTypeSelector as-is
   const ItemTypeSelector = {
     name: 'ItemTypeSelector',
     template: '#item-type-selector-template',
@@ -166,42 +145,76 @@
     },
   };
 
-  const app = createApp({
-    components: {
-      'account': Account,
-      'item-type-selector': ItemTypeSelector,
-    },
-    data() {
-      return {
-        accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
-        selectedAssetsAccountId: @Html.Raw(Model.SelectedAssetsAccountId.HasValue ? Model.SelectedAssetsAccountId.Value.ToString() : "null"),
-        selectedRevenueAccountId: @Html.Raw(Model.SelectedRevenueAccountId.HasValue ? Model.SelectedRevenueAccountId.Value.ToString() : "null"),
-        itemTypes: @Html.Raw(Json.Serialize(Model.AvailableItemTypes)),
-        selectedItemType: '@Model.SelectedItemType' || '',
-        sellFor: 0.0,
-        parentItemId: @Html.Raw(Model.ParentItemId.HasValue ? Model.ParentItemId.Value.ToString() : "null"),
-      }
-    },
-    methods: {
-      updateSelectedAccountId(accountId, accountType) {
-        if (accountId === null) {
-          if (accountType === '@Accounting.Business.Account.AccountTypeConstants.Revenue') {
-            this.selectedRevenueAccountId = null;
-          } else if (accountType === '@Accounting.Business.Account.AccountTypeConstants.Assets') {
-            this.selectedAssetsAccountId = null;
+  // Load UniversalSelector, then create and mount the app so the component is available
+  createUniversalSelectorComponent().then(UniversalSelector => {
+    const app = createApp({
+      components: {
+        'item-type-selector': ItemTypeSelector,
+        'universal-selector': UniversalSelector
+      },
+      data() {
+        return {
+          accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
+          // Initialize arrays with IDs only (we'll resolve to full objects in mounted)
+          selectedCreditAccount: @Html.Raw(Model.SelectedDebitAccountId.HasValue ? $"[{{\"accountID\": {Model.SelectedDebitAccountId.Value} }}]" : "[]"),
+          selectedDebitAccount: @Html.Raw(Model.SelectedCreditAccountId.HasValue ? $"[{{\"accountID\": {Model.SelectedCreditAccountId.Value} }}]" : "[]"),
+          itemTypes: @Html.Raw(Json.Serialize(Model.AvailableItemTypes)),
+          selectedItemType: '@Model.SelectedItemType' || '',
+          sellFor: 0.0,
+          parentItemId: @Html.Raw(Model.ParentItemId.HasValue ? Model.ParentItemId.Value.ToString() : "null"),
+          // Hidden-field mirrors (will be set via watchers/computed below)
+          selectedDebitAccountId: @Html.Raw(Model.SelectedDebitAccountId.HasValue ? Model.SelectedDebitAccountId.Value.ToString() : "null"),
+          selectedCreditAccountId: @Html.Raw(Model.SelectedCreditAccountId.HasValue ? Model.SelectedCreditAccountId.Value.ToString() : "null"),
+        };
+      },
+      computed: {
+        // If you prefer, you can bind hidden inputs directly to these:
+        creditAccountId() {
+          return this.selectedCreditAccount?.[0]?.accountID ?? null;
+        },
+        debitAccountId() {
+          return this.selectedDebitAccount?.[0]?.accountID ?? null;
+        }
+      },
+      watch: {
+        // Keep hidden field values in sync with selector arrays
+        selectedCreditAccount: {
+          immediate: true,
+          handler(val) {
+            this.selectedDebitAccountId = val?.[0]?.accountID ?? null;
           }
-        } else {
-          const account = this.accounts.find(a => a.accountID === accountId);
-
-          if (account.type === '@Accounting.Business.Account.AccountTypeConstants.Revenue') {
-            this.selectedRevenueAccountId = this.selectedRevenueAccountId === accountId ? null : accountId;
-          } else if (account.type === '@Accounting.Business.Account.AccountTypeConstants.Assets') {
-            this.selectedAssetsAccountId = this.selectedAssetsAccountId === accountId ? null : accountId;
+        },
+        selectedDebitAccount: {
+          immediate: true,
+          handler(val) {
+            this.selectedCreditAccountId = val?.[0]?.accountID ?? null;
           }
         }
-      }
-    },
-  });
+      },
+      methods: {
+        // Resolve initial ID-only entries to full account objects so UniversalSelector can display labels
+        resolveInitialSelections() {
+          const byId = new Map(this.accounts.map(a => [a.accountID, a]));
 
-  app.mount('#app');
+          if (this.selectedCreditAccount.length === 1) {
+            const id = this.selectedCreditAccount[0]?.accountID;
+            const obj = byId.get(id);
+            this.selectedCreditAccount = obj ? [obj] : [];
+          }
+
+          if (this.selectedDebitAccount.length === 1) {
+            const id = this.selectedDebitAccount[0]?.accountID;
+            const obj = byId.get(id);
+            this.selectedDebitAccount = obj ? [obj] : [];
+          }
+        }
+      },
+      mounted() {
+        // Convert initial ID placeholders into full objects for display
+        this.resolveInitialSelections();
+      }
+    });
+
+    app.mount('#app');
+  });
 </script>

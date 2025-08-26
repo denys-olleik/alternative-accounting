@@ -210,8 +210,8 @@ namespace Accounting.Controllers
         Quantity = model.Quantity,
         AssemblyQuantity = model.AssemblyQuantity,
         SellFor = model.SellFor,
-        RevenueAccountId = model.SelectedRevenueAccountId,
-        AssetsAccountId = model.SelectedAssetsAccountId,
+        RevenueAccountId = model.SelectedDebitAccountId,
+        AssetsAccountId = model.SelectedCreditAccountId,
         ItemType = model.SelectedItemType,
         InventoryMethod = model.SelectedInventoryMethod!,
         ParentItemId = model.ParentItemId,
@@ -426,8 +426,8 @@ namespace Accounting.Models.Item
     public decimal SellFor { get; set; }
     public int? ParentItemId { get; set; }
     public ItemViewModel? ParentItem { get; set; }
-    public int? SelectedAssetsAccountId { get; set; }
-    public int? SelectedRevenueAccountId { get; set; }
+    public int? SelectedCreditAccountId { get; set; }
+    public int? SelectedDebitAccountId { get; set; }
 
     public List<string> AvailableItemTypes { get; set; } = new List<string>();
     public string? SelectedItemType { get; set; }
@@ -467,11 +467,11 @@ namespace Accounting.Models.Item
         RuleFor(x => x.SellFor)
             .GreaterThanOrEqualTo(0).WithMessage("Sell for cannot be a negative number.");
 
-        RuleFor(x => x.SelectedRevenueAccountId)
+        RuleFor(x => x.SelectedDebitAccountId)
             .NotEmpty().WithMessage("Revenue account is required.")
             .When(x => x.SellFor > 0);
 
-        RuleFor(x => x.SelectedAssetsAccountId)
+        RuleFor(x => x.SelectedCreditAccountId)
             .NotEmpty().WithMessage("Asset account is required.")
             .When(x => x.SellFor > 0);
 

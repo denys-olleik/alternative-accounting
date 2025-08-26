@@ -34,6 +34,14 @@ function createUniversalSelectorComponent() {
       itemLabel: {
         type: String,
         default: 'name'
+      },
+      singleSelect: {
+        type: Boolean,
+        default: false
+      },
+      keepOpenOnSelect: {
+        type: Boolean,
+        default: false
       }
     },
     emits: ['update:selectedItems'],
@@ -99,15 +107,38 @@ function createUniversalSelectorComponent() {
         }
       },
       selectItem(item) {
-        const updated = [...this.selectedItems, item];
+        let updated;
+        if (this.singleSelect) {
+          updated = [item];
+        } else {
+          updated = [...this.selectedItems, item];
+        }
         this.$emit('update:selectedItems', updated);
         this.inputText = '';
-        this.dropdownVisible = false;
         this.preselectedIndex = 0;
+
+        // In singleSelect mode we always close; otherwise honor keepOpenOnSelect
+        if (this.singleSelect || !this.keepOpenOnSelect) {
+          this.dropdownVisible = false;
+        }
       },
       removeItem(item) {
         const updated = this.selectedItems.filter(sel => this.getItemKey(sel) !== this.getItemKey(item));
         this.$emit('update:selectedItems', updated);
+      }
+    },
+    watch: {
+      // If singleSelect becomes true and there are multiple selected, keep only the first
+      singleSelect(newVal) {
+        if (newVal && this.selectedItems && this.selectedItems.length > 1) {
+          this.$emit('update:selectedItems', [this.selectedItems[0]]);
+        }
+      }
+    },
+    mounted() {
+      // If singleSelect is true and there are multiple selected on mount, normalize to one
+      if (this.singleSelect && this.selectedItems && this.selectedItems.length > 1) {
+        this.$emit('update:selectedItems', [this.selectedItems[0]]);
       }
     }
   }));
