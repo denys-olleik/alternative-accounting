@@ -254,7 +254,8 @@ namespace Accounting.Controllers
 
       if (ConfigurationSingleton.Instance.TenantManagement &&
           additionalRoles != null &&
-          additionalRoles.Contains(UserRoleClaimConstants.TenantManager))
+          additionalRoles.Contains(UserRoleClaimConstants.TenantManager) &&
+          DatabaseThing.DatabaseConstants.DatabaseName == databaseName)
       {
         roles.Add(ConfigurationSingleton.ConfigurationConstants.TenantManagement);
       }
