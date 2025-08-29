@@ -285,6 +285,21 @@ CREATE TABLE "Inventory"
 	UNIQUE ("ItemId", "LocationId")
 );
 
+CREATE TABLE "Tax"
+(
+	"TaxID" SERIAL PRIMARY KEY NOT NULL,
+  "InventoryId" INT NULL,
+  "AccountId" INT NULL,
+	"Name" VARCHAR(100) NOT NULL,
+	"Description" VARCHAR(1000) NULL,
+	"Rate" DECIMAL(5,2) NOT NULL,
+	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+	"CreatedById" INT NOT NULL,
+	"OrganizationId" INT NOT NULL,
+	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
+);
+
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "InventoryAdjustment";'
 CREATE TABLE "InventoryAdjustment"
 (
