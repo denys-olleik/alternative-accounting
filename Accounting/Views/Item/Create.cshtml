@@ -21,7 +21,7 @@
 
 <form id="app" asp-action="Create" asp-controller="Item" method="post" class="display-flex flex-direction-column margin-bottom-5px">
   <input type="hidden" asp-for="ParentItemId" />
-  <input type="hidden" name="SelectedCreditAccountId" v-model="selectedCreditAccountId"  />
+  <input type="hidden" name="SelectedCreditAccountId" v-model="selectedCreditAccountId" />
   <input type="hidden" name="SelectedDebitAccountId" v-model="selectedDebitAccountId" />
 
   @if (Model.ParentItemId != null)
@@ -42,7 +42,7 @@
     <label asp-for="Name" class="background-color-antiquewhite"></label>
     <input asp-for="Name"
            class="font-size-20px"
-           maxlength="100" autocomplete="off"/>
+           maxlength="100" autocomplete="off" />
   </div>
   <div class="display-flex flex-direction-column margin-bottom-5px">
     <label asp-for="Description" class="background-color-antiquewhite"></label>
@@ -54,10 +54,10 @@
     <input asp-for="Quantity" type="number" step="0.01" class="font-size-20px" />
   </div>
 
-	<div class="display-flex flex-direction-column margin-bottom-5px">
-		<label asp-for="AssemblyQuantity" class="background-color-antiquewhite">Assembly quantity</label>
-		<input asp-for="AssemblyQuantity" type="number" step="0.01" class="font-size-20px" />
-	</div>
+  <div class="display-flex flex-direction-column margin-bottom-5px">
+    <label asp-for="AssemblyQuantity" class="background-color-antiquewhite">Assembly quantity</label>
+    <input asp-for="AssemblyQuantity" type="number" step="0.01" class="font-size-20px" />
+  </div>
 
   <div class="display-flex flex-1 flex-direction-column margin-bottom-5px">
     <label for="SellFor" class="background-color-antiquewhite">Sell for</label>

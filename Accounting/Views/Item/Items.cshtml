@@ -94,15 +94,17 @@
 									<tr>
 										<th class="text-align-left padding-right-20px">Location</th>
 										<th class="text-align-right">Quantity</th>
+										<th class="text-align-right">Price</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr v-if="!item.inventories || item.inventories.length === 0">
-										<td colspan="2" class="text-align-center">empty</td>
+										<td colspan="2" class="text-align-center"><a></a></td>
 									</tr>
 									<tr v-for="inventory in item.inventories" :key="inventory.inventoryID">
 										<td class="padding-right-20px">{{ inventory.location.name }}</td>
 										<td class="text-align-right">{{ inventory.quantity }}</td>
+										<td class="text-align-right">test</td>
 									</tr>
 								</tbody>
 							</table>
