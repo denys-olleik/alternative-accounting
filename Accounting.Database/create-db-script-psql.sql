@@ -285,7 +285,7 @@ CREATE TABLE "Inventory"
 	UNIQUE ("ItemId", "LocationId")
 );
 
-CREATE TABLE "Tax"
+CREATE TABLE "TaxInventoryAccount"
 (
 	"TaxID" SERIAL PRIMARY KEY NOT NULL,
   "InventoryId" INT NULL,

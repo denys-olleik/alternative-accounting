@@ -30,5 +30,21 @@ namespace Accounting.Controllers
 
       return View(vm);
     }
+
+    [Route("create")]
+    [HttpGet]
+    public IActionResult Create()
+    {
+      return View();
+    }
+
+    [Route("create")]
+    [HttpPost]
+    public IActionResult Create(CreateTaxViewModel vm)
+    {
+
+
+      return RedirectToAction("Taxes");
+    }
   }
 }
