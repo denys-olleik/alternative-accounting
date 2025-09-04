@@ -99,7 +99,7 @@
 								</thead>
 								<tbody>
 									<tr v-if="!item.inventories || item.inventories.length === 0">
-										<td colspan="2" class="text-align-center"><a></a></td>
+										<td colspan="3" class="text-align-center"><a href="#">Add inventory</a></td>
 									</tr>
 									<tr v-for="inventory in item.inventories" :key="inventory.inventoryID">
 										<td class="padding-right-20px">{{ inventory.location.name }}</td>
