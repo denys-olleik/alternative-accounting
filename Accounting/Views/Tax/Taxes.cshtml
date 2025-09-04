@@ -1,0 +1,37 @@
+﻿@model Accounting.Models.TaxViewModels.TaxesPaginatedViewModel
+
+@{
+  ViewData["Title"] = "Taxes - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+@{
+  string headerText = "Taxes";
+}
+
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div class="margin-left-20px">
+    <a asp-action="Create" asp-controller="Tax" class="font-Roboto font-size-16px color-blue">Create tax</a>
+  </div>
+  <div class="flex-1 text-align-right">
+    <a asp-action="Index" asp-controller="Home"
+       class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
+  </div>
+</div>
+
+<div id="app">
+
+</div>
+
+<script src="~/js/PaginationComponent.js" asp-append-version="true"></script>
+
+
+
+<script>
+  const { createApp } = Vue;
+
+  app.mount('#app');
+</script>
