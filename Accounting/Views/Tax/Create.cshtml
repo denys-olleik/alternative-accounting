@@ -41,6 +41,19 @@
     <input asp-for="Rate" type="number" step="0.01" min="0" class="font-size-20px" />
   </div>
 
+  <div class="margin-bottom-5px background-color-antiquewhite">
+    <label>Link this tax to an inventory item.</label>
+    <universal-selector :items="inventories"
+                        :selected-items="selectedInventory"
+                        label="Inventory item"
+                        placeholder="Search inventories"
+                        item-key="inventoryID"
+                        item-label="name"
+                        :single-select="true"
+                        @@update:selected-items="selectedInventory = $event">
+    </universal-selector>
+  </div>
+
   <button type="submit" class="full-width-regular-button">Create tax</button>
 </form>
 
@@ -52,14 +65,14 @@
   createUniversalSelectorComponent().then(UniversalSelector => {
     const app = createApp({
       components: {
-        UniversalSelector
+        'universal-selector': UniversalSelector
       },
       data() {
         return {
           accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
           inventories: @Html.Raw(Json.Serialize(Model!.Inventories)),
-          selectedInventoryId: '',
           selectedAccountId: ''
+          selectedInventoryId: '',
         };
       }
     });
