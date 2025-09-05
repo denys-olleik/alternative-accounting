@@ -155,6 +155,7 @@ namespace Accounting.Controllers
         Respond with a JSON object that includes TransactionDate, Description, and Amount fields.
         **IMPORTANT:** The TransactionDate field must be in ISO 8601 format (`yyyy-MM-dd`), for example: "2024-06-03".
         Respond with only the JSON object, no code block or extra text.
+
         """,
           string.Empty,
           true,

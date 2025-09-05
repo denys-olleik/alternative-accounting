@@ -1,0 +1,69 @@
+﻿@model Accounting.Models.TaxViewModels.CreateTaxViewModel
+
+@{
+  ViewData["Title"] = "Create Tax - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+@{
+  string headerText = "Create Tax";
+}
+
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+<div class="display-flex margin-bottom-5px background-color-antiquewhite">
+  <div class="flex-1 text-align-right">
+    <a asp-action="Taxes" asp-controller="Tax" class="font-Roboto font-size-16px color-blue">Taxes</a>
+    <a asp-action="Index" asp-controller="Home"
+       class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
+  </div>
+</div>
+
+<form id="app" asp-action="Create" asp-controller="Tax" method="post" class="display-flex flex-direction-column margin-bottom-5px">
+  <input type="hidden" name="SelectedInventoryId" v-model="selectedInventoryId" />
+  <input type="hidden" name="SelectedAccountId" v-model="selectedAccountId" />
+
+  <div class="display-flex flex-direction-column margin-bottom-5px">
+    <label asp-for="Name" class="background-color-antiquewhite"></label>
+    <input asp-for="Name"
+           class="font-size-20px"
+           maxlength="100" autocomplete="off" />
+  </div>
+
+  <div class="display-flex flex-direction-column margin-bottom-5px">
+    <label asp-for="Description" class="background-color-antiquewhite"></label>
+    <textarea asp-for="Description" class="font-size-20px" rows="6"></textarea>
+  </div>
+
+  <div class="display-flex flex-direction-column margin-bottom-5px">
+    <label asp-for="Rate" class="background-color-antiquewhite">Rate</label>
+    <input asp-for="Rate" type="number" step="0.01" min="0" class="font-size-20px" />
+  </div>
+
+  <button type="submit" class="full-width-regular-button">Create tax</button>
+</form>
+
+<script src="~/js/UniversalSelector.js" asp-append-version="true"></script>
+
+<script>
+  const { createApp } = Vue;
+
+  createUniversalSelectorComponent().then(UniversalSelector => {
+    const app = createApp({
+      components: {
+        UniversalSelector
+      },
+      data() {
+        return {
+          accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
+          inventories: @Html.Raw(Json.Serialize(Model!.Inventories)),
+          selectedInventoryId: '',
+          selectedAccountId: ''
+        };
+      }
+    });
+
+    app.mount('#app');
+  });
+</script>

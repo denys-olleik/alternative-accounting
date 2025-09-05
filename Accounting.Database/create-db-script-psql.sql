@@ -297,6 +297,8 @@ CREATE TABLE "TaxInventoryAccount"
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+	FOREIGN KEY ("AccountId") REFERENCES "Account"("AccountID"),
+	FOREIGN KEY ("InventoryId") REFERENCES "Inventory"("InventoryID"),
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
 
