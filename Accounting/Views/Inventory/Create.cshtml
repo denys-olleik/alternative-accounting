@@ -1,0 +1,38 @@
+﻿@model Accounting.Models.InventoryViewModels.CreateInventoryViewModel
+
+@{
+  ViewData["Title"] = "Create inventory - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
+@{
+  string headerText = "Create inventory";
+}
+
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<form id="app" asp-action="Create" asp-controller="Inventory" method="post" class="display-flex flex-direction-column margin-bottom-5px">
+</form>
+
+<script src="~/js/UniversalSelector.js" asp-append-version="true"></script>
+
+<script>
+
+  const { createApp } = Vue;
+
+  createUniversalSelectorComponent().then(UniversalSelector => {
+    const app = createApp({
+      components: {
+        'universal-selector': UniversalSelector
+      },
+      data() {
+        return {
+          accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
+        };
+      }
+    });
+
+    app.mount('#app');
+  });
+</script>
