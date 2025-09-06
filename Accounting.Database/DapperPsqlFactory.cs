@@ -6228,7 +6228,7 @@ namespace Accounting.Database
         p.Add("@ItemId", entity.ItemId);
         p.Add("@LocationId", entity.LocationId);
         p.Add("@Quantity", entity.Quantity);
-        p.Add("@SellFor", entity.SellFor);
+        p.Add("@SellFor", entity.PriceInvoice);
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
 

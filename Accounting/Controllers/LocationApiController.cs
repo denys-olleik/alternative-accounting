@@ -51,7 +51,7 @@ namespace Accounting.Controllers
               Name = x.Item.Name
             },
             Quantity = x.Quantity,
-            SellFor = x.SellFor
+            SellFor = x.PriceInvoice
           }).ToList()
         };
 

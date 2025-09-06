@@ -307,7 +307,7 @@ namespace Accounting.Controllers
               Name = x.Location.Name
             },
             Quantity = x.Quantity,
-            SellFor = x.SellFor
+            SellFor = x.PriceInvoice
           }).ToList()
         };
 
@@ -374,7 +374,7 @@ namespace Accounting.Controllers
               Name = y.Location.Name
             },
             Quantity = y.Quantity,
-            SellFor = y.SellFor
+            SellFor = y.PriceInvoice
           }).ToList(),
           Children = x.Children?.Select(y => new InventoriesViewModel.ItemViewModel
           {
