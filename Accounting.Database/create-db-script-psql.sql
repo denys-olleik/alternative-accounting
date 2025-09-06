@@ -287,7 +287,7 @@ CREATE TABLE "Inventory"
 
 CREATE TABLE "TaxInventoryAccount"
 (
-	"TaxID" SERIAL PRIMARY KEY NOT NULL,
+	"TaxInventoryAccountID" SERIAL PRIMARY KEY NOT NULL,
   "InventoryId" INT NULL,
   "AccountId" INT NULL,
 	"Name" VARCHAR(100) NOT NULL,

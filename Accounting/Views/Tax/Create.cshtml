@@ -42,7 +42,7 @@
   </div>
 
   <div class="margin-bottom-5px background-color-antiquewhite">
-    <label>Link this tax to an inventory item.</label>
+    <label>Inventories</label>
     <universal-selector :items="inventories"
                         :selected-items="selectedInventory"
                         label="Inventory item"
@@ -70,10 +70,27 @@
       data() {
         return {
           accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
-          inventories: @Html.Raw(Json.Serialize(Model!.Inventories)),
-          selectedAccountId: ''
-          selectedInventoryId: '',
+          inventories: @Html.Raw(Model!.Inventories == null ? "[]" : Json.Serialize(Model.Inventories)),
+          // UniversalSelector expects arrays of objects; start empty
+          selectedInventory: [],
+          // Hidden-field mirrors
+          selectedAccountId: null,
+          selectedInventoryId: null
         };
+      },
+      computed: {
+        inventoryId() {
+          return this.selectedInventory?.[0]?.inventoryID ?? null;
+        }
+      },
+      watch: {
+        // Keep hidden field values in sync
+        selectedInventory: {
+          immediate: true,
+          handler(val) {
+            this.selectedInventoryId = val?.[0]?.inventoryID ?? null;
+          }
+        }
       }
     });
 
