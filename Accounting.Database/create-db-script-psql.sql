@@ -287,15 +287,16 @@ CREATE TABLE "Inventory"
 	UNIQUE ("ItemId", "LocationId")
 );
 
--- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "TaxInventoryAccount";'
-CREATE TABLE "TaxInventoryAccount"
+-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Tax";'
+CREATE TABLE "Tax"
 (
-	"TaxInventoryAccountID" SERIAL PRIMARY KEY NOT NULL,
-  "InventoryId" INT NULL,
-  "AccountId" INT NULL,
+	"TaxID" SERIAL PRIMARY KEY NOT NULL,
+  "ItemId" INT NULL,
+	"LocationId" INT NULL,
+  "LiabilityAccountId" INT NOT NULL,
 	"Name" VARCHAR(100) NOT NULL,
 	"Description" VARCHAR(1000) NULL,
-	"Rate" DECIMAL(5,2) NOT NULL,
+	"Rate" DECIMAL(5,2) NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
