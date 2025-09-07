@@ -14,10 +14,14 @@ namespace Accounting.Controllers
   public class TaxController : BaseController
   {
     private readonly AccountService _accountService;
+    private readonly ItemService itemService;
+    private readonly LocationService locationService;
 
     public TaxController(RequestContext requestContext)
     {
       _accountService = new AccountService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
+      itemService = new ItemService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
+      locationService = new LocationService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
     }
 
     [Route("taxes")]
@@ -109,6 +113,20 @@ namespace Accounting.Controllers
       CreateTaxViewModel vm = new();
 
       List<Account> accounts = await _accountService.GetAllAsync(GetOrganizationId()!.Value, false);
+      List<Item> items = await itemService.GetAllAsync(GetOrganizationId()!.Value);
+      List<Location> locations = await locationService.GetAllAsync(GetOrganizationId()!.Value);
+
+      vm.Items = items.Select(i => new CreateTaxViewModel.Item
+      {
+        ItemID = i.ItemID,
+        Name = i.Name
+      }).ToList();
+
+      vm.Locations = locations.Select(l => new CreateTaxViewModel.Location
+      {
+        LocationID = l.LocationID,
+        Name = l.Name
+      }).ToList();
 
       vm.Accounts = accounts.Select(a => new CreateTaxViewModel.Account
       {

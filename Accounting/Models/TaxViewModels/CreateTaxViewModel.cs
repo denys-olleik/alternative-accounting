@@ -11,7 +11,8 @@ namespace Accounting.Models.TaxViewModels
     public int SelectedAccountId { get; set; }
     public List<Item>? Items { get; set; }
     public int? SelectedItemId { get; set; }
-
+    public List<Location>? Locations { get; set; }
+    public int? SelectedLocationId { get; set; }
 
     public class Item
     {

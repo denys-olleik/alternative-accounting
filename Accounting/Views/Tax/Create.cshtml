@@ -21,8 +21,9 @@
 </div>
 
 <form id="app" asp-action="Create" asp-controller="Tax" method="post" class="display-flex flex-direction-column margin-bottom-5px">
-  <input type="hidden" name="SelectedInventoryId" v-model="selectedInventoryId" />
+  <input type="hidden" name="SelectedItemId" v-model="selectedItemId" />
   <input type="hidden" name="SelectedAccountId" v-model="selectedAccountId" />
+  <input type="hidden" name="SelectedLocationId" v-model="selectedLocationId" />
 
   <div class="display-flex flex-direction-column margin-bottom-5px">
     <label asp-for="Name" class="background-color-antiquewhite"></label>
@@ -46,6 +47,16 @@
     @* universal selector for items *@
   </div>
 
+  <div class="margin-bottom-5px background-color-antiquewhite">
+    <label>Account</label>
+    @* universal selector for accounts *@
+  </div>
+
+  <div class="margin-bottom-5px background-color-antiquewhite">
+    <label>Location (optional)</label>
+    @* universal selector for locations *@
+  </div>
+
   <button type="submit" class="full-width-regular-button">Create tax</button>
 </form>
 
@@ -62,9 +73,11 @@
       data() {
         return {
           accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
-          selectedAccountId: null
+          selectedAccountId: null,
           items: @Html.Raw(Model!.Items == null ? "[]" : Json.Serialize(Model.Items)),
-          selectedItems: [],
+          selectedItemId: null,
+          locations: @Html.Raw(Json.Serialize(Model!.Locations)),
+          selectedLocationId: null
         };
       }
     });
