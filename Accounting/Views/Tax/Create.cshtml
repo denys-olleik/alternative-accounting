@@ -37,21 +37,13 @@
   </div>
 
   <div class="display-flex flex-direction-column margin-bottom-5px">
-    <label asp-for="Rate" class="background-color-antiquewhite">Rate</label>
+    <label asp-for="Rate" class="background-color-antiquewhite">Rate (%)</label>
     <input asp-for="Rate" type="number" step="0.01" min="0" class="font-size-20px" />
   </div>
 
   <div class="margin-bottom-5px background-color-antiquewhite">
-    <label>Inventories</label>
-    <universal-selector :items="inventories"
-                        :selected-items="selectedInventory"
-                        label="Inventory item"
-                        placeholder="Search inventories"
-                        item-key="inventoryID"
-                        item-label="name"
-                        :single-select="true"
-                        @@update:selected-items="selectedInventory = $event">
-    </universal-selector>
+    <label>Items</label>
+    @* universal selector for items *@
   </div>
 
   <button type="submit" class="full-width-regular-button">Create tax</button>
@@ -70,27 +62,10 @@
       data() {
         return {
           accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
-          inventories: @Html.Raw(Model!.Inventories == null ? "[]" : Json.Serialize(Model.Inventories)),
-          // UniversalSelector expects arrays of objects; start empty
-          selectedInventory: [],
-          // Hidden-field mirrors
-          selectedAccountId: null,
-          selectedInventoryId: null
+          selectedAccountId: null
+          items: @Html.Raw(Model!.Items == null ? "[]" : Json.Serialize(Model.Items)),
+          selectedItems: [],
         };
-      },
-      computed: {
-        inventoryId() {
-          return this.selectedInventory?.[0]?.inventoryID ?? null;
-        }
-      },
-      watch: {
-        // Keep hidden field values in sync
-        selectedInventory: {
-          immediate: true,
-          handler(val) {
-            this.selectedInventoryId = val?.[0]?.inventoryID ?? null;
-          }
-        }
       }
     });
 

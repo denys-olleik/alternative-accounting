@@ -8,17 +8,10 @@ namespace Accounting.Models.TaxViewModels
     public string? Description { get; set; }
     public decimal Rate { get; set; }
     public List<Account>? Accounts { get; set; }
-    public int SelectedInventoryId { get; set; }
-    public List<Inventory>? Inventories { get; set; }
     public int SelectedAccountId { get; set; }
+    public List<Item>? Items { get; set; }
+    public int? SelectedItemId { get; set; }
 
-    public class Inventory
-    {
-      public int InventoryID { get; set; }
-      public Item Item { get; set; } = null!;
-      public Location Location { get; set; } = null!;
-      public decimal SellFor { get; set; }
-    }
 
     public class Item
     {
@@ -49,12 +42,7 @@ namespace Accounting.Models.TaxViewModels
           .WithMessage("Name is required.");
         RuleFor(x => x.Rate)
           .NotEmpty()
-          .WithMessage("Rate is required.")
-          .InclusiveBetween(0, 2)
-          .WithMessage("Rate must be between 0 and 2.");
-        RuleFor(x => x.SelectedInventoryId)
-          .NotEmpty()
-          .WithMessage("InventoryId is required.");
+          .WithMessage("Rate is required.");
         RuleFor(x => x.SelectedAccountId)
           .NotEmpty()
           .WithMessage("AccountId is required.");
