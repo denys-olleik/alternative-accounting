@@ -291,7 +291,7 @@ CREATE TABLE "Inventory"
 CREATE TABLE "Tax"
 (
 	"TaxID" SERIAL PRIMARY KEY NOT NULL,
-  "ItemId" INT NULL,
+  "ItemId" INT NOT NULL,
 	"LocationId" INT NULL,
   "LiabilityAccountId" INT NOT NULL,
 	"Name" VARCHAR(100) NOT NULL,
@@ -301,8 +301,7 @@ CREATE TABLE "Tax"
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
-	FOREIGN KEY ("AccountId") REFERENCES "Account"("AccountID"),
-	FOREIGN KEY ("InventoryId") REFERENCES "Inventory"("InventoryID"),
+	FOREIGN KEY ("LiabilityAccountId") REFERENCES "Account"("AccountID"),
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
 
