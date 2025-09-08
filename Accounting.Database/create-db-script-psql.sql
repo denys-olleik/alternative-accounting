@@ -300,9 +300,12 @@ CREATE TABLE "Tax"
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
-	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+	FOREIGN KEY ("ItemId") REFERENCES "Item"("ItemID"),
+	FOREIGN KEY ("LocationId") REFERENCES "Location"("LocationID"),
 	FOREIGN KEY ("LiabilityAccountId") REFERENCES "Account"("AccountID"),
-	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
+	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID"),
+	UNIQUE ("ItemId", "LocationId", "LiabilityAccountId", "OrganizationId")
 );
 
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "InventoryAdjustment";'

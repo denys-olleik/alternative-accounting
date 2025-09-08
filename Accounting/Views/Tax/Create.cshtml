@@ -11,6 +11,7 @@
 <partial name="_H1HeaderPartial" model="@headerText" />
 
 <script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+<script src="~/js/UniversalSelector.js" asp-append-version="true"></script>
 
 <div class="display-flex margin-bottom-5px background-color-antiquewhite">
   <div class="flex-1 text-align-right">
@@ -43,24 +44,46 @@
   </div>
 
   <div class="margin-bottom-5px background-color-antiquewhite">
-    <label>Items</label>
-    @* universal selector for items *@
+    @* <label>Items</label> *@
+    <universal-selector :items="items"
+                        :selected-items="selectedItem"
+                        label="Item"
+                        placeholder="Search items"
+                        item-key="itemID"
+                        item-label="name"
+                        :single-select="true"
+                        @@update:selected-items="selectedItem = $event">
+    </universal-selector>
   </div>
 
   <div class="margin-bottom-5px background-color-antiquewhite">
-    <label>Account</label>
-    @* universal selector for accounts *@
+    @* <label>Account</label> *@
+    <universal-selector :items="accounts"
+                        :selected-items="selectedAccount"
+                        label="Account"
+                        placeholder="Search accounts"
+                        item-key="accountID"
+                        item-label="name"
+                        :single-select="true"
+                        @@update:selected-items="selectedAccount = $event">
+    </universal-selector>
   </div>
 
   <div class="margin-bottom-5px background-color-antiquewhite">
-    <label>Location (optional)</label>
-    @* universal selector for locations *@
+    @* <label>Location (optional)</label> *@
+    <universal-selector :items="locations"
+                        :selected-items="selectedLocation"
+                        label="Location (optional)"
+                        placeholder="Search locations"
+                        item-key="locationID"
+                        item-label="name"
+                        :single-select="true"
+                        @@update:selected-items="selectedLocation = $event">
+    </universal-selector>
   </div>
 
   <button type="submit" class="full-width-regular-button">Create tax</button>
 </form>
-
-<script src="~/js/UniversalSelector.js" asp-append-version="true"></script>
 
 <script>
   const { createApp } = Vue;
@@ -73,12 +96,39 @@
       data() {
         return {
           accounts: @Html.Raw(Json.Serialize(Model!.Accounts)),
-          selectedAccountId: null,
           items: @Html.Raw(Model!.Items == null ? "[]" : Json.Serialize(Model.Items)),
-          selectedItemId: null,
           locations: @Html.Raw(Json.Serialize(Model!.Locations)),
+
+          // arrays of selected objects for the selectors
+          selectedItem: [],
+          selectedAccount: [],
+          selectedLocation: [],
+
+          // hidden-field mirrors
+          selectedItemId: null,
+          selectedAccountId: null,
           selectedLocationId: null
         };
+      },
+      watch: {
+        selectedItem: {
+          immediate: true,
+          handler(val) {
+            this.selectedItemId = val?.[0]?.itemID ?? null;
+          }
+        },
+        selectedAccount: {
+          immediate: true,
+          handler(val) {
+            this.selectedAccountId = val?.[0]?.accountID ?? null;
+          }
+        },
+        selectedLocation: {
+          immediate: true,
+          handler(val) {
+            this.selectedLocationId = val?.[0]?.locationID ?? null;
+          }
+        }
       }
     });
 
