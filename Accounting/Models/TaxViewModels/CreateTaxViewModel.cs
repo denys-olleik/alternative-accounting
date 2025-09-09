@@ -46,9 +46,15 @@ namespace Accounting.Models.TaxViewModels
         RuleFor(x => x.Rate)
           .NotEmpty()
           .WithMessage("Rate is required.");
+        RuleFor(x => x.SelectedItemId)
+          .NotEmpty()
+          .WithMessage("Item is required.");
         RuleFor(x => x.SelectedAccountId)
           .NotEmpty()
-          .WithMessage("AccountId is required.");
+          .WithMessage("Account is required.");
+        RuleFor(x => x.SelectedLocationId)
+          .NotEmpty()
+          .WithMessage("Location is required.");
       }
     }
   }
