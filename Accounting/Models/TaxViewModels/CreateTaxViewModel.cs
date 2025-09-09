@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 
 namespace Accounting.Models.TaxViewModels
 {
@@ -13,6 +14,7 @@ namespace Accounting.Models.TaxViewModels
     public int? SelectedItemId { get; set; }
     public List<Location>? Locations { get; set; }
     public int? SelectedLocationId { get; set; }
+    public ValidationResult? ValidationResult { get; set; }
 
     public class Item
     {

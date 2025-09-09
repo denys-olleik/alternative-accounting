@@ -110,31 +110,8 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-      CreateTaxViewModel vm = new();
-
-      List<Account> accounts = await _accountService.GetAllAsync(GetOrganizationId()!.Value, false);
-      List<Item> items = await itemService.GetAllAsync(GetOrganizationId()!.Value);
-      List<Location> locations = await locationService.GetAllAsync(GetOrganizationId()!.Value);
-
-      vm.Items = items.Select(i => new CreateTaxViewModel.Item
-      {
-        ItemID = i.ItemID,
-        Name = i.Name
-      }).ToList();
-
-      vm.Locations = locations.Select(l => new CreateTaxViewModel.Location
-      {
-        LocationID = l.LocationID,
-        Name = l.Name
-      }).ToList();
-
-      vm.Accounts = accounts.Select(a => new CreateTaxViewModel.Account
-      {
-        AccountID = a.AccountID,
-        Name = a.Name,
-        Type = a.Type
-      }).ToList();
-
+      var vm = new CreateTaxViewModel();
+      await PopulateListsAsync(vm);
       return View(vm);
     }
 
@@ -142,15 +119,47 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaxViewModel vm)
     {
-      CreateTaxViewModel.CreateTaxViewModelValidator validator = new CreateTaxViewModel.CreateTaxViewModelValidator();
-      ValidationResult validationResult = await validator.ValidateAsync(vm);
+      var validator = new CreateTaxViewModel.CreateTaxViewModelValidator();
+      var validationResult = await validator.ValidateAsync(vm);
 
       if (!validationResult.IsValid)
       {
-
+        vm.ValidationResult = validationResult;
+        await PopulateListsAsync(vm);
+        return View(vm);
       }
 
       return RedirectToAction("Taxes");
+    }
+
+    private async System.Threading.Tasks.Task PopulateListsAsync(CreateTaxViewModel vm)
+    {
+      var orgId = GetOrganizationId()!.Value;
+
+      var accountsTask = _accountService.GetAllAsync(orgId, false);
+      var itemsTask = itemService.GetAllAsync(orgId);
+      var locationsTask = locationService.GetAllAsync(orgId);
+
+      await System.Threading.Tasks.Task.WhenAll(accountsTask, itemsTask, locationsTask);
+
+      vm.Items = itemsTask.Result.Select(i => new CreateTaxViewModel.Item
+      {
+        ItemID = i.ItemID,
+        Name = i.Name
+      }).ToList();
+
+      vm.Locations = locationsTask.Result.Select(l => new CreateTaxViewModel.Location
+      {
+        LocationID = l.LocationID,
+        Name = l.Name
+      }).ToList();
+
+      vm.Accounts = accountsTask.Result.Select(a => new CreateTaxViewModel.Account
+      {
+        AccountID = a.AccountID,
+        Name = a.Name,
+        Type = a.Type
+      }).ToList();
     }
   }
 }
