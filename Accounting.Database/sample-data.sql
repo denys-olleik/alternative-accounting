@@ -135,10 +135,11 @@ INSERT INTO "Item" ("Name", "Description", "ItemType", "CreditAccountId", "Debit
 ('Training Services', 'On-site and remote training services for machinery operation and maintenance.', 'service', 3, 1, 1, 1);
 
 INSERT INTO "Location" ("Name", "Description", "ParentLocationId", "CreatedById", "OrganizationId") VALUES
-('Main Warehouse', 'Main warehouse for Farm To Market LLC.', NULL, 1, 1),
-('Department A', 'Department A of the main warehouse.', 1, 1, 1),
-('Shelf', 'Shelf in Department A.', 2, 1, 1),
-('Bin', 'Bin in Shelf.', 3, 1, 1),
-('Department B', 'Department B of the main warehouse.', 1, 1, 1),
-('Shelf', 'Shelf in Department B.', 5, 1, 1),
-('Bin', 'Bin in Shelf.', 6, 1, 1);
+('OH', 'State of Ohio', NULL, 1, 1),
+('Main Warehouse', 'Main warehouse for Farm To Market LLC.', 1, 1, 1),
+('Department A', 'Department A of the main warehouse.', 2, 1, 1),
+('Shelf', 'Shelf in Department A.', 3, 1, 1),
+('Bin', 'Bin in Shelf.', 4, 1, 1),
+('Department B', 'Department B of the main warehouse.', 2, 1, 1),
+('Shelf', 'Shelf in Department B.', 6, 1, 1),
+('Bin', 'Bin in Shelf.', 7, 1, 1);
