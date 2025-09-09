@@ -2,8 +2,10 @@
 using Accounting.CustomAttributes;
 using Accounting.Models.TaxViewModels;
 using Accounting.Service;
+using AngleSharp.Css.Values;
 using FluentValidation;
 using FluentValidation.Results;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -14,14 +16,16 @@ namespace Accounting.Controllers
   public class TaxController : BaseController
   {
     private readonly AccountService _accountService;
-    private readonly ItemService itemService;
-    private readonly LocationService locationService;
+    private readonly ItemService _itemService;
+    private readonly LocationService _locationService;
+    private readonly TaxService _taxService;
 
     public TaxController(RequestContext requestContext)
     {
       _accountService = new AccountService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
-      itemService = new ItemService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
-      locationService = new LocationService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
+      _itemService = new ItemService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
+      _locationService = new LocationService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
+      _taxService = new TaxService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
     }
 
     [Route("taxes")]
@@ -129,6 +133,18 @@ namespace Accounting.Controllers
         return View(vm);
       }
 
+      await _taxService.CreateAsync(new Tax
+      {
+        Name = vm.Name,
+        Description = vm.Description,
+        Rate = vm.Rate,
+        ItemId = vm.SelectedItemId!.Value,
+        LocationId = vm.SelectedLocationId,
+        LiabilityAccountId = vm.SelectedAccountId,
+        CreatedById = GetUserId(),
+        OrganizationId = GetOrganizationId()!.Value
+      });
+
       return RedirectToAction("Taxes");
     }
 
@@ -137,8 +153,8 @@ namespace Accounting.Controllers
       var orgId = GetOrganizationId()!.Value;
 
       var accountsTask = _accountService.GetAllAsync(orgId, false);
-      var itemsTask = itemService.GetAllAsync(orgId);
-      var locationsTask = locationService.GetAllAsync(orgId);
+      var itemsTask = _itemService.GetAllAsync(orgId);
+      var locationsTask = _locationService.GetAllAsync(orgId);
 
       await System.Threading.Tasks.Task.WhenAll(accountsTask, itemsTask, locationsTask);
 

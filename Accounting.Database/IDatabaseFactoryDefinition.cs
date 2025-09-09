@@ -45,5 +45,6 @@ namespace Accounting.Database
     IClaimManager GetClaimManager();
     IPlayerManager GetPlayerManager();
     IWalletManager GetWalletManager();
+    ITaxManager GetTaxManager();
   }
 }

@@ -8509,6 +8509,71 @@ namespace Accounting.Database
       return new UserTaskManager(_connectionString);
     }
 
+    public ITaxManager GetTaxManager()
+    {
+      return new TaxManager(_connectionString);
+    }
+
+    public class TaxManager : ITaxManager
+    {
+      private readonly string _connectionString;
+
+      public TaxManager(string connectionString)
+      {
+        _connectionString = connectionString;
+      }
+
+      public Tax Create(Tax entity)
+      {
+        throw new NotImplementedException();
+      }
+
+      public async Task<Tax> CreateAsync(Tax entity)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@ItemId", entity.ItemId);
+        p.Add("@LocationId", entity.LocationId);
+        p.Add("@LiabilityAccountId", entity.LiabilityAccountId);
+        p.Add("@Name", entity.Name);
+        p.Add("@Description", entity.Description);
+        p.Add("@Rate", entity.Rate);
+        p.Add("@CreatedById", entity.CreatedById);
+        p.Add("@OrganizationId", entity.OrganizationId);
+        
+        IEnumerable<Tax> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<Tax>("""
+            INSERT INTO "Tax" ("ItemId", "LocationId", "LiabilityAccountId", "Name", "Description", "Rate", "CreatedById", "OrganizationId") 
+            VALUES (@ItemId, @LocationId, @LiabilityAccountId, @Name, @Description, @Rate, @CreatedById, @OrganizationId)
+            RETURNING *;
+            """, p);
+        }
+        return result.Single();
+      }
+
+      public int Delete(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public Tax Get(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public IEnumerable<Tax> GetAll()
+      {
+        throw new NotImplementedException();
+      }
+
+      public int Update(Tax entity)
+      {
+        throw new NotImplementedException();
+      }
+    }
+
     public IWalletManager GetWalletManager()
     {
       return new WalletManager(_connectionString);

@@ -221,5 +221,10 @@ namespace Accounting.Database
     {
       return databaseFactoryDefinition.GetWalletManager();
     }
+
+    public ITaxManager GetTaxManager()
+    {
+      return databaseFactoryDefinition.GetTaxManager();
+    }
   }
 }
