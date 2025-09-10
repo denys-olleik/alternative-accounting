@@ -1,4 +1,6 @@
-﻿@model Accounting.Models.TaxViewModels.TaxesPaginatedViewModel
+﻿
+
+@model Accounting.Models.TaxViewModels.TaxesPaginatedViewModel
 
 @{
   ViewData["Title"] = "Taxes - " + ConfigurationSingleton.Instance.ApplicationName;
@@ -23,15 +25,22 @@
 </div>
 
 <div id="app">
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
 
+    </thead>
+    <tbody class="font-Roboto-Mono">
+
+    </tbody>
+  </table>
 </div>
 
 <script src="~/js/PaginationComponent.js" asp-append-version="true"></script>
 
-
-
 <script>
   const { createApp } = Vue;
+
+  
 
   app.mount('#app');
 </script>
