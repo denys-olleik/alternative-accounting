@@ -399,7 +399,19 @@
 
         let apiUrl = `/api/t/get-taxes?page=${this.page}&pageSize=${this.pageSize}`;
 
-      
+				fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						this.taxes = data.taxes;
+						if (data.page > 0) {
+							this.page = data.page;
+						}
+						if (data.nextPage > 0) {
+							this.nextPage = data.nextPage;
+						} else {
+							this.nextPage = null;
+						}
+          });
       }
     },
     mounted() {
