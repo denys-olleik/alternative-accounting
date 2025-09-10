@@ -383,6 +383,7 @@
     },
     data() {
       return {
+        taxes: [],
         page: @Model.Page,
         pageSize: @Model.PageSize,
         nextPage: null,
@@ -390,7 +391,22 @@
       };
     },
     methods: {
+      fetchTaxes() {
+        const storedPageSize = parseInt(localStorage.getItem('pageSize'));
+        if (storedPageSize) {
+          this.pageSize = storedPageSize;
+        }
 
+        let apiUrl = `/api/t/get-taxes?page=${this.page}&pageSize=${this.pageSize}`;
+
+      
+      }
+    },
+    mounted() {
+      if (this.rememberPageSize) {
+        localStorage.setItem('pageSize', this.pageSize);
+      }
+      this.fetchTaxes();
     }
   });
 
