@@ -7,7 +7,7 @@
 @{
   string headerText = "Blogs";
 }
-<partial name="_H1HeaderPartial" model="@headerText"/>
+<partial name="_H1HeaderPartial" model="@headerText" />
 
 <script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
 
@@ -72,29 +72,29 @@
 <div id="app">
   <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
-    <tr>
-      <th class="fitwidth"></th>
-      <th>
-        <input type="text" v-model="blogsFilter" @@input="fetchBlogs" placeholder="Search"
-               class="font-size-16px width-100"/>
-      </th>
-    </tr>
-    <tr>
-      <th class="text-align-left padding-right-20px"></th>
-      <th class="text-align-left padding-right-20px">Title</th>
-    </tr>
+      <tr>
+        <th class="fitwidth"></th>
+        <th>
+          <input type="text" v-model="blogsFilter" @@input="fetchBlogs" placeholder="Search"
+                 class="font-size-16px width-100" />
+        </th>
+      </tr>
+      <tr>
+        <th class="text-align-left padding-right-20px"></th>
+        <th class="text-align-left padding-right-20px">Title</th>
+      </tr>
     </thead>
     <tbody class="font-Roboto-Mono">
-    <template v-for="blog in blogs" :key="blog.blogID">
-      <tr>
-        <td class="vertical-align-top">{{ blog.rowNumber }}</td>
-        <td>
-          <blog-action :blog="blog"
-                       :is-expanded="expandedBlogId === blog.blogID"
-                       @@expand="handleBlogExpand(blog.blogID)"></blog-action>
-        </td>
-      </tr>
-    </template>
+      <template v-for="blog in blogs" :key="blog.blogID">
+        <tr>
+          <td class="vertical-align-top">{{ blog.rowNumber }}</td>
+          <td>
+            <blog-action :blog="blog"
+                         :is-expanded="expandedBlogId === blog.blogID"
+                         @@expand="handleBlogExpand(blog.blogID)"></blog-action>
+          </td>
+        </tr>
+      </template>
     </tbody>
   </table>
 
