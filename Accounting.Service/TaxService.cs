@@ -22,5 +22,10 @@ namespace Accounting.Service
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetTaxManager().CreateAsync(tax);
     }
+
+    public async Task<(List<Tax> taxes, int? nextPage)> GetAllAsync(int page, int pageSize, int organizationId)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

@@ -292,8 +292,8 @@ CREATE TABLE "Tax"
 (
 	"TaxID" SERIAL PRIMARY KEY NOT NULL,
   "ItemId" INT NOT NULL,
+	"LiabilityAccountId" INT NOT NULL,
 	"LocationId" INT NULL,
-  "LiabilityAccountId" INT NOT NULL,
 	"Name" VARCHAR(100) NOT NULL,
 	"Description" VARCHAR(1000) NULL,
 	"Rate" DECIMAL(5,2) NOT NULL,
@@ -301,8 +301,8 @@ CREATE TABLE "Tax"
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
 	FOREIGN KEY ("ItemId") REFERENCES "Item"("ItemID"),
-	FOREIGN KEY ("LocationId") REFERENCES "Location"("LocationID"),
 	FOREIGN KEY ("LiabilityAccountId") REFERENCES "Account"("AccountID"),
+	FOREIGN KEY ("LocationId") REFERENCES "Location"("LocationID"),
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID"),
 	UNIQUE ("ItemId", "LocationId", "LiabilityAccountId", "OrganizationId")
