@@ -8558,6 +8558,11 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public Task<(List<Tax> taxes, int? nextPage)> GetAllAsync(int page, int pageSize, int organizationId)
+      {
+        throw new NotImplementedException();
+      }
+
       public Tax Get(int id)
       {
         throw new NotImplementedException();

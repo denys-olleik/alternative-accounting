@@ -7,14 +7,12 @@ namespace Accounting.Service
   {
     public TaxService() : base()
     {
-
     }
 
     public TaxService(
       string databaseName,
       string databasePassword) : base(databaseName, databasePassword)
     {
-
     }
 
     public async Task<Tax> CreateAsync(Tax tax)
@@ -23,9 +21,11 @@ namespace Accounting.Service
       return await factoryManager.GetTaxManager().CreateAsync(tax);
     }
 
-    public async Task<(List<Tax> taxes, int? nextPage)> GetAllAsync(int page, int pageSize, int organizationId)
+    public async Task<(List<Tax> taxes, int? nextPage)> GetAllAsync(
+      int page, int pageSize, int organizationId)
     {
-      throw new NotImplementedException();
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetTaxManager().GetAllAsync(page, pageSize, organizationId);
     }
   }
 }

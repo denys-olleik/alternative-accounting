@@ -126,7 +126,8 @@ namespace Accounting.Controllers
       _taxService = new TaxService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
     }
 
-    [HttpGet("get-taxes")]
+    [Route("get-taxes")]
+    [HttpGet]
     public async Task<IActionResult> GetTaxes(
       int page = 1,
       int pageSize = 10)
