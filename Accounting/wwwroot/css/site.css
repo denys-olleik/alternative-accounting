@@ -123,6 +123,10 @@ td.fitwidth, th.fitwidth {
   background-color: black;
 }
 
+.color-gray {
+    color: gray;
+}
+
 .background-color-cornflowerblue {
   background-color: cornflowerblue;
 }
@@ -918,6 +922,20 @@ td.fitwidth, th.fitwidth {
 
 .blinking-cursor {
   animation: blink-animation 1s steps(1, start) infinite;
+}
+
+.blinking-cursor-reverse {
+    animation: blink-animation 1s steps(1, start) infinite reverse;
+}
+
+.blinking-cursor-white {
+    animation: blink-animation 2s steps(1, start) infinite;
+    color: white;
+}
+
+.blinking-cursor-reverse-white {
+    animation: blink-animation 2s steps(1, start) infinite reverse;
+    color: white;
 }
 
 @keyframes blink-animation {

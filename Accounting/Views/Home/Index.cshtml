@@ -28,8 +28,15 @@
 
   <div class="display-flex margin-bottom-5px">
     <div class="flex-1 display-flex flex-direction-column">
-      <img class="width-100" src="~/images/cat.png" />
-      <div class="padding-5px flex-1 color-white background-color-black font-Roboto-Mono"><span class="blinking-cursor">█</span> Listen up you maggots! You may use this system for <span class="color-lawngreen blinking-cursor">FREE</span> until you can afford to <u>pay one ounce of</u> <span class="color-lawngreen blinking-cursor"><u>gold</u></span> <u>coin per year</u>. Work with us and get paid in gold <span class="blinking-cursor color-lawngreen">coin</span>. Join us and no one will ever fuck with you again.</div>
+      <img class="width-100" src="~/images/cat.png"/>
+      <div class="padding-5px flex-1 color-white background-color-black font-Roboto-Mono">
+        <div class="text-align-center">
+          Универсальная система 
+          <br/>администрирования
+        </div>
+        <span class="blinking-cursor">█</span>(УСА) с журналом (<span class="blinking-cursor-reverse-white color-gray">debit</span>
+        <span class="blinking-cursor-white color-gray">credit</span>) для моделирования финансовых операций.
+      </div>
     </div>
     <div class="width-5px"></div>
     <div class="flex-1 display-flex flex-direction-column">
@@ -41,7 +48,8 @@
   </div>
 
   <script type="module">
-    import * as THREE from 'three';
+    import * as THREE
+      from 'three';
 
     // Scene
     const scene = new THREE.Scene();
@@ -58,20 +66,20 @@
     camera.lookAt(0, 1, 0);
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize(document.getElementById('app').clientWidth, 500);
     document.getElementById('app').appendChild(renderer.domElement);
 
     // Plane
     const planeGeometry = new THREE.PlaneGeometry(10, 10);
-    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+    const planeMaterial = new THREE.MeshStandardMaterial({color: 0x888888});
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = -Math.PI / 2;
     scene.add(plane);
 
     // Cube
     const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0x3366ff });
+    const cubeMaterial = new THREE.MeshStandardMaterial({color: 0x3366ff});
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.position.y = 1;
     scene.add(cube);
@@ -91,6 +99,7 @@
       cube.rotation.x += 0.005;
       renderer.render(scene, camera);
     }
+
     animate();
 
     // Responsive resizing (optional)
@@ -115,16 +124,19 @@
       <a asp-action="Register" asp-controller="Registration" class="font-Oswald color-white font-size-40px">demo</a>
     </div>
   </div>
-  <div class="background-color-antiquewhite padding-10px font-Roboto-Mono">
-    <p class="font-size-20px">Double entry accounting system.</p>
-
+  <div class="background-color-antiquewhite padding-10px font-Roboto-Mono margin-bottom-5px">
     <h2>Getting started</h2>
 
     <ul>
       <li>Clone this repository</li>
       <li>Have PostgreSQL installed</li>
-      <li>Update <code>appsettings.json</code>.<code>DatabasePassword</code></li>
-      <li>Set <code>database-reset.json</code>.<code>Reset</code> to <code>true</code></li>
+      <li>Update
+        <code>appsettings.json</code>.<code>DatabasePassword</code>
+      </li>
+      <li>Set
+        <code>database-reset.json</code>.<code>Reset</code> to
+        <code>true</code>
+      </li>
       <li>Run the application</li>
     </ul>
 
@@ -168,6 +180,16 @@
   </div>
 }
 
+@* <div class="flex-1 display-flex flex-direction-column"> *@
+@*   <div class="padding-5px flex-1 color-white background-color-black font-Roboto-Mono"> *@
+@*     <span class="blinking-cursor">█</span> You may use this system for *@
+@*     <span class="color-lawngreen blinking-cursor">FREE</span> until you can afford to *@
+@*     <u>pay one ounce of</u> *@
+@*     <span class="color-lawngreen blinking-cursor"><u>gold</u></span> *@
+@*     <u>coin per year</u>. *@
+@*   </div> *@
+@* </div> *@
+
 @if (User.Identity.IsAuthenticated)
 {
   <div class="background-color-antiquewhite">
@@ -178,49 +200,65 @@
       <li>
         <a href="@Url.Action("Users", "User")">Users 🟩 </a>
         <ul>
-          <li><a href="@Url.Action("Create", "User")">Create user 🟩 </a></li>
+          <li>
+            <a href="@Url.Action("Create", "User")">Create user 🟩 </a>
+          </li>
         </ul>
       </li>
       <li>
         <a href="@Url.Action("Tasks", "Task")">Project management 🟧</a>
         <ul>
-          <li><a href="@Url.Action("Create", "Task")">Create task 🟧</a></li>
+          <li>
+            <a href="@Url.Action("Create", "Task")">Create task 🟧</a>
+          </li>
         </ul>
       </li>
       <li>
         <a href="@Url.Action("Invoices", "Invoice")">Invoices 🟩 </a>
         <ul>
-          <li><a href="@Url.Action("Create", "Invoice")">Create invoice 🟩 </a></li>
+          <li>
+            <a href="@Url.Action("Create", "Invoice")">Create invoice 🟩 </a>
+          </li>
         </ul>
       </li>
       <li>
         <a href="@Url.Action("Customers", "Customer")">Customers and vendors 🟩 </a>
         <ul>
-          <li><a href="@Url.Action("Create", "Customer")">Create customer and or vendor 🟩 </a></li>
+          <li>
+            <a href="@Url.Action("Create", "Customer")">Create customer and or vendor 🟩 </a>
+          </li>
         </ul>
       </li>
       <li>
         <a href="@Url.Action("PaymentTerms", "PaymentTerm")">Payment terms 🟩 </a>
         <ul>
-          <li><a href="@Url.Action("Create", "PaymentTerm")">Create payment term 🟩 </a></li>
+          <li>
+            <a href="@Url.Action("Create", "PaymentTerm")">Create payment term 🟩 </a>
+          </li>
         </ul>
       </li>
       <li>
         <a href="@Url.Action("Taxes", "Tax")">Taxes 🟧</a>
         <ul>
-          <li><a href="@Url.Action("Create", "Tax")">Create tax 🟧</a></li>
+          <li>
+            <a href="@Url.Action("Create", "Tax")">Create tax 🟧</a>
+          </li>
         </ul>
       </li>
       <li>
         <a href="@Url.Action("Items", "Item")">Items 🟨</a>
         <ul>
-          <li><a href="@Url.Action("Create", "Item")">Create item 🟧</a></li>
+          <li>
+            <a href="@Url.Action("Create", "Item")">Create item 🟧</a>
+          </li>
         </ul>
       </li>
       <li>
         <a href="@Url.Action("Locations", "Location")">Locations 🟧</a>
         <ul>
-          <li><a href="@Url.Action("Create", "Location")">Create location 🟩</a></li>
+          <li>
+            <a href="@Url.Action("Create", "Location")">Create location 🟩</a>
+          </li>
         </ul>
       </li>
       <li>
@@ -229,7 +267,9 @@
       <li>
         <a href="@Url.Action("Accounts", "Account")">Accounts 🟩 </a>
         <ul>
-          <li><a href="@Url.Action("Create", "Account")">Create account 🟩 </a></li>
+          <li>
+            <a href="@Url.Action("Create", "Account")">Create account 🟩 </a>
+          </li>
         </ul>
       </li>
       @* <li>
@@ -238,7 +278,9 @@
       <li>
         <a href="@Url.Action("Blogs", "Blog")">Blog 🟩 </a>
         <ul>
-          <li><a href="@Url.Action("Create", "Blog")">Create post 🟩 </a></li>
+          <li>
+            <a href="@Url.Action("Create", "Blog")">Create post 🟩 </a>
+          </li>
         </ul>
       </li>
       <li>
