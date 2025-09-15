@@ -10,6 +10,8 @@
 
 <partial name="_H1HeaderPartial" model="@headerText"/>
 
+<script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
+
 <div id="app">
   <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
@@ -18,7 +20,7 @@
     </tr>
     </thead>
     <tbody>
-    <template v-for="journal in journals" :key="journal.journalID">
+    <template v-for="journal in journalTransactions" :key="journal.journalID">
       <tr>
         <td>{{ journal.transactionGuid }}</td>
       </tr>
@@ -36,7 +38,7 @@
     },
     data() {
       return {
-        journals: [],
+        journalTransactions: [],
         page: @Model.Page,
         pageSize: @Model.PageSize,
         nextPage: null,
@@ -50,12 +52,12 @@
           this.pageSize = storedPageSize;
         }
 
-        let apiUrl = `/api/journals?page=${this.page}&pageSize=${this.pageSize}`;
+        let apiUrl = `/api/journal/get-journals?page=${this.page}&pageSize=${this.pageSize}`;
 
         fetch(apiUrl)
           .then(response => response.json())
           .then(data => {
-            this.journals = data.journals;
+            this.journalTransactions = data.transactions;
             if (data.page > 0) {
               this.page = data.page;
             }

@@ -46,12 +46,18 @@ public class JournalApiController : BaseController
     int pageSize = 10)
   {
     var (journals, nextPage) = await _journalService.GetAllUnionAsync(page, pageSize, GetOrganizationId()!.Value);
-    
-    // GetJournalsViewModel getJournalsViewModel = new GetJournalsViewModel
-    // {
-    //   Journals = journals.Select(j => new )
-    // }
-    
-    throw new NotImplementedException();  
+
+    var getJournalsViewModel = new GetJournalsViewModel
+    {
+      Transactions = journals.Select(j => new GetJournalsViewModel.JournalTransactionViewModel
+      {
+        JournalTransactionID = j.JournalTransactionID,
+        TransactionGuid = j.TransactionGuid,
+        LinkType = j.LinkType,
+        Created = j.Created
+      }).ToList()
+    };
+
+    return Ok(getJournalsViewModel);
   }
 }

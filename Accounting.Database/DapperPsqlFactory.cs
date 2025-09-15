@@ -1302,28 +1302,91 @@ namespace Accounting.Database
 
       public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(int page, int pageSize, int getOrganizationId)
       {
-        // DynamicParameters p = new DynamicParameters();
-        // p.Add("@Page", page);
-        // p.Add("@PageSize", pageSize);
-        // p.Add("@GetOrganizationId", getOrganizationId);
-        //
-        // IEnumerable<JournalTransaction> paginatedResult;
-        //
-        // using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        // {
-        //   
-        // }
-        //
-        // var result = paginatedResult.ToList();
-        // int? nextPage = null;
-        //
-        // if (result.Count > pageSize)
-        // {
-        //   result.RemoveAt(result.Count - 1);
-        //   nextPage = page + 1;
-        // }
-        //
-        // return (result, nextPage);
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@Page", page);
+        p.Add("@PageSize", pageSize);
+        p.Add("@GetOrganizationId", getOrganizationId);
+        
+        IEnumerable<JournalTransaction> paginatedResult;
+        
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          const string sql = """
+            WITH unified AS (
+              SELECT
+                jiiil."TransactionGuid"::text            AS "TransactionGuid",
+                'invoice'                                AS "LinkType",
+                jiiil."JournalId"                        AS "JournalId",
+                jiiil."JournalInvoiceInvoiceLineID"      AS "LinkId",
+                jiiil."Created"                          AS "Created",
+                jiiil."OrganizationId"                   AS "OrganizationId"
+              FROM "JournalInvoiceInvoiceLine" jiiil
+              WHERE jiiil."OrganizationId" = @GetOrganizationId
+              UNION ALL
+              SELECT
+                jiilp."TransactionGuid"::text            AS "TransactionGuid",
+                'payment'                                AS "LinkType",
+                jiilp."JournalId"                        AS "JournalId",
+                jiilp."JournalInvoiceInvoiceLinePaymentID" AS "LinkId",
+                jiilp."Created"                          AS "Created",
+                jiilp."OrganizationId"                   AS "OrganizationId"
+              FROM "JournalInvoiceInvoiceLinePayment" jiilp
+              WHERE jiilp."OrganizationId" = @GetOrganizationId
+              UNION ALL
+              SELECT
+                jrt."TransactionGuid"::text              AS "TransactionGuid",
+                'reconciliation'                         AS "LinkType",
+                jrt."JournalId"                          AS "JournalId",
+                jrt."JournalReconciliationTransactionID" AS "LinkId",
+                jrt."Created"                            AS "Created",
+                jrt."OrganizationId"                     AS "OrganizationId"
+              FROM "JournalReconciliationTransaction" jrt
+              WHERE jrt."OrganizationId" = @GetOrganizationId
+            ),
+            dedup AS (
+              SELECT u.*,
+                     ROW_NUMBER() OVER (
+                       PARTITION BY u."TransactionGuid"
+                       ORDER BY u."Created" DESC, u."LinkId" DESC
+                     ) AS "rn"
+              FROM unified u
+            ),
+            ordered AS (
+              SELECT
+                u."TransactionGuid",
+                u."LinkType",
+                u."JournalId",
+                u."LinkId",
+                u."Created",
+                u."OrganizationId",
+                ROW_NUMBER() OVER (ORDER BY u."Created" DESC, u."LinkId" DESC) AS rownum
+              FROM dedup u
+              WHERE u."rn" = 1
+            )
+            SELECT
+              0 AS "JournalTransactionID",
+              o."TransactionGuid",
+              o."JournalId",
+              o."LinkId",
+              o."LinkType",
+              o."Created"
+            FROM ordered o
+            WHERE o.rownum BETWEEN @PageSize * (@Page - 1) + 1 AND @PageSize * @Page + 1
+            """;
+        
+          paginatedResult = await con.QueryAsync<JournalTransaction>(sql, p);
+        }
+        
+        var result = paginatedResult.ToList();
+        int? nextPage = null;
+        
+        if (result.Count > pageSize)
+        {
+          result.RemoveAt(result.Count - 1);
+          nextPage = page + 1;
+        }
+        
+        return (result, nextPage);
 
         throw new NotImplementedException();
       }
