@@ -1,6 +1,8 @@
+using Accounting.Business;
 using Accounting.CustomAttributes;
 using Microsoft.AspNetCore.Mvc;
 using Accounting.Models.JournalViewModels;
+using Accounting.Service;
 
 namespace Accounting.Controllers;
 
@@ -23,5 +25,33 @@ public class JournalController : BaseController
     };
 
     return View(vm);
+  }
+}
+
+[AuthorizeWithOrganizationId]
+[ApiController]
+[Route("api/journal")]
+public class JournalApiController : BaseController
+{
+  private readonly JournalService _journalService;
+
+  public JournalApiController(RequestContext requestContext)
+  {
+    _journalService = new JournalService(requestContext.DatabaseName, requestContext.DatabasePassword);
+  }
+
+  [HttpGet("get-journals")]
+  public async Task<IActionResult> GetJournals(
+    int page = 1, 
+    int pageSize = 10)
+  {
+    var (journals, nextPage) = await _journalService.GetAllUnionAsync(page, pageSize, GetOrganizationId()!.Value);
+    
+    // GetJournalsViewModel getJournalsViewModel = new GetJournalsViewModel
+    // {
+    //   Journals = journals.Select(j => new )
+    // }
+    
+    throw new NotImplementedException();  
   }
 }

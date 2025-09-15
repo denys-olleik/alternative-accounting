@@ -28,5 +28,11 @@ namespace Accounting.Service
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetJournalManager().HasEntriesAsync(accountId, organizationId);
     }
+
+    public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(int page, int pageSize, int getOrganizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetJournalManager().GetAllUnionAsync(page, pageSize, getOrganizationId);
+    }
   }
 }

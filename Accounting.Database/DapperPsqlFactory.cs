@@ -1300,6 +1300,34 @@ namespace Accounting.Database
         return count > 0;
       }
 
+      public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(int page, int pageSize, int getOrganizationId)
+      {
+        // DynamicParameters p = new DynamicParameters();
+        // p.Add("@Page", page);
+        // p.Add("@PageSize", pageSize);
+        // p.Add("@GetOrganizationId", getOrganizationId);
+        //
+        // IEnumerable<JournalTransaction> paginatedResult;
+        //
+        // using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        // {
+        //   
+        // }
+        //
+        // var result = paginatedResult.ToList();
+        // int? nextPage = null;
+        //
+        // if (result.Count > pageSize)
+        // {
+        //   result.RemoveAt(result.Count - 1);
+        //   nextPage = page + 1;
+        // }
+        //
+        // return (result, nextPage);
+
+        throw new NotImplementedException();
+      }
+
       public int Update(Journal entity)
       {
         throw new NotImplementedException();
