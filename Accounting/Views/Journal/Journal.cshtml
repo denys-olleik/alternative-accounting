@@ -16,13 +16,17 @@
   <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
     <tr>
-      <th>Transaction</th>
+      <th></th>
+      <th class="text-align-left">Transaction</th>
+      <th class="text-align-right">Type</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody class="font-Roboto-Mono">
     <template v-for="journal in journalTransactions" :key="journal.journalID">
       <tr>
-        <td>{{ journal.transactionGuid }}</td>
+        <th class="text-align-left width-1px padding-right-20px fitwidth"></th>
+        <td>█ {{ journal.transactionGuid }}</td>
+        <td class="text-align-right">{{ journal.linkType }}</td>
       </tr>
     </template>
     </tbody>

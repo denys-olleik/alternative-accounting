@@ -1387,8 +1387,6 @@ namespace Accounting.Database
         }
         
         return (result, nextPage);
-
-        throw new NotImplementedException();
       }
 
       public int Update(Journal entity)
