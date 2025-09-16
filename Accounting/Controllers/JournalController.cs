@@ -55,7 +55,10 @@ public class JournalApiController : BaseController
         TransactionGuid = j.TransactionGuid,
         LinkType = j.LinkType,
         Created = j.Created
-      }).ToList()
+      }).ToList(),
+      Page = page,
+      NextPage = nextPage,
+      PageSize = pageSize,
     };
 
     return Ok(getJournalsViewModel);

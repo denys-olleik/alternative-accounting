@@ -1,6 +1,6 @@
 namespace Accounting.Models.JournalViewModels;
 
-public class GetJournalsViewModel
+public class GetJournalsViewModel : PaginatedViewModel
 {
   public List<JournalTransactionViewModel> Transactions { get; set; } = null!;
   

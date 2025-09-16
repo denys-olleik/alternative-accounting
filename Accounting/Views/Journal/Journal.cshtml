@@ -31,18 +31,31 @@
     </template>
     </tbody>
   </table>
+  
+  <pagination-component :prev-page-url="`/journal/journal?page=${page - 1}&pageSize=${pageSize}`"
+                        :next-page-url="nextPage ? `/journal/journal?page=${nextPage}&pageSize=${pageSize}` : ''" :is-filtered="false"
+                        :page="page">
+  </pagination-component>
 </div>
+
+<script src="~/js/BusinessEntityNameDisplay.js" asp-append-version="true"></script>
+<script src="~/js/PaginationComponent.js" asp-append-version="true"></script>
 
 <script>
   const { createApp } = Vue;
   
   const app = createApp({
     components: {
-      
+      'pagination-component': PaginationComponent
     },
     data() {
       return {
         journalTransactions: [],
+        invoice: null,
+        invoiceLineItems: [],
+        payment: null,
+        reconciliation: null,
+        journalEntries: [],
         page: @Model.Page,
         pageSize: @Model.PageSize,
         nextPage: null,

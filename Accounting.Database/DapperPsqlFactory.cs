@@ -1300,12 +1300,13 @@ namespace Accounting.Database
         return count > 0;
       }
 
-      public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(int page, int pageSize, int getOrganizationId)
+      public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(
+        int page, int pageSize, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@Page", page);
         p.Add("@PageSize", pageSize);
-        p.Add("@GetOrganizationId", getOrganizationId);
+        p.Add("@OrganizationId", organizationId);
         
         IEnumerable<JournalTransaction> paginatedResult;
         

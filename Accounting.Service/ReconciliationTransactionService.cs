@@ -51,17 +51,17 @@ namespace Accounting.Service
       return await factoryManager.GetReconciliationTransactionManager().ImportAsync(transaction);
     }
 
-    public async System.Threading.Tasks.Task UpdateAssetOrLiabilityAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationLiabilitiesAndAssetsAccountId)
-    {
-      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      await factoryManager.GetReconciliationTransactionManager().UpdateAssetOrLiabilityAccountIdAsync(reconciliationTransactionID, selectedReconciliationLiabilitiesAndAssetsAccountId);
-    }
+    // public async System.Threading.Tasks.Task UpdateAssetOrLiabilityAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationLiabilitiesAndAssetsAccountId)
+    // {
+    //   var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+    //   await factoryManager.GetReconciliationTransactionManager().UpdateAssetOrLiabilityAccountIdAsync(reconciliationTransactionID, selectedReconciliationLiabilitiesAndAssetsAccountId);
+    // }
 
-    public async System.Threading.Tasks.Task UpdateExpenseAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationExpenseAccountId)
-    {
-      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      await factoryManager.GetReconciliationTransactionManager().UpdateExpenseAccountIdAsync(reconciliationTransactionID, selectedReconciliationExpenseAccountId);
-    }
+    // public async System.Threading.Tasks.Task UpdateExpenseAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationExpenseAccountId)
+    // {
+    //   var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+    //   await factoryManager.GetReconciliationTransactionManager().UpdateExpenseAccountIdAsync(reconciliationTransactionID, selectedReconciliationExpenseAccountId);
+    // }
 
     public async Task<int> UpdateReconciliationTransactionInstructionAsync(int reconciliationTransactionID, string reconciliationInstruction)
     {
