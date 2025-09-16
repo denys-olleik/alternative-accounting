@@ -142,15 +142,15 @@ namespace Accounting.Database
       return databaseFactoryDefinition.GetJournalReconciliationExpenseManager();
     }
 
-    public IReconciliationExpenseManager GetExpenseManager()
-    {
-      return databaseFactoryDefinition.GetExpenseManager();
-    }
+    // public IReconciliationExpenseManager GetExpenseManager()
+    // {
+    //   return databaseFactoryDefinition.GetExpenseManager();
+    // }
 
-    public IReconciliationExpenseCategoryManager GetReconciliationExpenseCategoryManager()
-    {
-      return databaseFactoryDefinition.GetReconciliationExpenseCategoryManager();
-    }
+    // public IReconciliationExpenseCategoryManager GetReconciliationExpenseCategoryManager()
+    // {
+    //   return databaseFactoryDefinition.GetReconciliationExpenseCategoryManager();
+    // }
 
     public IDatabaseManager GetDatabaseManager()
     {

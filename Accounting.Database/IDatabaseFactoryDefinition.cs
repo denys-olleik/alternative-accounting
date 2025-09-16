@@ -27,7 +27,7 @@ namespace Accounting.Database
     IReconciliationTransactionManager GetReconciliationTransactionManager();
     IReconciliationManager GetReconciliationManager();
     IReconiliationAttachmentManager GetReconiliationAttachmentManager();
-    IReconciliationExpenseManager GetExpenseManager();
+    //IReconciliationExpenseManager GetExpenseManager();
     IJournalReconciliationTransactionManager GetJournalReconciliationExpenseManager();
     IReconciliationExpenseCategoryManager GetReconciliationExpenseCategoryManager();
     IDatabaseManager GetDatabaseManager();

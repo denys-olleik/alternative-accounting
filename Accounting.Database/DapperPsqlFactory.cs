@@ -4020,46 +4020,6 @@ namespace Accounting.Database
       {
         throw new NotImplementedException();
       }
-
-      public async Task<int> UpdateAssetOrLiabilityAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationLiabilitiesAndAssetsAccountId)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@ReconciliationTransactionID", reconciliationTransactionID);
-        p.Add("@AssetOrLiabilityAccountId", selectedReconciliationLiabilitiesAndAssetsAccountId);
-
-        int rowsAffected;
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          rowsAffected = await con.ExecuteAsync("""
-            UPDATE "ReconciliationTransaction" 
-            SET "AssetOrLiabilityAccountId" = @AssetOrLiabilityAccountId
-            WHERE "ReconciliationTransactionID" = @ReconciliationTransactionID;
-            """, p);
-
-          return rowsAffected;
-        }
-      }
-
-      public async Task<int> UpdateExpenseAccountIdAsync(int reconciliationTransactionID, int selectedReconciliationExpenseAccountId)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@ReconciliationTransactionID", reconciliationTransactionID);
-        p.Add("@ExpenseAccountId", selectedReconciliationExpenseAccountId);
-
-        int rowsAffected;
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          rowsAffected = await con.ExecuteAsync("""
-            UPDATE "ReconciliationTransaction" 
-            SET "ExpenseAccountId" = @ExpenseAccountId
-            WHERE "ReconciliationTransactionID" = @ReconciliationTransactionID;
-            """, p);
-
-          return rowsAffected;
-        }
-      }
     }
 
     public IReconiliationAttachmentManager GetReconiliationAttachmentManager()
@@ -5455,127 +5415,127 @@ namespace Accounting.Database
       }
     }
 
-    public IReconciliationExpenseManager GetExpenseManager()
-    {
-      return new ReconciliationExpenseManager(_connectionString);
-    }
+    // public IReconciliationExpenseManager GetExpenseManager()
+    // {
+    //   return new ReconciliationExpenseManager(_connectionString);
+    // }
 
-    public class ReconciliationExpenseManager : IReconciliationExpenseManager
-    {
-      private readonly string _connectionString;
-
-      public ReconciliationExpenseManager(string connectionString)
-      {
-        _connectionString = connectionString;
-      }
-
-      public ReconciliationExpense Create(ReconciliationExpense entity)
-      {
-        throw new NotImplementedException();
-      }
-
-      public async Task<ReconciliationExpense> CreateAsync(ReconciliationExpense entity)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@Amount", entity.Amount);
-        p.Add("@ReconciliationTransactionId", entity.ReconciliationTransactionId);
-        p.Add("@CreatedById", entity.CreatedById);
-        p.Add("@OrganizationId", entity.OrganizationId);
-
-        IEnumerable<ReconciliationExpense> result;
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          result = await con.QueryAsync<ReconciliationExpense>("""
-            INSERT INTO "ReconciliationExpense" ("Amount", "ReconciliationTransactionId", "CreatedById", "OrganizationId") 
-            VALUES (@Amount, @ReconciliationTransactionId, @CreatedById, @OrganizationId)
-            RETURNING *;
-            """, p);
-        }
-
-        return result.Single();
-      }
-
-      public int Delete(int id)
-      {
-        throw new NotImplementedException();
-      }
-
-      public ReconciliationExpense Get(int id)
-      {
-        throw new NotImplementedException();
-      }
-
-      public IEnumerable<ReconciliationExpense> GetAll()
-      {
-        throw new NotImplementedException();
-      }
-
-      public async Task<ReconciliationExpense> GetAsync(int reconciliationTransactionID)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@ReconciliationTransactionID", reconciliationTransactionID);
-
-        IEnumerable<ReconciliationExpense> result;
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          result = await con.QueryAsync<ReconciliationExpense>("""
-            SELECT * 
-            FROM "ReconciliationExpense" 
-            WHERE "ReconciliationTransactionId" = @ReconciliationTransactionID;
-            """, p);
-        }
-
-        return result.SingleOrDefault()!;
-      }
-
-      public int Update(ReconciliationExpense entity)
-      {
-        throw new NotImplementedException();
-      }
-
-      public async Task<int> UpdateAmountAsync(int reconciliationExpenseId, decimal? amount)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@ReconciliationExpenseID", reconciliationExpenseId);
-        p.Add("@Amount", amount);
-
-        int rowsAffected;
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          rowsAffected = await con.ExecuteAsync("""
-            UPDATE "ReconciliationExpense" 
-            SET "Amount" = @Amount
-            WHERE "ReconciliationExpenseID" = @ReconciliationExpenseID;
-            """, p);
-        }
-
-        return rowsAffected;
-      }
-
-      public async Task<int> UpdateAsync(ReconciliationExpense expense)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@ReconciliationExpenseID", expense.ReconciliationExpenseID);
-        p.Add("@Amount", expense.Amount);
-
-        int rowsAffected;
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          rowsAffected = await con.ExecuteAsync("""
-            UPDATE "ReconciliationExpense" 
-            SET 
-            "Amount" = @Amount
-            WHERE "ReconciliationExpenseID" = @ReconciliationExpenseID;
-            """, p);
-        }
-
-        return rowsAffected;
-      }
-    }
+    // public class ReconciliationExpenseManager : IReconciliationExpenseManager
+    // {
+    //   private readonly string _connectionString;
+    //
+    //   public ReconciliationExpenseManager(string connectionString)
+    //   {
+    //     _connectionString = connectionString;
+    //   }
+    //
+    //   public ReconciliationExpense Create(ReconciliationExpense entity)
+    //   {
+    //     throw new NotImplementedException();
+    //   }
+    //
+    //   public async Task<ReconciliationExpense> CreateAsync(ReconciliationExpense entity)
+    //   {
+    //     DynamicParameters p = new DynamicParameters();
+    //     p.Add("@Amount", entity.Amount);
+    //     p.Add("@ReconciliationTransactionId", entity.ReconciliationTransactionId);
+    //     p.Add("@CreatedById", entity.CreatedById);
+    //     p.Add("@OrganizationId", entity.OrganizationId);
+    //
+    //     IEnumerable<ReconciliationExpense> result;
+    //
+    //     using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+    //     {
+    //       result = await con.QueryAsync<ReconciliationExpense>("""
+    //         INSERT INTO "ReconciliationExpense" ("Amount", "ReconciliationTransactionId", "CreatedById", "OrganizationId") 
+    //         VALUES (@Amount, @ReconciliationTransactionId, @CreatedById, @OrganizationId)
+    //         RETURNING *;
+    //         """, p);
+    //     }
+    //
+    //     return result.Single();
+    //   }
+    //
+    //   public int Delete(int id)
+    //   {
+    //     throw new NotImplementedException();
+    //   }
+    //
+    //   public ReconciliationExpense Get(int id)
+    //   {
+    //     throw new NotImplementedException();
+    //   }
+    //
+    //   public IEnumerable<ReconciliationExpense> GetAll()
+    //   {
+    //     throw new NotImplementedException();
+    //   }
+    //
+    //   public async Task<ReconciliationExpense> GetAsync(int reconciliationTransactionID)
+    //   {
+    //     DynamicParameters p = new DynamicParameters();
+    //     p.Add("@ReconciliationTransactionID", reconciliationTransactionID);
+    //
+    //     IEnumerable<ReconciliationExpense> result;
+    //
+    //     using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+    //     {
+    //       result = await con.QueryAsync<ReconciliationExpense>("""
+    //         SELECT * 
+    //         FROM "ReconciliationExpense" 
+    //         WHERE "ReconciliationTransactionId" = @ReconciliationTransactionID;
+    //         """, p);
+    //     }
+    //
+    //     return result.SingleOrDefault()!;
+    //   }
+    //
+    //   public int Update(ReconciliationExpense entity)
+    //   {
+    //     throw new NotImplementedException();
+    //   }
+    //
+    //   public async Task<int> UpdateAmountAsync(int reconciliationExpenseId, decimal? amount)
+    //   {
+    //     DynamicParameters p = new DynamicParameters();
+    //     p.Add("@ReconciliationExpenseID", reconciliationExpenseId);
+    //     p.Add("@Amount", amount);
+    //
+    //     int rowsAffected;
+    //
+    //     using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+    //     {
+    //       rowsAffected = await con.ExecuteAsync("""
+    //         UPDATE "ReconciliationExpense" 
+    //         SET "Amount" = @Amount
+    //         WHERE "ReconciliationExpenseID" = @ReconciliationExpenseID;
+    //         """, p);
+    //     }
+    //
+    //     return rowsAffected;
+    //   }
+    //
+    //   public async Task<int> UpdateAsync(ReconciliationExpense expense)
+    //   {
+    //     DynamicParameters p = new DynamicParameters();
+    //     p.Add("@ReconciliationExpenseID", expense.ReconciliationExpenseID);
+    //     p.Add("@Amount", expense.Amount);
+    //
+    //     int rowsAffected;
+    //
+    //     using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+    //     {
+    //       rowsAffected = await con.ExecuteAsync("""
+    //         UPDATE "ReconciliationExpense" 
+    //         SET 
+    //         "Amount" = @Amount
+    //         WHERE "ReconciliationExpenseID" = @ReconciliationExpenseID;
+    //         """, p);
+    //     }
+    //
+    //     return rowsAffected;
+    //   }
+    // }
 
     public IJournalReconciliationTransactionManager GetJournalReconciliationExpenseManager()
     {
