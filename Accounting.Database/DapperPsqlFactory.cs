@@ -1322,7 +1322,7 @@ namespace Accounting.Database
                 jiiil."Created"                          AS "Created",
                 jiiil."OrganizationId"                   AS "OrganizationId"
               FROM "JournalInvoiceInvoiceLine" jiiil
-              WHERE jiiil."OrganizationId" = @GetOrganizationId
+              WHERE jiiil."OrganizationId" = @OrganizationId
               UNION ALL
               SELECT
                 jiilp."TransactionGuid"::text            AS "TransactionGuid",
@@ -1332,7 +1332,7 @@ namespace Accounting.Database
                 jiilp."Created"                          AS "Created",
                 jiilp."OrganizationId"                   AS "OrganizationId"
               FROM "JournalInvoiceInvoiceLinePayment" jiilp
-              WHERE jiilp."OrganizationId" = @GetOrganizationId
+              WHERE jiilp."OrganizationId" = @OrganizationId
               UNION ALL
               SELECT
                 jrt."TransactionGuid"::text              AS "TransactionGuid",
@@ -1342,7 +1342,7 @@ namespace Accounting.Database
                 jrt."Created"                            AS "Created",
                 jrt."OrganizationId"                     AS "OrganizationId"
               FROM "JournalReconciliationTransaction" jrt
-              WHERE jrt."OrganizationId" = @GetOrganizationId
+              WHERE jrt."OrganizationId" = @OrganizationId
             ),
             dedup AS (
               SELECT u.*,
