@@ -34,10 +34,14 @@ public class JournalController : BaseController
 public class JournalApiController : BaseController
 {
   private readonly JournalService _journalService;
+  private readonly InvoiceService _invoiceService;
+  private readonly InvoiceLineService _invoiceLineService;
 
   public JournalApiController(RequestContext requestContext)
   {
-    _journalService = new JournalService(requestContext.DatabaseName, requestContext.DatabasePassword);
+    _journalService = new JournalService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _invoiceService = new InvoiceService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _invoiceLineService = new InvoiceLineService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
   }
 
   [HttpGet("get-journals")]
@@ -60,6 +64,29 @@ public class JournalApiController : BaseController
       NextPage = nextPage,
       PageSize = pageSize,
     };
+
+    foreach (var j in journals)
+    {
+      switch (j.LinkType)
+      {
+        case JournalTransaction.LinkTypeConstants.Invoice:
+          j.Invoices = new List<Invoice> { await _invoiceService.GetAsync(j.LinkId, GetOrganizationId()!.Value) };
+          //j.InvoiceLines = new List<InvoiceLine>() { await _invoiceLineService}
+          break;
+
+        case JournalTransaction.LinkTypeConstants.InvoiceLine:
+          // TODO: Populate invoice line-related details for j
+          break;
+
+        case JournalTransaction.LinkTypeConstants.Payment:
+          // TODO: Populate payment-related details for j
+          break;
+
+        default:
+          // TODO: Handle unknown link type
+          break;
+      }
+    }
 
     return Ok(getJournalsViewModel);
   }

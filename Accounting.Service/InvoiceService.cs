@@ -16,6 +16,12 @@ namespace Accounting.Service
       _journalService = journalService;
       _journalInvoiceInvoiceLineService = journalInvoiceInvoiceLineService;
     }
+    
+    public InvoiceService(
+      string databaseName, string databasePassword) : base(databaseName, databasePassword)
+    {
+      
+    }
 
     public InvoiceService(
         JournalService journalService,

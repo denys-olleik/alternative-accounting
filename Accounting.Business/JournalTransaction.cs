@@ -1,3 +1,4 @@
+using System.Reflection;
 using Accounting.Common;
 
 namespace Accounting.Business;
@@ -20,4 +21,27 @@ public class JournalTransaction : IIdentifiable<int>
   #endregion
 
   public int Identifiable => JournalTransactionID;
+  
+  public class LinkTypeConstants
+  {
+    public const string Invoice = "invoice";
+    public const string InvoiceLine = "invoiceLine";
+    public const string Payment = "payment";
+    
+    private static readonly List<string> _all = new ();
+
+    static LinkTypeConstants()
+    {
+      var fields = typeof(LinkTypeConstants).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+      foreach (var field in fields)
+      {
+        if (field.FieldType == typeof(string) && field.GetValue(null) is string value)
+        {
+          _all.Add(value);
+        }
+      }
+    }
+    
+    public static IReadOnlyList<string> All => _all.AsReadOnly();
+  }
 }
