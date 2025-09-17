@@ -121,15 +121,11 @@ CREATE TABLE "ReconciliationTransaction"
 	"TransactionDate" TIMESTAMPTZ NOT NULL,
 	"Description" VARCHAR(1000) NOT NULL,
 	"Amount" DECIMAL(18, 2) NOT NULL,
--- 	"ExpenseAccountId" INT NULL,
--- 	"AssetOrLiabilityAccountId" INT NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"ReconciliationId" INT NOT NULL,
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NOT NULL,
 	FOREIGN KEY ("ReconciliationId") REFERENCES "Reconciliation"("ReconciliationID"),
--- 	FOREIGN KEY ("ExpenseAccountId") REFERENCES "Account"("AccountID"),
--- 	FOREIGN KEY ("AssetOrLiabilityAccountId") REFERENCES "Account"("AccountID"),
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
