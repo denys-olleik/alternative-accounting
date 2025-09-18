@@ -25,8 +25,8 @@ public class JournalTransaction : IIdentifiable<int>
   public class LinkTypeConstants
   {
     public const string Invoice = "invoice";
-    public const string InvoiceLine = "invoiceLine";
     public const string Payment = "payment";
+    public const string Reconciliation = "reconciliation";
     
     private static readonly List<string> _all = new ();
 

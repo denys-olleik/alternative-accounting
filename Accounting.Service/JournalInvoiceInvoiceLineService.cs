@@ -9,6 +9,12 @@ namespace Accounting.Service
     private readonly InvoiceLineService _invoiceLineService;
     private readonly JournalService _journalService;
 
+    public JournalInvoiceInvoiceLineService(string databaseName, string databasePassword) 
+      : base(databaseName, databasePassword)
+    {
+      
+    }
+    
     public JournalInvoiceInvoiceLineService(
       JournalService journalService,
       InvoiceLineService invoiceLineService

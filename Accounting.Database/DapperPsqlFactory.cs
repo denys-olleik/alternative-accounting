@@ -1390,6 +1390,39 @@ namespace Accounting.Database
         return (result, nextPage);
       }
 
+      public async Task<List<Journal>> GetByTransactionGuid(string transactionGuid, int organizationId)
+      {
+        var p = new DynamicParameters();
+        p.Add("@TransactionGuid", transactionGuid);
+        p.Add("@OrganizationId", organizationId);
+
+        using var con = new NpgsqlConnection(_connectionString);
+
+        const string sql = """
+          SELECT j.*
+          FROM "Journal" j
+          WHERE j."JournalID" IN (
+            SELECT jiiil."JournalId"
+            FROM "JournalInvoiceInvoiceLine" jiiil
+            WHERE jiiil."OrganizationId" = @OrganizationId
+              AND jiiil."TransactionGuid" = CAST(@TransactionGuid AS uuid)
+            UNION ALL
+            SELECT jiilp."JournalId"
+            FROM "JournalInvoiceInvoiceLinePayment" jiilp
+            WHERE jiilp."OrganizationId" = @OrganizationId
+              AND jiilp."TransactionGuid" = CAST(@TransactionGuid AS uuid)
+            UNION ALL
+            SELECT jrt."JournalId"
+            FROM "JournalReconciliationTransaction" jrt
+            WHERE jrt."OrganizationId" = @OrganizationId
+              AND jrt."TransactionGuid" = CAST(@TransactionGuid AS uuid)
+          );
+          """;
+
+        var result = await con.QueryAsync<Journal>(sql, p);
+        return result.ToList();
+      }
+
       public int Update(Journal entity)
       {
         throw new NotImplementedException();

@@ -8,5 +8,6 @@ namespace Accounting.Database.Interfaces
     Task<List<Journal>> GetLedgerEntriesAsync(int[] ledgerContextIds, int organizationId);
     Task<bool> HasEntriesAsync(int accountId, int organizationId);
     Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(int page, int pageSize, int organizationId);
+    Task<List<Journal>> GetByTransactionGuid(string transactionGuid, int organizationId);
   }
 }

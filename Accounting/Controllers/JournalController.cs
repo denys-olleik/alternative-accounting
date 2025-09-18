@@ -35,13 +35,13 @@ public class JournalApiController : BaseController
 {
   private readonly JournalService _journalService;
   private readonly InvoiceService _invoiceService;
-  private readonly InvoiceLineService _invoiceLineService;
+  private readonly JournalInvoiceInvoiceLineService _journalInvoiceInvoiceLineService;
 
   public JournalApiController(RequestContext requestContext)
   {
     _journalService = new JournalService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _invoiceService = new InvoiceService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
-    _invoiceLineService = new InvoiceLineService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _journalInvoiceInvoiceLineService = new JournalInvoiceInvoiceLineService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
   }
 
   [HttpGet("get-journals")]
@@ -49,11 +49,35 @@ public class JournalApiController : BaseController
     int page = 1, 
     int pageSize = 10)
   {
-    var (journals, nextPage) = await _journalService.GetAllUnionAsync(page, pageSize, GetOrganizationId()!.Value);
+    var (journalTransactions, nextPage) = await _journalService.GetAllUnionAsync(page, pageSize, GetOrganizationId()!.Value);
+
+    foreach (var j in journalTransactions)
+    {
+      switch (j.LinkType)
+      {
+        case JournalTransaction.LinkTypeConstants.Invoice:
+          j.Invoices = new List<Invoice> { await _invoiceService.GetAsync(j.LinkId, GetOrganizationId()!.Value) };
+          j.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(j.LinkId, GetOrganizationId()!.Value, false);
+          j.Journals = await _journalService.GetByTransactionGuid(j.TransactionGuid, GetOrganizationId()!.Value);
+          break;
+
+        case JournalTransaction.LinkTypeConstants.Payment:
+          // TODO: Populate payment-related details for j
+          break;
+
+        case JournalTransaction.LinkTypeConstants.Reconciliation:
+          // TODO: Populate invoice line-related details for j
+          break;
+
+        default:
+          // TODO: Handle unknown link type
+          break;
+      }
+    }
 
     var getJournalsViewModel = new GetJournalsViewModel
     {
-      Transactions = journals.Select(j => new GetJournalsViewModel.JournalTransactionViewModel
+      Transactions = journalTransactions.Select(j => new GetJournalsViewModel.JournalTransactionViewModel
       {
         JournalTransactionID = j.JournalTransactionID,
         TransactionGuid = j.TransactionGuid,
@@ -64,29 +88,6 @@ public class JournalApiController : BaseController
       NextPage = nextPage,
       PageSize = pageSize,
     };
-
-    foreach (var j in journals)
-    {
-      switch (j.LinkType)
-      {
-        case JournalTransaction.LinkTypeConstants.Invoice:
-          j.Invoices = new List<Invoice> { await _invoiceService.GetAsync(j.LinkId, GetOrganizationId()!.Value) };
-          //j.InvoiceLines = new List<InvoiceLine>() { await _invoiceLineService}
-          break;
-
-        case JournalTransaction.LinkTypeConstants.InvoiceLine:
-          // TODO: Populate invoice line-related details for j
-          break;
-
-        case JournalTransaction.LinkTypeConstants.Payment:
-          // TODO: Populate payment-related details for j
-          break;
-
-        default:
-          // TODO: Handle unknown link type
-          break;
-      }
-    }
 
     return Ok(getJournalsViewModel);
   }

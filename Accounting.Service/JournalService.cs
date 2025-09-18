@@ -14,7 +14,7 @@ namespace Accounting.Service
       string databaseName, 
       string databasePassword) : base(databaseName, databasePassword)
     {
-
+      
     }
 
     public async Task<Journal> CreateAsync(Journal journal)
@@ -33,6 +33,12 @@ namespace Accounting.Service
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetJournalManager().GetAllUnionAsync(page, pageSize, getOrganizationId);
+    }
+
+    public async Task<List<Journal>> GetByTransactionGuid(string transactionGuid, int organizationId)
+    {
+      var factoryManger = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManger.GetJournalManager().GetByTransactionGuid(transactionGuid, organizationId);
     }
   }
 }
