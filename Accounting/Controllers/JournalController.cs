@@ -45,50 +45,61 @@ public class JournalApiController : BaseController
   }
 
   [HttpGet("get-journals")]
-  public async Task<IActionResult> GetJournals(
-    int page = 1, 
-    int pageSize = 10)
+  public async Task<IActionResult> GetJournals(int page = 1, int pageSize = 10)
   {
-    var (journalTransactions, nextPage) = await _journalService.GetAllUnionAsync(page, pageSize, GetOrganizationId()!.Value);
+    var orgId = GetOrganizationId()!.Value;
+    var (journalTransactions, nextPage) = await _journalService.GetAllUnionAsync(page, pageSize, orgId);
 
-    foreach (var j in journalTransactions)
+    foreach (var jt in journalTransactions)
     {
-      switch (j.LinkType)
+      switch (jt.LinkType)
       {
         case JournalTransaction.LinkTypeConstants.Invoice:
-          j.Invoices = new List<Invoice> { await _invoiceService.GetAsync(j.LinkId, GetOrganizationId()!.Value) };
-          j.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(j.LinkId, GetOrganizationId()!.Value, false);
-          j.Journals = await _journalService.GetByTransactionGuid(j.TransactionGuid, GetOrganizationId()!.Value);
+          jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
           break;
 
         case JournalTransaction.LinkTypeConstants.Payment:
-          // TODO: Populate payment-related details for j
+          // TODO: Populate payment-related details and journals
+          // jt.Invoices = ...
+          // jt.Payments = ...
+          // jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
           break;
 
         case JournalTransaction.LinkTypeConstants.Reconciliation:
-          // TODO: Populate invoice line-related details for j
+          // TODO: Populate reconciliation-related details and journals
+          // jt.ReconciliationTransactions = ...
+          // jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
           break;
 
         default:
-          // TODO: Handle unknown link type
+          // TODO: Handle unknown link type if needed
           break;
       }
     }
 
-    var getJournalsViewModel = new GetJournalsViewModel
+    var vm = new GetJournalsViewModel
     {
       Transactions = journalTransactions.Select(j => new GetJournalsViewModel.JournalTransactionViewModel
       {
         JournalTransactionID = j.JournalTransactionID,
         TransactionGuid = j.TransactionGuid,
         LinkType = j.LinkType,
-        Created = j.Created
+        Created = j.Created,
+        Journals = j.Journals?.Select(x => new GetJournalsViewModel.JournalViewModel
+        {
+          JournalID = x.JournalID,
+          //AccountId = x.AccountId,
+          Debit = x.Debit,
+          Credit = x.Credit,
+          //CurrencyCode = x.CurrencyCode,
+          //ExchangeRate = x.ExchangeRate
+        }).ToList()!
       }).ToList(),
       Page = page,
       NextPage = nextPage,
       PageSize = pageSize,
     };
 
-    return Ok(getJournalsViewModel);
+    return Ok(vm);
   }
 }

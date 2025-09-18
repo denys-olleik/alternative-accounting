@@ -12,5 +12,13 @@ public class GetJournalsViewModel : PaginatedViewModel
     public int LinkId { get; set; }
     public string LinkType { get; set; } = null!;
     public DateTime Created { get; set; }
+    public List<JournalViewModel> Journals { get; set; } = null!;
+  }
+
+  public class JournalViewModel
+  {
+    public int JournalID { get; set; }
+    public decimal? Debit { get; set; }
+    public decimal? Credit { get; set; }
   }
 }
