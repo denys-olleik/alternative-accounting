@@ -1,11 +1,11 @@
 @model Accounting.Models.JournalViewModels.JournalPaginatedViewModel
 
 @{
-  ViewData["Title"] = "Journal - " + ConfigurationSingleton.Instance.ApplicationName;
+ViewData["Title"] = "Journal - " + ConfigurationSingleton.Instance.ApplicationName;
 }
 
 @{
-  string headerText = "Journal";
+string headerText = "Journal";
 }
 
 <partial name="_H1HeaderPartial" model="@headerText"/>
@@ -22,18 +22,22 @@
     </tr>
     </thead>
     <tbody class="font-Roboto-Mono">
-    <template v-for="journal in journalTransactions" :key="journal.journalID">
+    <template v-for="(journal, idx) in journalTransactions" :key="journal.journalTransactionID">
       <tr>
         <th class="text-align-left width-1px padding-right-20px fitwidth"></th>
-        <td>█ {{ journal.transactionGuid }}</td>
+        <td>
+          <span :class="idx === selectedIndex ? 'blinking-cursor' : ''">█</span>
+          {{ journal.transactionGuid }}
+        </td>
         <td class="text-align-right">{{ journal.linkType }}</td>
       </tr>
     </template>
     </tbody>
   </table>
-  
-  <pagination-component :prev-page-url="`/journal/journal?page=${page - 1}&pageSize=${pageSize}`"
-                        :next-page-url="nextPage ? `/journal/journal?page=${nextPage}&pageSize=${pageSize}` : ''" :is-filtered="false"
+
+  <pagination-component :prev-page-url="prevPageUrl"
+                        :next-page-url="nextPageUrl"
+                        :is-filtered="false"
                         :page="page">
   </pagination-component>
 </div>
@@ -43,7 +47,7 @@
 
 <script>
   const { createApp } = Vue;
-  
+
   const app = createApp({
     components: {
       'pagination-component': PaginationComponent
@@ -51,47 +55,77 @@
     data() {
       return {
         journalTransactions: [],
-        invoices: [],
-        invoiceLineItems: [],
-        payment: null,
-        reconciliation: null,
         page: @Model.Page,
         pageSize: @Model.PageSize,
         nextPage: null,
-        rememberPageSize: @(Model.RememberPageSize ? "true" : "false")
+        rememberPageSize: @(Model.RememberPageSize ? "true" : "false"),
+        selectedIndex: 0
+      }
+    },
+    computed: {
+      prevPageUrl() {
+        return this.page > 1 ? `/journal/journal?page=${this.page - 1}&pageSize=${this.pageSize}` : '';
+      },
+      nextPageUrl() {
+        return this.nextPage ? `/journal/journal?page=${this.nextPage}&pageSize=${this.pageSize}` : '';
       }
     },
     methods: {
+      qp(name) {
+        const p = new URLSearchParams(window.location.search);
+        return p.get(name);
+      },
       fetchJournals() {
         const storedPageSize = parseInt(localStorage.getItem('pageSize'));
-        if (storedPageSize) {
-          this.pageSize = storedPageSize;
-        }
+        if (storedPageSize) this.pageSize = storedPageSize;
 
-        let apiUrl = `/api/journal/get-journals?page=${this.page}&pageSize=${this.pageSize}`;
-
-        fetch(apiUrl)
-          .then(response => response.json())
+        fetch(`/api/journal/get-journals?page=${this.page}&pageSize=${this.pageSize}`)
+          .then(r => r.json())
           .then(data => {
-            this.journalTransactions = data.transactions;
-            if (data.page > 0) {
-              this.page = data.page;
-            }
-            if (data.nextPage > 0) {
-              this.nextPage = data.nextPage;
+            this.journalTransactions = data.transactions || [];
+            if (data.page > 0) this.page = data.page;
+            this.nextPage = data.nextPage > 0 ? data.nextPage : null;
+
+            const sel = this.qp('select'); // 'first' | 'last' | null
+            if (sel === 'last' && this.journalTransactions.length > 0) {
+              this.selectedIndex = this.journalTransactions.length - 1;
             } else {
-              this.nextPage = null;
+              this.selectedIndex = 0;
             }
           });
+      },
+      onArrowDown() {
+        if (!this.journalTransactions.length) return;
+        if (this.selectedIndex < this.journalTransactions.length - 1) {
+          this.selectedIndex++;
+        } else if (this.nextPage) {
+          window.location.href = `/journal/journal?page=${this.nextPage}&pageSize=${this.pageSize}&select=first`;
+        }
+      },
+      onArrowUp() {
+        if (!this.journalTransactions.length) return;
+        if (this.selectedIndex > 0) {
+          this.selectedIndex--;
+        } else if (this.page > 1) {
+          window.location.href = `/journal/journal?page=${this.page - 1}&pageSize=${this.pageSize}&select=last`;
+        }
+      },
+      onGlobalKeyDown(e) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          this.onArrowDown();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          this.onArrowUp();
+        }
       }
     },
     mounted() {
-      if (this.rememberPageSize) {
-        localStorage.setItem('pageSize', this.pageSize);
-      }
+      if (this.rememberPageSize) localStorage.setItem('pageSize', this.pageSize);
       this.fetchJournals();
+      window.addEventListener('keydown', this.onGlobalKeyDown, { passive: false });
     }
-  })
-  
+  });
+
   app.mount('#app');
 </script>
