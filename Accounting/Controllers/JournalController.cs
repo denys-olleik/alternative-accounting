@@ -55,14 +55,16 @@ public class JournalApiController : BaseController
       switch (jt.LinkType)
       {
         case JournalTransaction.LinkTypeConstants.Invoice:
+          jt.Invoices = new List<Invoice> { await _invoiceService.GetAsync(jt.LinkId, orgId) };
           jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
+          jt.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.LinkId, orgId, false);
           break;
 
         case JournalTransaction.LinkTypeConstants.Payment:
           // TODO: Populate payment-related details and journals
           // jt.Invoices = ...
           // jt.Payments = ...
-          // jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
+          jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
           break;
 
         case JournalTransaction.LinkTypeConstants.Reconciliation:
