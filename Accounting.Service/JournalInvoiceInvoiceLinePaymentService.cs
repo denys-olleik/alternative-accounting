@@ -29,11 +29,11 @@ namespace Accounting.Service
       return await factoryManager.GetJournalInvoiceInvoiceLinePaymentManager().GetAllAsync(paymentId, getReversedEntries);
     }
 
-    public async Task<List<JournalInvoiceInvoiceLinePayment>> GetAllAsync(int invoicePaymentId, int organizationId)
-    {
-      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetJournalInvoiceInvoiceLinePaymentManager().GetAllAsync(invoicePaymentId, organizationId);
-    }
+    //public async Task<List<JournalInvoiceInvoiceLinePayment>> GetAllAsync(int invoicePaymentId, int organizationId)
+    //{
+    //  var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+    //  return await factoryManager.GetJournalInvoiceInvoiceLinePaymentManager().GetAllAsync(invoicePaymentId, organizationId);
+    //}
 
     public async Task<List<JournalInvoiceInvoiceLinePayment>> GetByPaymentIdAsync(int paymentId, int orgId)
     {

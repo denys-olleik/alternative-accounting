@@ -1109,8 +1109,6 @@ namespace Accounting.Database
         p.Add("@PaymentId", paymentId);
         p.Add("@OrganizationId", organizationId);
 
-        using var con = new NpgsqlConnection(_connectionString);
-
         const string query = """
           SELECT 
             jiilp."JournalInvoiceInvoiceLinePaymentID",
@@ -1139,14 +1137,18 @@ namespace Accounting.Database
           ORDER BY jiilp."JournalInvoiceInvoiceLinePaymentID";
           """;
 
-        var result = await con.QueryAsync<JournalInvoiceInvoiceLinePayment, Journal, JournalInvoiceInvoiceLinePayment>(
+        IEnumerable<JournalInvoiceInvoiceLinePayment> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<JournalInvoiceInvoiceLinePayment, Journal, JournalInvoiceInvoiceLinePayment>(
           query,
           (jiilp, j) =>
           {
             jiilp.Journal = j;
             return jiilp;
-          }, p, splitOn: "JournalID"
-        );
+          }, p, splitOn: "JournalID");
+        }
 
         return result.ToList();
       }
