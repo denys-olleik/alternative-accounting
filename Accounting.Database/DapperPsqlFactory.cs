@@ -1103,6 +1103,28 @@ namespace Accounting.Database
         return result;
       }
 
+      public async Task<List<JournalInvoiceInvoiceLinePayment>> GetByPaymentIdAsync(int paymentId, int organizationId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@PaymentId", paymentId);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<JournalInvoiceInvoiceLinePayment> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          string query = """
+                SELECT j.*
+                FROM "JournalInvoiceInvoiceLinePayment" j
+                JOIN "InvoiceInvoiceLinePayment" i ON i."InvoiceInvoiceLinePaymentID" = j."InvoiceInvoiceLinePaymentId"
+                WHERE i."PaymentId" = @PaymentId AND j."OrganizationId" = @OrganizationId;
+                """;
+          result = await con.QueryAsync<JournalInvoiceInvoiceLinePayment/*, Journal, JournalInvoiceInvoiceLinePayment*/>(query, p);
+        }
+
+        return result.ToList();
+      }
+
       public async Task<List<JournalInvoiceInvoiceLinePayment>> GetLastTransactionsAsync(int paymentId, int organizationId, bool loadChildren)
       {
         DynamicParameters p = new DynamicParameters();
@@ -6146,25 +6168,6 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task<List<JournalInvoiceInvoiceLine>> GetAllAsync(int invoiceId, int organizationId, bool includeRemoved)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@InvoiceId", invoiceId);
-        p.Add("@OrganizationId", organizationId);
-        p.Add("@IncludeRemoved", includeRemoved);
-
-        IEnumerable<JournalInvoiceInvoiceLine> result;
-
-        throw new NotImplementedException();
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          result = await con.QueryAsync<JournalInvoiceInvoiceLine>("""
-
-            """, p);
-        }
-      }
-
       public async Task<List<InvoiceLine>> GetByInvoiceIdAsync(int invoiceId, int organizationId, bool onlyCurrent = false)
       {
         DynamicParameters p = new DynamicParameters();
@@ -6207,6 +6210,28 @@ namespace Accounting.Database
           }
 
           result = await con.QueryAsync<InvoiceLine>(query, p);
+        }
+
+        return result.ToList();
+      }
+
+      public async Task<List<JournalInvoiceInvoiceLine>> GetByInvoiceIdAsync(int invoiceId, int organizationId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@InvoiceId", invoiceId);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<JournalInvoiceInvoiceLine> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          string query = """
+              SELECT *
+              FROM "JournalInvoiceInvoiceLine"
+              WHERE "InvoiceId" = @InvoiceId
+              AND "OrganizationId" = @OrganizationId
+              """;
+          result = await con.QueryAsync<JournalInvoiceInvoiceLine>(query, p);
         }
 
         return result.ToList();

@@ -36,12 +36,14 @@ public class JournalApiController : BaseController
   private readonly JournalService _journalService;
   private readonly InvoiceService _invoiceService;
   private readonly JournalInvoiceInvoiceLineService _journalInvoiceInvoiceLineService;
+  private readonly JournalInvoiceInvoiceLinePaymentService _journalInvoiceInvoiceLinePaymentService;
 
   public JournalApiController(RequestContext requestContext)
   {
     _journalService = new JournalService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _invoiceService = new InvoiceService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _journalInvoiceInvoiceLineService = new JournalInvoiceInvoiceLineService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _journalInvoiceInvoiceLinePaymentService = new JournalInvoiceInvoiceLinePaymentService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
   }
 
   [HttpGet("get-journals")]
@@ -56,7 +58,7 @@ public class JournalApiController : BaseController
       {
         case JournalTransaction.LinkTypeConstants.Invoice:
           jt.Invoices = new List<Invoice> { await _invoiceService.GetAsync(jt.LinkId, orgId) };
-          jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
+          jt.JournalsForInvoice = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.LinkId, orgId);
           jt.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.LinkId, orgId, false);
           break;
 
@@ -64,7 +66,7 @@ public class JournalApiController : BaseController
           // TODO: Populate payment-related details and journals
           // jt.Invoices = ...
           // jt.Payments = ...
-          jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
+          jt.JournalsForPayment = await _journalInvoiceInvoiceLinePaymentService.GetByPaymentIdAsync(jt.LinkId, orgId);
           break;
 
         case JournalTransaction.LinkTypeConstants.Reconciliation:
@@ -87,12 +89,12 @@ public class JournalApiController : BaseController
         TransactionGuid = j.TransactionGuid,
         LinkType = j.LinkType,
         Created = j.Created,
-        Journals = j.Journals?.Select(x => new GetJournalsViewModel.JournalViewModel
+        Journals = j.JournalsForInvoice?.Select(x => new GetJournalsViewModel.JournalViewModel
         {
-          JournalID = x.JournalID,
+          JournalID = x.Journal!.JournalID,
           //AccountId = x.AccountId,
-          Debit = x.Debit,
-          Credit = x.Credit,
+          Debit = x.Journal.Debit,
+          Credit = x.Journal.Credit,
           //CurrencyCode = x.CurrencyCode,
           //ExchangeRate = x.ExchangeRate
         }).ToList()!

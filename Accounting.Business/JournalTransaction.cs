@@ -16,7 +16,9 @@ public class JournalTransaction : IIdentifiable<int>
   public List<Invoice>? Invoices { get; set; }
   public List<InvoiceLine>? InvoiceLines { get; set; }
   public Payment? Payment { get; set; }
-  public List<Journal> Journals { get; set; } = null!;
+  //public List<Journal> Journals { get; set; } = null!;
+  public List<JournalInvoiceInvoiceLine> JournalsForInvoice { get; set; } = null!;
+  public List<JournalInvoiceInvoiceLinePayment> JournalsForPayment { get; set; } = null!;
   public ReconciliationTransaction? ReconciliationTransaction { get; set; }
   #endregion
 
