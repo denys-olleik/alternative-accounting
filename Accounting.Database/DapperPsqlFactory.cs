@@ -1105,22 +1105,48 @@ namespace Accounting.Database
 
       public async Task<List<JournalInvoiceInvoiceLinePayment>> GetByPaymentIdAsync(int paymentId, int organizationId)
       {
-        DynamicParameters p = new DynamicParameters();
+        var p = new DynamicParameters();
         p.Add("@PaymentId", paymentId);
         p.Add("@OrganizationId", organizationId);
 
-        IEnumerable<JournalInvoiceInvoiceLinePayment> result;
+        using var con = new NpgsqlConnection(_connectionString);
 
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          string query = """
-                SELECT j.*
-                FROM "JournalInvoiceInvoiceLinePayment" j
-                JOIN "InvoiceInvoiceLinePayment" i ON i."InvoiceInvoiceLinePaymentID" = j."InvoiceInvoiceLinePaymentId"
-                WHERE i."PaymentId" = @PaymentId AND j."OrganizationId" = @OrganizationId;
-                """;
-          result = await con.QueryAsync<JournalInvoiceInvoiceLinePayment/*, Journal, JournalInvoiceInvoiceLinePayment*/>(query, p);
-        }
+        const string query = """
+          SELECT 
+            jiilp."JournalInvoiceInvoiceLinePaymentID",
+            jiilp."JournalId",
+            jiilp."InvoiceInvoiceLinePaymentId",
+            jiilp."ReversedJournalInvoiceInvoiceLinePaymentId",
+            jiilp."TransactionGuid",
+            jiilp."Created",
+            jiilp."CreatedById",
+            jiilp."OrganizationId",
+            j."JournalID",
+            j."AccountId",
+            j."Debit",
+            j."Credit",
+            j."Memo",
+            j."Created" AS "JournalCreated",
+            j."CreatedById" AS "JournalCreatedById",
+            j."OrganizationId" AS "JournalOrganizationId"
+          FROM "JournalInvoiceInvoiceLinePayment" jiilp
+          INNER JOIN "InvoiceInvoiceLinePayment" iilp
+            ON iilp."InvoiceInvoiceLinePaymentID" = jiilp."InvoiceInvoiceLinePaymentId"
+          INNER JOIN "Journal" j
+            ON j."JournalID" = jiilp."JournalId"
+          WHERE iilp."PaymentId" = @PaymentId
+            AND jiilp."OrganizationId" = @OrganizationId
+          ORDER BY jiilp."JournalInvoiceInvoiceLinePaymentID";
+          """;
+
+        var result = await con.QueryAsync<JournalInvoiceInvoiceLinePayment, Journal, JournalInvoiceInvoiceLinePayment>(
+          query,
+          (jiilp, j) =>
+          {
+            jiilp.Journal = j;
+            return jiilp;
+          }, p, splitOn: "JournalID"
+        );
 
         return result.ToList();
       }
