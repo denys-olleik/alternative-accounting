@@ -54,19 +54,19 @@ public class JournalApiController : BaseController
 
     foreach (var jt in journalTransactions)
     {
-      switch (jt.LinkType)
+      switch (jt.Type)
       {
         case JournalTransaction.LinkTypeConstants.Invoice:
-          jt.Invoices = new List<Invoice> { await _invoiceService.GetAsync(jt.LinkId, orgId) };
-          jt.JournalsForInvoice = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.LinkId, orgId);
-          jt.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.LinkId, orgId, false);
+          jt.Invoices = new List<Invoice> { await _invoiceService.GetAsync(jt.JournalTransactionID, orgId) };
+          jt.JournalsForInvoice = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.JournalTransactionID, orgId);
+          jt.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.JournalTransactionID, orgId, false);
           break;
 
         case JournalTransaction.LinkTypeConstants.Payment:
           // TODO: Populate payment-related details and journals
           // jt.Invoices = ...
           // jt.Payments = ...
-          jt.JournalsForPayment = await _journalInvoiceInvoiceLinePaymentService.GetByPaymentIdAsync(jt.LinkId, orgId);
+          jt.JournalsForPayment = await _journalInvoiceInvoiceLinePaymentService.GetByPaymentIdAsync(jt.JournalTransactionID, orgId);
           break;
 
         case JournalTransaction.LinkTypeConstants.Reconciliation:
@@ -87,7 +87,7 @@ public class JournalApiController : BaseController
       {
         JournalTransactionID = j.JournalTransactionID,
         TransactionGuid = j.TransactionGuid,
-        LinkType = j.LinkType,
+        LinkType = j.Type,
         Created = j.Created,
         Journals = j.JournalsForInvoice?.Select(x => new GetJournalsViewModel.JournalViewModel
         {
