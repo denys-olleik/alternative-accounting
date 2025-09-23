@@ -54,7 +54,7 @@ public class JournalApiController : BaseController
 
     foreach (var jt in journalTransactions)
     {
-      switch (jt.Type)
+      switch (jt.LinkType)
       {
         case JournalTransaction.LinkTypeConstants.Invoice:
           jt.Invoices = new List<Invoice> { await _invoiceService.GetAsync(jt.JournalTransactionID, orgId) };
@@ -87,7 +87,7 @@ public class JournalApiController : BaseController
       {
         JournalTransactionID = j.JournalTransactionID,
         TransactionGuid = j.TransactionGuid,
-        LinkType = j.Type,
+        LinkType = j.LinkType,
         Created = j.Created,
         Journals = j.JournalsForInvoice?.Select(x => new GetJournalsViewModel.JournalViewModel
         {

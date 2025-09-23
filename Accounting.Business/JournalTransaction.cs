@@ -11,7 +11,7 @@ public class JournalTransaction : IIdentifiable<int>
   public DateTime Created { get; set; }
 
   #region Extra properties
-  public string Type { get; set; } = null!;
+  public string LinkType { get; set; } = null!;
   public List<Invoice>? Invoices { get; set; }
   public List<InvoiceLine>? InvoiceLines { get; set; }
   public Payment? Payment { get; set; }
