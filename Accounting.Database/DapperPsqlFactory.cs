@@ -1351,7 +1351,7 @@ namespace Accounting.Database
       }
 
       public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(
-        int page, int pageSize, int organizationId)
+  int page, int pageSize, int organizationId)
       {
         var p = new DynamicParameters();
         p.Add("@Page", page);
@@ -1391,15 +1391,24 @@ namespace Accounting.Database
               FROM "JournalReconciliationTransaction" jrt
               WHERE jrt."OrganizationId" = @OrganizationId
             ),
-            ordered AS (
-              SELECT
+            dedup AS (
+              SELECT DISTINCT ON ("TransactionGuid")
                 u."TransactionGuid",
                 u."LinkType",
                 u."JournalId",
                 u."Created",
-                u."OrganizationId",
-                ROW_NUMBER() OVER (ORDER BY u."Created" DESC, u."JournalId" DESC) AS rownum
+                u."OrganizationId"
               FROM unified u
+              ORDER BY u."TransactionGuid", u."Created" DESC, u."JournalId" DESC
+            ),
+            ordered AS (
+              SELECT
+                d."TransactionGuid",
+                d."LinkType",
+                d."JournalId",
+                d."Created",
+                ROW_NUMBER() OVER (ORDER BY d."Created" DESC, d."JournalId" DESC) AS rownum
+              FROM dedup d
             )
             SELECT
               0 AS "JournalTransactionID",
