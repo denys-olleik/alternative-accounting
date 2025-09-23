@@ -12,12 +12,6 @@ public class JournalTransaction : IIdentifiable<int>
 
   #region Extra properties
   public string LinkType { get; set; } = null!;
-  public List<Invoice>? Invoices { get; set; }
-  public List<InvoiceLine>? InvoiceLines { get; set; }
-  public Payment? Payment { get; set; }
-  public List<JournalInvoiceInvoiceLine> JournalsForInvoice { get; set; } = null!;
-  public List<JournalInvoiceInvoiceLinePayment> JournalsForPayment { get; set; } = null!;
-  public ReconciliationTransaction? ReconciliationTransaction { get; set; }
   #endregion
 
   public int Identifiable => JournalTransactionID;
