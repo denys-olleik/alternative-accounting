@@ -68,6 +68,9 @@ string headerText = "Journal";
       },
       nextPageUrl() {
         return this.nextPage ? `/journal/journal?page=${this.nextPage}&pageSize=${this.pageSize}` : '';
+      },
+      current() {
+        return this.journalTransactions[this.selectedIndex] || null;
       }
     },
     methods: {
@@ -92,12 +95,18 @@ string headerText = "Journal";
             } else {
               this.selectedIndex = 0;
             }
+
+            // Call on load after data + selection ready
+            if (this.current) {
+              this.onSelectionChanged(this.current.journalTransactionID, this.current.linkType);
+            }
           });
       },
       onArrowDown() {
         if (!this.journalTransactions.length) return;
         if (this.selectedIndex < this.journalTransactions.length - 1) {
           this.selectedIndex++;
+          if (this.current) this.onSelectionChanged(this.current.journalTransactionID, this.current.linkType);
         } else if (this.nextPage) {
           window.location.href = `/journal/journal?page=${this.nextPage}&pageSize=${this.pageSize}&select=first`;
         }
@@ -106,6 +115,7 @@ string headerText = "Journal";
         if (!this.journalTransactions.length) return;
         if (this.selectedIndex > 0) {
           this.selectedIndex--;
+          if (this.current) this.onSelectionChanged(this.current.journalTransactionID, this.current.linkType);
         } else if (this.page > 1) {
           window.location.href = `/journal/journal?page=${this.page - 1}&pageSize=${this.pageSize}&select=last`;
         }
@@ -118,6 +128,10 @@ string headerText = "Journal";
           e.preventDefault();
           this.onArrowUp();
         }
+      },
+      // Your callback to handle selection changes
+      onSelectionChanged(transactionId, type) {
+       console.log(`Selected Transaction ID: ${transactionId}, Type: ${type}`);
       }
     },
     mounted() {
