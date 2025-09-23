@@ -1351,7 +1351,7 @@ namespace Accounting.Database
       }
 
       public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(
-  int page, int pageSize, int organizationId)
+        int page, int pageSize, int organizationId)
       {
         var p = new DynamicParameters();
         p.Add("@Page", page);
