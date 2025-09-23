@@ -1351,7 +1351,7 @@ namespace Accounting.Database
       }
 
       public async Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(
-        int page, int pageSize, int organizationId)
+  int page, int pageSize, int organizationId)
       {
         var p = new DynamicParameters();
         p.Add("@Page", page);
@@ -1405,7 +1405,6 @@ namespace Accounting.Database
               0 AS "JournalTransactionID",
               o."TransactionGuid",
               o."JournalId",
-              ''::text AS "LinkId",
               o."LinkType",
               o."Created"
             FROM ordered o
