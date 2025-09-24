@@ -10,19 +10,23 @@ public class JournalTransaction : IIdentifiable<int>
   public int JournalId { get; set; }
   public DateTime Created { get; set; }
 
-  #region Extra properties
+  // Extra properties
   public string LinkType { get; set; } = null!;
-  #endregion
+
+  // Nullable PKs for each link type
+  public int? JournalInvoiceInvoiceLineID { get; set; }
+  public int? JournalInvoiceInvoiceLinePaymentID { get; set; }
+  public int? JournalReconciliationTransactionID { get; set; }
 
   public int Identifiable => JournalTransactionID;
-  
+
   public class LinkTypeConstants
   {
     public const string Invoice = "invoice";
     public const string Payment = "payment";
     public const string Reconciliation = "reconciliation";
-    
-    private static readonly List<string> _all = new ();
+
+    private static readonly List<string> _all = new();
 
     static LinkTypeConstants()
     {
@@ -35,7 +39,7 @@ public class JournalTransaction : IIdentifiable<int>
         }
       }
     }
-    
+
     public static IReadOnlyList<string> All => _all.AsReadOnly();
   }
 }

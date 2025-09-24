@@ -52,35 +52,6 @@ public class JournalApiController : BaseController
     var orgId = GetOrganizationId()!.Value;
     var (journalTransactions, nextPage) = await _journalService.GetAllUnionAsync(page, pageSize, orgId);
 
-    //foreach (var jt in journalTransactions)
-    //{
-    //  switch (jt.LinkType)
-    //  {
-    //    case JournalTransaction.LinkTypeConstants.Invoice:
-    //      jt.Invoices = new List<Invoice> { await _invoiceService.GetAsync(jt.JournalTransactionID, orgId) };
-    //      jt.JournalsForInvoice = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.JournalTransactionID, orgId);
-    //      jt.InvoiceLines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(jt.JournalTransactionID, orgId, false);
-    //      break;
-
-    //    case JournalTransaction.LinkTypeConstants.Payment:
-    //      // TODO: Populate payment-related details and journals
-    //      // jt.Invoices = ...
-    //      // jt.Payments = ...
-    //      jt.JournalsForPayment = await _journalInvoiceInvoiceLinePaymentService.GetByPaymentIdAsync(jt.JournalTransactionID, orgId);
-    //      break;
-
-    //    case JournalTransaction.LinkTypeConstants.Reconciliation:
-    //      // TODO: Populate reconciliation-related details and journals
-    //      // jt.ReconciliationTransactions = ...
-    //      // jt.Journals = await _journalService.GetByTransactionGuid(jt.TransactionGuid, orgId);
-    //      break;
-
-    //    default:
-    //      // TODO: Handle unknown link type if needed
-    //      break;
-    //  }
-    //}
-
     var vm = new GetJournalsViewModel
     {
       Transactions = journalTransactions.Select(j => new GetJournalsViewModel.JournalTransactionViewModel
@@ -89,15 +60,10 @@ public class JournalApiController : BaseController
         TransactionGuid = j.TransactionGuid,
         LinkType = j.LinkType,
         Created = j.Created,
-        //Journals = j.JournalsForInvoice?.Select(x => new GetJournalsViewModel.JournalViewModel
-        //{
-        //  JournalID = x.Journal!.JournalID,
-        //  //AccountId = x.AccountId,
-        //  Debit = x.Journal.Debit,
-        //  Credit = x.Journal.Credit,
-        //  //CurrencyCode = x.CurrencyCode,
-        //  //ExchangeRate = x.ExchangeRate
-        //}).ToList()!
+        JournalId = j.JournalId,
+        JournalInvoiceInvoiceLineID = j.JournalInvoiceInvoiceLineID,
+        JournalInvoiceInvoiceLinePaymentID = j.JournalInvoiceInvoiceLinePaymentID,
+        JournalReconciliationTransactionID = j.JournalReconciliationTransactionID
       }).ToList(),
       Page = page,
       NextPage = nextPage,

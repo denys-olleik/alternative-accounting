@@ -1360,7 +1360,7 @@ namespace Accounting.Database
 
         IEnumerable<JournalTransaction> paginatedResult;
 
-        using (var con = new Npgsql.NpgsqlConnection(_connectionString))
+        using (var con = new NpgsqlConnection(_connectionString))
         {
           const string sql = """
             WITH unified AS (
@@ -1369,7 +1369,10 @@ namespace Accounting.Database
                 'invoice'                     AS "LinkType",
                 jiiil."JournalId"             AS "JournalId",
                 jiiil."Created"               AS "Created",
-                jiiil."OrganizationId"        AS "OrganizationId"
+                jiiil."OrganizationId"        AS "OrganizationId",
+                jiiil."JournalInvoiceInvoiceLineID"        AS "JournalInvoiceInvoiceLineID",
+                NULL::INT                                    AS "JournalInvoiceInvoiceLinePaymentID",
+                NULL::INT                                    AS "JournalReconciliationTransactionID"
               FROM "JournalInvoiceInvoiceLine" jiiil
               WHERE jiiil."OrganizationId" = @OrganizationId
               UNION ALL
@@ -1378,7 +1381,10 @@ namespace Accounting.Database
                 'payment'                      AS "LinkType",
                 jiilp."JournalId"              AS "JournalId",
                 jiilp."Created"                AS "Created",
-                jiilp."OrganizationId"         AS "OrganizationId"
+                jiilp."OrganizationId"         AS "OrganizationId",
+                NULL::INT                                    AS "JournalInvoiceInvoiceLineID",
+                jiilp."JournalInvoiceInvoiceLinePaymentID"  AS "JournalInvoiceInvoiceLinePaymentID",
+                NULL::INT                                    AS "JournalReconciliationTransactionID"
               FROM "JournalInvoiceInvoiceLinePayment" jiilp
               WHERE jiilp."OrganizationId" = @OrganizationId
               UNION ALL
@@ -1387,7 +1393,10 @@ namespace Accounting.Database
                 'reconciliation'               AS "LinkType",
                 jrt."JournalId"                AS "JournalId",
                 jrt."Created"                  AS "Created",
-                jrt."OrganizationId"           AS "OrganizationId"
+                jrt."OrganizationId"           AS "OrganizationId",
+                NULL::INT                                    AS "JournalInvoiceInvoiceLineID",
+                NULL::INT                                    AS "JournalInvoiceInvoiceLinePaymentID",
+                jrt."JournalReconciliationTransactionID"    AS "JournalReconciliationTransactionID"
               FROM "JournalReconciliationTransaction" jrt
               WHERE jrt."OrganizationId" = @OrganizationId
             ),
@@ -1397,7 +1406,10 @@ namespace Accounting.Database
                 u."LinkType",
                 u."JournalId",
                 u."Created",
-                u."OrganizationId"
+                u."OrganizationId",
+                u."JournalInvoiceInvoiceLineID",
+                u."JournalInvoiceInvoiceLinePaymentID",
+                u."JournalReconciliationTransactionID"
               FROM unified u
               ORDER BY u."TransactionGuid", u."Created" DESC, u."JournalId" DESC
             ),
@@ -1407,6 +1419,9 @@ namespace Accounting.Database
                 d."LinkType",
                 d."JournalId",
                 d."Created",
+                d."JournalInvoiceInvoiceLineID",
+                d."JournalInvoiceInvoiceLinePaymentID",
+                d."JournalReconciliationTransactionID",
                 ROW_NUMBER() OVER (ORDER BY d."Created" DESC, d."JournalId" DESC) AS rownum
               FROM dedup d
             )
@@ -1415,7 +1430,10 @@ namespace Accounting.Database
               o."TransactionGuid",
               o."JournalId",
               o."LinkType",
-              o."Created"
+              o."Created",
+              o."JournalInvoiceInvoiceLineID",
+              o."JournalInvoiceInvoiceLinePaymentID",
+              o."JournalReconciliationTransactionID"
             FROM ordered o
             WHERE o.rownum BETWEEN @PageSize * (@Page - 1) + 1 AND @PageSize * @Page + 1;
             """;
