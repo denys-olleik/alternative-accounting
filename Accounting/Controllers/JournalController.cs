@@ -46,6 +46,78 @@ public class JournalApiController : BaseController
     _journalInvoiceInvoiceLinePaymentService = new JournalInvoiceInvoiceLinePaymentService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
   }
 
+  [HttpGet("get-intermediate-details")]
+  public async Task<IActionResult> GetIntermediateDetails(string linkType, int id)
+  {
+    var orgId = GetOrganizationId()!.Value;
+
+    switch ((linkType ?? string.Empty).ToLowerInvariant())
+    {
+      case "invoice":
+        {
+          // id = JournalInvoiceInvoiceLineID
+          // 1) Resolve junction -> InvoiceId, InvoiceLineId
+          var j = await _journalInvoiceInvoiceLineService.GetAsync(id, orgId);
+          if (j == null) return NotFound();
+
+          // 2) Load invoice + lines
+          var invoice = await _invoiceService.GetByIdAsync(j.InvoiceId, orgId);
+          var lines = await _invoiceService.GetLinesByInvoiceIdAsync(j.InvoiceId, orgId);
+
+          // Shape minimal payload for the intermediate details pane
+          return Ok(new
+          {
+            type = "invoice",
+            invoice = invoice,      // consider mapping to a DTO
+            lines = lines           // consider mapping to a DTO
+          });
+        }
+
+      case "payment":
+        {
+          // id = JournalInvoiceInvoiceLinePaymentID
+          // 1) Resolve junction -> InvoiceInvoiceLinePaymentId
+          var j = await _journalInvoiceInvoiceLinePaymentService.GetByIdAsync(id, orgId);
+          if (j == null) return NotFound();
+
+          // 2) Load payment + its allocations (invoices/lines)
+          var payment = await _invoiceService.GetPaymentByIdAsync(j.InvoiceInvoiceLinePaymentId, orgId);
+          var allocations = await _invoiceService.GetAllocationsByPaymentIdAsync(payment.PaymentID, orgId); // returns list of {InvoiceId, InvoiceLineId, Amount}
+                                                                                                            // Optionally hydrate invoice headers for display
+          var invoiceIds = allocations.Select(a => a.InvoiceId).Distinct().ToList();
+          var invoices = await _invoiceService.GetByIdsAsync(invoiceIds, orgId);
+
+          return Ok(new
+          {
+            type = "payment",
+            payment = payment,
+            allocations = allocations,
+            invoices = invoices
+          });
+        }
+
+      case "reconciliation":
+        {
+          // id = JournalReconciliationTransactionID
+          // 1) Resolve junction -> ReconciliationTransactionId
+          var j = await _journalService.GetJournalReconciliationByIdAsync(id, orgId);
+          if (j == null) return NotFound();
+
+          // 2) Load reconciliation transaction details
+          var rt = await _journalService.GetReconciliationTransactionByIdAsync(j.ReconciliationTransactionId, orgId);
+
+          return Ok(new
+          {
+            type = "reconciliation",
+            reconciliationTransaction = rt
+          });
+        }
+
+      default:
+        return BadRequest(new { message = "Unsupported linkType." });
+    }
+  }
+
   [HttpGet("get-journals")]
   public async Task<IActionResult> GetJournals(int page = 1, int pageSize = 10)
   {

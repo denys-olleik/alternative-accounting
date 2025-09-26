@@ -78,6 +78,15 @@ string headerText = "Journal";
         const p = new URLSearchParams(window.location.search);
         return p.get(name);
       },
+      linkIdFor(row) {
+        if (!row) return null;
+        switch (row.linkType) {
+          case 'invoice': return row.journalInvoiceInvoiceLineID;
+          case 'payment': return row.journalInvoiceInvoiceLinePaymentID;
+          case 'reconciliation': return row.journalReconciliationTransactionID;
+          default: return null;
+        }
+      },
       fetchJournals() {
         const storedPageSize = parseInt(localStorage.getItem('pageSize'));
         if (storedPageSize) this.pageSize = storedPageSize;
@@ -96,9 +105,9 @@ string headerText = "Journal";
               this.selectedIndex = 0;
             }
 
-            // Call on load after data + selection ready
             if (this.current) {
-              this.onSelectionChanged(this.current.journalTransactionID, this.current.linkType);
+              const id = this.linkIdFor(this.current);
+              this.onSelectionChanged(id, this.current.linkType);
             }
           });
       },
@@ -106,7 +115,10 @@ string headerText = "Journal";
         if (!this.journalTransactions.length) return;
         if (this.selectedIndex < this.journalTransactions.length - 1) {
           this.selectedIndex++;
-          if (this.current) this.onSelectionChanged(this.current.journalTransactionID, this.current.linkType);
+          if (this.current) {
+            const id = this.linkIdFor(this.current);
+            this.onSelectionChanged(id, this.current.linkType);
+          }
         } else if (this.nextPage) {
           window.location.href = `/journal/journal?page=${this.nextPage}&pageSize=${this.pageSize}&select=first`;
         }
@@ -115,7 +127,10 @@ string headerText = "Journal";
         if (!this.journalTransactions.length) return;
         if (this.selectedIndex > 0) {
           this.selectedIndex--;
-          if (this.current) this.onSelectionChanged(this.current.journalTransactionID, this.current.linkType);
+          if (this.current) {
+            const id = this.linkIdFor(this.current);
+            this.onSelectionChanged(id, this.current.linkType);
+          }
         } else if (this.page > 1) {
           window.location.href = `/journal/journal?page=${this.page - 1}&pageSize=${this.pageSize}&select=last`;
         }
@@ -129,9 +144,8 @@ string headerText = "Journal";
           this.onArrowUp();
         }
       },
-      // Your callback to handle selection changes
-      onSelectionChanged(transactionId, type) {
-       console.log(`Selected Transaction ID: ${transactionId}, Type: ${type}`);
+      onSelectionChanged(id, type) {
+        console.log(`Selected ID: ${id}, Type: ${type}`);
       }
     },
     mounted() {

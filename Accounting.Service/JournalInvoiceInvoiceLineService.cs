@@ -186,5 +186,10 @@ namespace Accounting.Service
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetJournalInvoiceInvoiceLineManager().GetByInvoiceIdAsync(invoiceID, organizationId);
     }
+
+    public async Task<JournalInvoiceInvoiceLine> GetAsync(int id, int orgId)
+    {
+      throw new NotImplementedException();
+    }
   }
 }
