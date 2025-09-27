@@ -35,15 +35,23 @@ public class JournalApiController : BaseController
 {
   private readonly JournalService _journalService;
   private readonly InvoiceService _invoiceService;
+  private readonly PaymentService _paymentService;
+  private readonly InvoiceInvoiceLinePaymentService _invoiceInvoiceLinePaymentService;
   private readonly JournalInvoiceInvoiceLineService _journalInvoiceInvoiceLineService;
   private readonly JournalInvoiceInvoiceLinePaymentService _journalInvoiceInvoiceLinePaymentService;
+  private readonly JournalReconciliationTransactionService _journalReconciliationTransactionService;
+  private readonly ReconciliationTransactionService _reconciliationTransactionService;
+
 
   public JournalApiController(RequestContext requestContext)
   {
-    _journalService = new JournalService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
-    _invoiceService = new InvoiceService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
-    _journalInvoiceInvoiceLineService = new JournalInvoiceInvoiceLineService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
-    _journalInvoiceInvoiceLinePaymentService = new JournalInvoiceInvoiceLinePaymentService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _journalService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _invoiceService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _paymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _journalInvoiceInvoiceLineService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _journalInvoiceInvoiceLinePaymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _reconciliationTransactionService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _invoiceInvoiceLinePaymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
   }
 
   [HttpGet("get-intermediate-details")]
@@ -55,16 +63,12 @@ public class JournalApiController : BaseController
     {
       case "invoice":
         {
-          // id = JournalInvoiceInvoiceLineID
-          // 1) Resolve junction -> InvoiceId, InvoiceLineId
-          var j = await _journalInvoiceInvoiceLineService.GetAsync(id, orgId);
-          if (j == null) return NotFound();
+          var journalTransaction = await _journalInvoiceInvoiceLineService.GetAsync(id, orgId);
+          if (journalTransaction == null) return NotFound();
 
-          // 2) Load invoice + lines
-          var invoice = await _invoiceService.GetByIdAsync(j.InvoiceId, orgId);
-          var lines = await _invoiceService.GetLinesByInvoiceIdAsync(j.InvoiceId, orgId);
+          var invoice = await _invoiceService.GetAsync(journalTransaction.InvoiceId, orgId);
+          var lines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(journalTransaction.InvoiceId, orgId, false);
 
-          // Shape minimal payload for the intermediate details pane
           return Ok(new
           {
             type = "invoice",
@@ -75,41 +79,31 @@ public class JournalApiController : BaseController
 
       case "payment":
         {
-          // id = JournalInvoiceInvoiceLinePaymentID
-          // 1) Resolve junction -> InvoiceInvoiceLinePaymentId
-          var j = await _journalInvoiceInvoiceLinePaymentService.GetByIdAsync(id, orgId);
-          if (j == null) return NotFound();
+          var invoiceInvoiceLinePayment = await _invoiceInvoiceLinePaymentService.GetByJournalInvoiceInvoiceLinePaymentIdAsync(id, orgId);
+          if (invoiceInvoiceLinePayment == null) return NotFound();
 
-          // 2) Load payment + its allocations (invoices/lines)
-          var payment = await _invoiceService.GetPaymentByIdAsync(j.InvoiceInvoiceLinePaymentId, orgId);
-          var allocations = await _invoiceService.GetAllocationsByPaymentIdAsync(payment.PaymentID, orgId); // returns list of {InvoiceId, InvoiceLineId, Amount}
-                                                                                                            // Optionally hydrate invoice headers for display
-          var invoiceIds = allocations.Select(a => a.InvoiceId).Distinct().ToList();
-          var invoices = await _invoiceService.GetByIdsAsync(invoiceIds, orgId);
+          var payment = await _paymentService.GetAsync(invoiceInvoiceLinePayment.PaymentId, orgId);
+          var invoices = await _invoiceService.GetByJournalInvoiceInvoiceLinePaymentIdAsync(id, orgId);
 
           return Ok(new
           {
             type = "payment",
-            payment = payment,
-            allocations = allocations,
+            payment = invoiceInvoiceLinePayment.Payment,
             invoices = invoices
           });
         }
 
       case "reconciliation":
         {
-          // id = JournalReconciliationTransactionID
-          // 1) Resolve junction -> ReconciliationTransactionId
-          var j = await _journalService.GetJournalReconciliationByIdAsync(id, orgId);
-          if (j == null) return NotFound();
+          var journalTransaction = await _journalReconciliationTransactionService.GetAsync(id, orgId);
+          if (journalTransaction == null) return NotFound();
 
-          // 2) Load reconciliation transaction details
-          var rt = await _journalService.GetReconciliationTransactionByIdAsync(j.ReconciliationTransactionId, orgId);
+          var reconciliationTransaction = await _reconciliationTransactionService.GetAsync(journalTransaction.ReconciliationTransactionId, orgId);
 
           return Ok(new
           {
             type = "reconciliation",
-            reconciliationTransaction = rt
+            reconciliationTransaction = reconciliationTransaction
           });
         }
 

@@ -253,7 +253,7 @@ namespace Accounting.Controllers
     [HttpPost("record")]
     public async Task<IActionResult> ToggleReconciliationTransaction(ToggleReconciliationTransactionInstructionViewModel model)
     {
-      ReconciliationTransaction reconciliationTransaction = await _reconciliationTransactionService.GetAsync(model.ReconciliationTransactionID);
+      ReconciliationTransaction reconciliationTransaction = await _reconciliationTransactionService.GetAsync(model.ReconciliationTransactionID, GetOrganizationId()!.Value);
 
       if (reconciliationTransaction == null)
         return NotFound();

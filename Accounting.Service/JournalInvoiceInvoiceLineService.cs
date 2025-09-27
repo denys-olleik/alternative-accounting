@@ -189,7 +189,8 @@ namespace Accounting.Service
 
     public async Task<JournalInvoiceInvoiceLine> GetAsync(int id, int orgId)
     {
-      throw new NotImplementedException();
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetJournalInvoiceInvoiceLineManager().GetAsync(id, orgId);
     }
   }
 }

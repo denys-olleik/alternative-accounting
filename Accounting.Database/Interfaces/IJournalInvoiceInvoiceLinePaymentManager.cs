@@ -10,5 +10,6 @@ namespace Accounting.Database.Interfaces
     Task<List<JournalInvoiceInvoiceLinePayment>?> GetAllByInvoiceIdAsync(int invoiceId, int organizationId, bool includeReversedEntries = false);
     Task<List<JournalInvoiceInvoiceLinePayment>> GetLastTransactionsAsync(int paymentID, int organizationId, bool loadChildren);
     Task<List<JournalInvoiceInvoiceLinePayment>> GetByPaymentIdAsync(int paymentId, int organizationId);
+    Task<JournalInvoiceInvoiceLinePayment> GetAsync(int id, int organizationId);
   }
 }

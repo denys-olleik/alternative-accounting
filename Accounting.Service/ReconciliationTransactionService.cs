@@ -23,10 +23,10 @@ namespace Accounting.Service
       return await factoryManager.GetReconciliationTransactionManager().GetAllByIdAsync(id, organizationId);
     }
 
-    public async Task<ReconciliationTransaction> GetAsync(int reconciliationTransactionID)
+    public async Task<ReconciliationTransaction> GetAsync(int reconciliationTransactionID, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetReconciliationTransactionManager().GetAsync(reconciliationTransactionID);
+      return await factoryManager.GetReconciliationTransactionManager().GetAsync(reconciliationTransactionID, organizationId);
     }
 
     public async Task<(List<ReconciliationTransaction>, int? NextPageNumber)> GetReconciliationTransactionsAsync(

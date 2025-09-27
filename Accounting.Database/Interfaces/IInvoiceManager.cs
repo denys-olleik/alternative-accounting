@@ -19,5 +19,6 @@ namespace Accounting.Database.Interfaces
     Task<int> UpdateStatusAsync(int invoiceId, string paymentStatus);
     Task<int> VoidAsync(int invoiceId, string? voidReason, int organizationId);
     Task<int> UpdatePaymentInstructions(int invoiceId, string? paymentInstructions, int organizationId);
+    Task<List<Invoice>> GetByJournalInvoiceInvoiceLinePaymentIdAsync(int journalInvoiceInvoiceLinePaymentId, int orgId);
   }
 }

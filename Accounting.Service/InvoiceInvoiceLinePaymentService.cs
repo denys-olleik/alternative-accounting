@@ -42,6 +42,12 @@ namespace Accounting.Service
       return await factoryManager.GetInvoiceInvoiceLinePaymentManager().GetAllPaymentsByInvoiceIdAsync(invoiceId, organizationId, includeVoid);
     }
 
+    public async Task<InvoiceInvoiceLinePayment> GetByJournalInvoiceInvoiceLinePaymentIdAsync(int journalInvoiceInvoiceLinePaymentId, int orgId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetInvoiceInvoiceLinePaymentManager().GetByJournalInvoiceInvoiceLinePaymentIdAsync(journalInvoiceInvoiceLinePaymentId, orgId);
+    }
+
     public async Task<InvoiceInvoiceLinePayment> GetInvoicePaymentAsync(int id, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);

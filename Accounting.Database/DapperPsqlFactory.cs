@@ -1103,6 +1103,27 @@ namespace Accounting.Database
         return result;
       }
 
+      public async Task<JournalInvoiceInvoiceLinePayment> GetAsync(int id, int organizationId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@JournalInvoiceInvoiceLinePaymentID", id);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<JournalInvoiceInvoiceLinePayment> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<JournalInvoiceInvoiceLinePayment>("""
+            SELECT * 
+            FROM "JournalInvoiceInvoiceLinePayment" 
+            WHERE "JournalInvoiceInvoiceLinePaymentID" = @JournalInvoiceInvoiceLinePaymentID 
+            AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return result.Single();
+      }
+
       public async Task<List<JournalInvoiceInvoiceLinePayment>> GetByPaymentIdAsync(int paymentId, int organizationId)
       {
         var p = new DynamicParameters();
@@ -2191,6 +2212,30 @@ namespace Accounting.Database
         return result.ToList();
       }
 
+      public async Task<List<Invoice>> GetByJournalInvoiceInvoiceLinePaymentIdAsync(int journalInvoiceInvoiceLinePaymentId, int orgId)
+      {
+        const string sql = """
+          SELECT DISTINCT i."InvoiceID", i."InvoiceNumber", i."BusinessEntityId", i."BillingAddressJSON",
+                 i."ShippingAddressJSON", i."DueDate", i."Status", i."PaymentInstructions",
+                 i."TotalAmount", i."VoidReason", i."CreatedById", i."Created",
+                 i."LastUpdated", i."OrganizationId"
+          FROM "JournalInvoiceInvoiceLinePayment" jiilp
+          JOIN "InvoiceInvoiceLinePayment" iilp ON iilp."InvoiceInvoiceLinePaymentID" = jiilp."InvoiceInvoiceLinePaymentId"
+          JOIN "Invoice" i ON i."InvoiceID" = iilp."InvoiceId"
+          WHERE jiilp."JournalInvoiceInvoiceLinePaymentID" = @JournalInvoiceInvoiceLinePaymentId
+            AND iilp."OrganizationId" = @OrganizationId
+          """;
+
+        using (var con = new NpgsqlConnection(_connectionString))
+        {
+          var rows = await con.QueryAsync<Invoice>(
+            sql,
+            new { JournalInvoiceInvoiceLinePaymentId = journalInvoiceInvoiceLinePaymentId, OrganizationId = orgId });
+          
+          return rows.ToList();
+        }
+      }
+
       public async Task<DateTime> GetLastUpdatedAsync(int invoiceId, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
@@ -2583,6 +2628,44 @@ namespace Accounting.Database
         }
 
         return result.ToList();
+      }
+
+      public async Task<InvoiceInvoiceLinePayment> GetByJournalInvoiceInvoiceLinePaymentIdAsync(int journalInvoiceInvoiceLinePaymentId, int orgId)
+      {
+        var sql = """
+        SELECT 
+          iilp.*,
+          i."InvoiceID", i."InvoiceNumber", i."BusinessEntityId", i."BillingAddressJSON", i."ShippingAddressJSON",
+          i."DueDate", i."Status", i."PaymentInstructions", i."TotalAmount", i."VoidReason",
+          i."CreatedById", i."Created", i."LastUpdated", i."OrganizationId",
+          il."InvoiceLineID", il."Title", il."Description", il."Quantity", il."Price", il."InvoiceId",
+          il."Created", il."RevenueAccountId", il."AssetsAccountId", il."CreatedById", il."OrganizationId",
+          p."PaymentID", p."ReferenceNumber", p."Amount", p."VoidReason", p."CreatedById", p."OrganizationId", p."Created"
+        FROM "InvoiceInvoiceLinePayment" iilp
+        JOIN "JournalInvoiceInvoiceLinePayment" jiilp 
+          ON iilp."InvoiceInvoiceLinePaymentID" = jiilp."InvoiceInvoiceLinePaymentId"
+        JOIN "Invoice" i ON i."InvoiceID" = iilp."InvoiceId"
+        JOIN "InvoiceLine" il ON il."InvoiceLineID" = iilp."InvoiceLineId"
+        JOIN "Payment" p ON p."PaymentID" = iilp."PaymentId"
+        WHERE jiilp."JournalInvoiceInvoiceLinePaymentID" = @JournalInvoiceInvoiceLinePaymentId
+          AND iilp."OrganizationId" = @OrganizationId
+        """;
+
+        using var con = new NpgsqlConnection(_connectionString);
+        var result = await con.QueryAsync<InvoiceInvoiceLinePayment, Invoice, InvoiceLine, Payment, InvoiceInvoiceLinePayment>(
+          sql,
+          (iilp, inv, line, pay) =>
+          {
+            iilp.Invoice = inv;
+            iilp.InvoiceLine = line;
+            iilp.Payment = pay;
+            return iilp;
+          },
+          new { JournalInvoiceInvoiceLinePaymentId = journalInvoiceInvoiceLinePaymentId, OrganizationId = orgId },
+          splitOn: "InvoiceID,InvoiceLineID,PaymentID"
+        );
+
+        return result.SingleOrDefault();
       }
 
       public async Task<InvoiceInvoiceLinePayment> GetInvoicePaymentAsync(int id, int organizationId)
@@ -3952,10 +4035,11 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      public async Task<ReconciliationTransaction> GetAsync(int reconciliationTransactionID)
+      public async Task<ReconciliationTransaction> GetAsync(int reconciliationTransactionId, int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
-        p.Add("@ReconciliationTransactionID", reconciliationTransactionID);
+        p.Add("@ReconciliationTransactionId", reconciliationTransactionId);
+        p.Add("@OrganizationId", organizationId);
 
         IEnumerable<ReconciliationTransaction> result;
 
@@ -3965,7 +4049,8 @@ namespace Accounting.Database
             """
             SELECT * 
             FROM "ReconciliationTransaction" 
-            WHERE "ReconciliationTransactionID" = @ReconciliationTransactionID;
+            WHERE "ReconciliationTransactionID" = @ReconciliationTransactionId
+            AND "OrganizationId" = @OrganizationId;
             """, p);
         }
 
@@ -5739,6 +5824,27 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public async Task<JournalReconciliationTransaction> GetAsync(int id, int orgId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@JournalReconciliationTransactionID", id);
+        p.Add("@OrganizationId", orgId);
+
+        IEnumerable<JournalReconciliationTransaction> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<JournalReconciliationTransaction>("""
+            SELECT *
+            FROM "JournalReconciliationTransaction" 
+            WHERE "JournalReconciliationTransactionID" = @JournalReconciliationTransactionID
+            AND "OrganizationId" = @OrganizationId;
+            """);
+        }
+
+        return result.SingleOrDefault();
+      }
+
       public async Task<List<JournalReconciliationTransaction>> GetLastTransactionAsync(
         int reconciliationTransactionId,
         int organizationId,
@@ -6207,6 +6313,28 @@ namespace Accounting.Database
       public IEnumerable<JournalInvoiceInvoiceLine> GetAll()
       {
         throw new NotImplementedException();
+      }
+
+      public async Task<JournalInvoiceInvoiceLine> GetAsync(int journalInvoiceInvoiceLine, int orgId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@JournalInvoiceInvoiceLineId", journalInvoiceInvoiceLine);
+        p.Add("@OrganizationId", orgId);
+
+        IEnumerable<JournalInvoiceInvoiceLine> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          string query = """
+            SELECT *
+            FROM "JournalInvoiceInvoiceLine"
+            WHERE "JournalInvoiceInvoiceLineID" = @JournalInvoiceInvoiceLineId
+            AND "OrganizationId" = @OrganizationId
+            """;
+          result = await con.QueryAsync<JournalInvoiceInvoiceLine>(query, p);
+        }
+
+        return result.SingleOrDefault()!;
       }
 
       public async Task<List<InvoiceLine>> GetByInvoiceIdAsync(int invoiceId, int organizationId, bool onlyCurrent = false)
