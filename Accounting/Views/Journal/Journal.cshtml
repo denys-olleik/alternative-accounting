@@ -55,6 +55,11 @@ string headerText = "Journal";
     data() {
       return {
         journalTransactions: [],
+        invoices: [],
+        invoiceLines: [],
+        payment: null,
+        reconciliation: null,
+        journal: [],
         page: @Model.Page,
         pageSize: @Model.PageSize,
         nextPage: null,
