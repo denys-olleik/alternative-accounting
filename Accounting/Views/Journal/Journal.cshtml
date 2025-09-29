@@ -1,45 +1,72 @@
 @model Accounting.Models.JournalViewModels.JournalPaginatedViewModel
 
 @{
-ViewData["Title"] = "Journal - " + ConfigurationSingleton.Instance.ApplicationName;
+  ViewData["Title"] = "Journal - " + ConfigurationSingleton.Instance.ApplicationName;
 }
 
 @{
-string headerText = "Journal";
+  string headerText = "Journal";
 }
 
-<partial name="_H1HeaderPartial" model="@headerText"/>
+<partial name="_H1HeaderPartial" model="@headerText" />
 
 <script src="~/js/vue-3-5-13.js" asp-append-version="true"></script>
 
 <div id="app">
   <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
-    <tr>
-      <th></th>
-      <th class="text-align-left">Transaction</th>
-      <th class="text-align-right">Type</th>
-    </tr>
+      <tr>
+        <th></th>
+        <th class="text-align-left">Transaction</th>
+        <th class="text-align-right">Type</th>
+      </tr>
     </thead>
     <tbody class="font-Roboto-Mono">
-    <template v-for="(journal, idx) in journalTransactions" :key="journal.journalTransactionID">
-      <tr>
-        <th class="text-align-left width-1px padding-right-20px fitwidth"></th>
-        <td>
-          <span :class="idx === selectedIndex ? 'blinking-cursor' : ''">█</span>
-          {{ journal.transactionGuid }}
-        </td>
-        <td class="text-align-right">{{ journal.linkType }}</td>
-      </tr>
-    </template>
+      <template v-for="(journal, idx) in journalTransactions" :key="journal.journalTransactionID">
+        <tr>
+          <th class="text-align-left width-1px padding-right-20px fitwidth"></th>
+          <td>
+            <span :class="idx === selectedIndex ? 'blinking-cursor' : ''">█</span>
+            {{ journal.transactionGuid }}
+          </td>
+          <td class="text-align-right">{{ journal.linkType }}</td>
+        </tr>
+      </template>
     </tbody>
   </table>
 
   <pagination-component :prev-page-url="prevPageUrl"
-                        :next-page-url="nextPageUrl"
-                        :is-filtered="false"
-                        :page="page">
+    :next-page-url="nextPageUrl"
+    :is-filtered="false"
+    :page="page">
   </pagination-component>
+
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th></th>
+        <th class="text-align-left">Invoice</th>
+        <th class="text-align-left">Customer</th>
+        <th class="text-align-right">Amount</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <template v-for="invoice in invoices" :key="invoice.invoiceID">
+        <tr>
+          <th class="text-align background-color-24ACF2 width-1px padding-right-20px fitwidth"></th>
+          <td>
+            <a :href="`/invoice/invoice-details?id=${invoice.invoiceID}`">
+              {{ invoice.invoiceNumber }}
+            </a>
+          </td>
+          <td>
+            <business-entity-name-display :business-entity="invoice.customer"></business-entity-name-display>
+          </td>
+          <td class="text-align-right">{{ invoice.totalAmount }}</td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
 </div>
 
 <script src="~/js/BusinessEntityNameDisplay.js" asp-append-version="true"></script>
@@ -50,7 +77,8 @@ string headerText = "Journal";
 
   const app = createApp({
     components: {
-      'pagination-component': PaginationComponent
+      'pagination-component': PaginationComponent,
+      'business-entity-name-display': BusinessEntityNameDisplay
     },
     data() {
       return {
@@ -150,7 +178,19 @@ string headerText = "Journal";
         }
       },
       onSelectionChanged(id, type) {
-        console.log(`Selected ID: ${id}, Type: ${type}`);
+        this.invoices = [];
+        this.invoiceLines = [];
+        this.payment = null;
+        this.reconciliation = null;
+
+        if (type === 'invoice') {
+          fetch(`/api/journal/get-intermediate-details?linkType=invoice&id=${id}`)
+            .then(r => r.json())
+            .then(data => {
+              this.invoices = [data.invoice];
+              this.invoiceLines = data.lines || [];
+            });
+        }
       }
     },
     mounted() {

@@ -33,6 +33,7 @@ public class JournalController : BaseController
 [Route("api/journal")]
 public class JournalApiController : BaseController
 {
+  private readonly BusinessEntityService _businessEntityService;
   private readonly JournalService _journalService;
   private readonly InvoiceService _invoiceService;
   private readonly PaymentService _paymentService;
@@ -45,6 +46,7 @@ public class JournalApiController : BaseController
 
   public JournalApiController(RequestContext requestContext)
   {
+    _businessEntityService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _journalService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _invoiceService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _paymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
@@ -67,6 +69,7 @@ public class JournalApiController : BaseController
           if (journalTransaction == null) return NotFound();
 
           var invoice = await _invoiceService.GetAsync(journalTransaction.InvoiceId, orgId);
+          invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, orgId);
           var lines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(journalTransaction.InvoiceId, orgId, false);
 
           return Ok(new
