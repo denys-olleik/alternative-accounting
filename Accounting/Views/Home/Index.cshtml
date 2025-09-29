@@ -19,7 +19,7 @@
 {
   <div class="display-flex margin-bottom-5px">
     <div class="flex-1 display-flex flex-direction-column">
-      <img class="width-100" src="~/images/cat.png"/>
+      <img class="width-100" src="~/images/cat.png" />
       <div class="padding-5px flex-1 color-white background-color-black font-Roboto-Mono">
         <div class="text-align-center">
           Универсальная Система Администрирования (УСА) с журналом (debit/credit) для моделирования финансовых операций
@@ -31,7 +31,7 @@
       <div id="app" class="width-100"></div>
       <div class="display-flex flex-direction-column flex-1 background-color-black">
         <div class="flex-1"></div>
-        <div class="color-lawngreen text-align-center"><span class="blinking-cursor">█</span></div>
+        <div class="text-align-center color-white font-Roboto-Mono">Пусть упиваются капиталисты своими капиталистическими системами.<br /><br />Мы будем делать бухгалтерию доступную для всех.<br /><br />Документация? Какая документация! Ребёнку понятно, как пользоваться.<br /><br />Заставляют нас жить как пауков в банке.<br /><br />Нет, госпожа ursula von der leyen, нас  за голую жопу не возьмёшь.<span class="blinking-cursor color-lawngreen">█</span></div>
         <div class="flex-1"></div>
       </div>
     </div>
@@ -55,10 +55,12 @@
     <ul>
       <li>Clone this repository</li>
       <li>Have PostgreSQL installed</li>
-      <li>Update
+      <li>
+        Update
         <code>appsettings.json</code>.<code>DatabasePassword</code>
       </li>
-      <li>Set
+      <li>
+        Set
         <code>database-reset.json</code>.<code>Reset</code> to
         <code>true</code>
       </li>
@@ -67,41 +69,49 @@
 
     <h2>Model any financial operation</h2>
 
+    <h3>Example 1: Invoice create, updated, void</h3>
+
+    <p>How many journal entries are needed to record an invoice with two line-items where one collects tax?</p>
+
+    <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+      <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+        <tr>
+          <th class="text-align-left">test</th>
+        </tr>
+      </thead>
+      <tbody class="font-Roboto-Mono">
+
+      </tbody>
+    </table>
+
     <ul>
-      <li>Create invoice.</li>
-      <li>Receive payment.</li>
-      <li>Record foreign currency transaction.</li>
-      <li>Issue or assign equity (e.g., owner’s capital, shares issued).</li>
-      <li>Purchase inventory.</li>
-      <li>Move inventory between locations.</li>
-      <li>Record expense payment (e.g., rent, utilities).</li>
-      <li>Record payroll.</li>
-      <li>Record depreciation of assets.</li>
-      <li>Accrue liabilities (e.g., taxes payable, interest payable).</li>
+      <li>Create invoice</li>
+      <li>Receive payment</li>
+      <li>Record foreign currency transaction</li>
+      <li>Issue or assign equity (e.g., owner’s capital, shares issued)</li>
+      <li>Purchase inventory</li>
+      <li>Move inventory between locations</li>
+      <li>Record expense payment (e.g., rent, utilities)</li>
+      <li>Record payroll</li>
+      <li>Record depreciation of assets</li>
+      <li>Reconciliations</li>
       <li>...</li>
     </ul>
 
     <h2>Core concepts</h2>
 
     <ul>
-      <li>
-        Journal - chronological record of all financial transactions good enough to satisfy an audit.
-        <ul>
-          <li>Double-entry - credits and debits.</li>
-          <li>Forward-only - journal entries cannot be modified or deleted.</li>
-        </ul>
-      </li>
-      <li>Accounts - chart of accounts.</li>
-      <li>Transaction - groups of journal entries.</li>
+      <li>Journal</li>
+      <li>Accounts</li>
+      <li>Transaction</li>
+      <li>Double-entry</li>
+      <li>Forward-only</li>
     </ul>
 
-    <h2>Implemented functionality</h2>
-
-    <ul>
-      <li>Creating invoice</li>
-      <li>Receiving payment</li>
-      <li>Reconciliations</li>
-    </ul>
+    <h2>Transaction</h2>
+    <p>When double-entry accounting was invented over 700 years ago, people didn't know what they were doing. How could they? They didn't have computers, language models, or toilets.</p>
+    <br />
+    <p>Accounting systems have become the automatic transmission of an organization; a lifetime snake-oil warranty; a paper tiger.</p>
   </div>
 }
 

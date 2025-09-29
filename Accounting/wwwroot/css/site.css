@@ -211,6 +211,10 @@ td.fitwidth, th.fitwidth {
   background-color: blue;
 }
 
+.background-color-magenta {
+  background-color: magenta;
+}
+
 .background-color-white {
   background-color: white;
 }
