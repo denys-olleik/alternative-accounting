@@ -9,5 +9,6 @@ namespace Accounting.Database.Interfaces
     Task<bool> HasEntriesAsync(int accountId, int organizationId);
     Task<(List<JournalTransaction> journalTransactions, int? nextPage)> GetAllUnionAsync(int page, int pageSize, int organizationId);
     Task<List<Journal>> GetByTransactionGuid(string transactionGuid, int organizationId);
+    Task<List<Journal>> GetByTransactionGuid(string featuresIntegratedJournalConstant, Guid transactionGuid, int orgId);
   }
 }

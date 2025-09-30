@@ -1,8 +1,9 @@
 using Accounting.Business;
+using Accounting.Common;
 using Accounting.CustomAttributes;
-using Microsoft.AspNetCore.Mvc;
 using Accounting.Models.JournalViewModels;
 using Accounting.Service;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Accounting.Controllers;
 
@@ -71,28 +72,33 @@ public class JournalApiController : BaseController
           var invoice = await _invoiceService.GetAsync(journalTransaction.InvoiceId, orgId);
           invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, orgId);
           var lines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(journalTransaction.InvoiceId, orgId, false);
+          List<Journal> journal = await _journalService.GetByTransactionGuid(FeaturesIntegratedJournalConstants.JournalInvoiceInvoiceLine, journalTransaction.TransactionGuid, orgId);
 
           return Ok(new
           {
             type = "invoice",
             invoice = invoice,      // consider mapping to a DTO
-            lines = lines           // consider mapping to a DTO
+            lines = lines,
+            journal = journal
           });
         }
 
       case "payment":
         {
+          var journalTransaction = await _journalInvoiceInvoiceLineService.GetAsync(id, orgId);
           var invoiceInvoiceLinePayment = await _invoiceInvoiceLinePaymentService.GetByJournalInvoiceInvoiceLinePaymentIdAsync(id, orgId);
           if (invoiceInvoiceLinePayment == null) return NotFound();
 
           var payment = await _paymentService.GetAsync(invoiceInvoiceLinePayment.PaymentId, orgId);
           var invoices = await _invoiceService.GetByJournalInvoiceInvoiceLinePaymentIdAsync(id, orgId);
+          List<Journal> journal = await _journalService.GetByTransactionGuid(FeaturesIntegratedJournalConstants.JournalInvoiceInvoiceLinePayment, journalTransaction.TransactionGuid, orgId);
 
           return Ok(new
           {
             type = "payment",
             payment = invoiceInvoiceLinePayment.Payment,
-            invoices = invoices
+            invoices = invoices,
+            journal = journal
           });
         }
 

@@ -40,5 +40,11 @@ namespace Accounting.Service
       var factoryManger = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManger.GetJournalManager().GetByTransactionGuid(transactionGuid, organizationId);
     }
+
+    public async Task<List<Journal>> GetByTransactionGuid(string featuresIntegratedJournalConstant, Guid transactionGuid, int orgId)
+    {
+      var factoryManger = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManger.GetJournalManager().GetByTransactionGuid(featuresIntegratedJournalConstant, transactionGuid, orgId);
+    }
   }
 }

@@ -1511,6 +1511,28 @@ namespace Accounting.Database
       {
         throw new NotImplementedException();
       }
+
+      public async Task<List<Journal>> GetByTransactionGuid(string featuresIntegratedJournalConstant, Guid transactionGuid, int orgId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@TransactionGuid", transactionGuid);
+        p.Add("@OrganizationId", orgId);
+
+        IEnumerable<Journal> journal;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          journal = await con.QueryAsync<Journal>("""
+            SELECT j.* 
+            FROM "Journal" j
+            JOIN "JournalReconciliationTransaction" jrt ON j."JournalID" = jrt."JournalId"
+            WHERE jrt."TransactionGuid" = @TransactionGuid
+            AND j."OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return journal.ToList();
+      }
     }
 
     public IInvoiceAttachmentManager GetInvoiceAttachmentManager()
@@ -6404,6 +6426,11 @@ namespace Accounting.Database
         }
 
         return result.ToList();
+      }
+
+      public async Task<List<Journal>> GetByTransactionGuid(Guid transactionGuid, int orgId)
+      {
+        throw new NotImplementedException();
       }
 
       public async Task<List<JournalInvoiceInvoiceLine>> GetLastTransactionAsync(
