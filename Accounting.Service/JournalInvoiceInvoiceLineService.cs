@@ -192,11 +192,5 @@ namespace Accounting.Service
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetJournalInvoiceInvoiceLineManager().GetAsync(id, orgId);
     }
-
-    public async Task<List<Journal>> GetByTransactionGuid(Guid transactionGuid, int orgId)
-    {
-      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetJournalInvoiceInvoiceLineManager().GetByTransactionGuid(transactionGuid, orgId);
-    }
   }
 }

@@ -1518,17 +1518,26 @@ namespace Accounting.Database
         p.Add("@TransactionGuid", transactionGuid);
         p.Add("@OrganizationId", orgId);
 
-        IEnumerable<Journal> journal;
+        string joinTable = featuresIntegratedJournalConstant switch
+        {
+          FeaturesIntegratedJournalConstants.JournalInvoiceInvoiceLine => "JournalInvoiceInvoiceLine",
+          FeaturesIntegratedJournalConstants.JournalInvoiceInvoiceLinePayment => "JournalInvoiceInvoiceLinePayment",
+          FeaturesIntegratedJournalConstants.JournalReconciliationTransaction => "JournalReconciliationTransaction",
+          _ => throw new ArgumentException("Unknown featuresIntegratedJournalConstant", nameof(featuresIntegratedJournalConstant))
+        };
 
+        string sql = $@"
+    SELECT j.*
+    FROM ""Journal"" j
+    JOIN ""{joinTable}"" jt ON j.""JournalID"" = jt.""JournalId""
+    WHERE jt.""TransactionGuid"" = @TransactionGuid
+      AND j.""OrganizationId"" = @OrganizationId
+  ";
+
+        IEnumerable<Journal> journal;
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          journal = await con.QueryAsync<Journal>("""
-            SELECT j.* 
-            FROM "Journal" j
-            JOIN "JournalReconciliationTransaction" jrt ON j."JournalID" = jrt."JournalId"
-            WHERE jrt."TransactionGuid" = @TransactionGuid
-            AND j."OrganizationId" = @OrganizationId
-            """, p);
+          journal = await con.QueryAsync<Journal>(sql, p);
         }
 
         return journal.ToList();
