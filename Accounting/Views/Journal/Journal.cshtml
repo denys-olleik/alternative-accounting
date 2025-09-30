@@ -53,14 +53,14 @@
     <tbody class="font-Roboto-Mono">
       <template v-for="invoice in invoices" :key="invoice.invoiceID">
         <tr>
-          <th class="text-align background-color-24ACF2 width-1px padding-right-20px fitwidth"></th>
+          <th class="width-1px padding-right-20px fitwidth"></th>
           <td>
             <a :href="`/invoice/invoice-details?id=${invoice.invoiceID}`">
               {{ invoice.invoiceNumber }}
             </a>
           </td>
           <td>
-            <business-entity-name-display :business-entity="invoice.customer"></business-entity-name-display>
+            <business-entity-name-display :business-entity="invoice.businessEntity"></business-entity-name-display>
           </td>
           <td class="text-align-right">{{ invoice.totalAmount }}</td>
         </tr>
