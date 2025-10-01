@@ -36,6 +36,7 @@ public class JournalApiController : BaseController
 {
   private readonly BusinessEntityService _businessEntityService;
   private readonly JournalService _journalService;
+  private readonly AccountService _accountService;
   private readonly InvoiceService _invoiceService;
   private readonly PaymentService _paymentService;
   private readonly InvoiceInvoiceLinePaymentService _invoiceInvoiceLinePaymentService;
@@ -49,6 +50,7 @@ public class JournalApiController : BaseController
   {
     _businessEntityService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _journalService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _accountService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _invoiceService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _paymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _journalInvoiceInvoiceLineService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
@@ -57,7 +59,7 @@ public class JournalApiController : BaseController
     _invoiceInvoiceLinePaymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
   }
 
-  [HttpGet("get-intermediate-details")]
+  [HttpGet("get-details")]
   public async Task<IActionResult> GetIntermediateDetails(string linkType, int id)
   {
     var orgId = GetOrganizationId()!.Value;
@@ -73,6 +75,11 @@ public class JournalApiController : BaseController
           invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, orgId);
           var lines = await _journalInvoiceInvoiceLineService.GetByInvoiceIdAsync(journalTransaction.InvoiceId, orgId, false);
           List<Journal> journal = await _journalService.GetByTransactionGuid(FeaturesIntegratedJournalConstants.JournalInvoiceInvoiceLine, journalTransaction.TransactionGuid, orgId);
+
+          foreach (var j in journal)
+          {
+            j.Account = await _accountService.GetAsync(j.AccountId, orgId);
+          }
 
           return Ok(new
           {
