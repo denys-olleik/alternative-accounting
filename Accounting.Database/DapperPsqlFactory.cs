@@ -2246,23 +2246,30 @@ namespace Accounting.Database
       public async Task<List<Invoice>> GetByJournalInvoiceInvoiceLinePaymentIdAsync(int journalInvoiceInvoiceLinePaymentId, int orgId)
       {
         const string sql = """
+          WITH target_payment AS (
+            SELECT iilp."PaymentId"
+            FROM "JournalInvoiceInvoiceLinePayment" jiilp
+            JOIN "InvoiceInvoiceLinePayment" iilp
+              ON iilp."InvoiceInvoiceLinePaymentID" = jiilp."InvoiceInvoiceLinePaymentId"
+            WHERE jiilp."JournalInvoiceInvoiceLinePaymentID" = @JournalInvoiceInvoiceLinePaymentId
+              AND jiilp."OrganizationId" = @OrganizationId
+            LIMIT 1
+          )
           SELECT DISTINCT i."InvoiceID", i."InvoiceNumber", i."BusinessEntityId", i."BillingAddressJSON",
                  i."ShippingAddressJSON", i."DueDate", i."Status", i."PaymentInstructions",
                  i."TotalAmount", i."VoidReason", i."CreatedById", i."Created",
                  i."LastUpdated", i."OrganizationId"
-          FROM "JournalInvoiceInvoiceLinePayment" jiilp
-          JOIN "InvoiceInvoiceLinePayment" iilp ON iilp."InvoiceInvoiceLinePaymentID" = jiilp."InvoiceInvoiceLinePaymentId"
+          FROM "InvoiceInvoiceLinePayment" iilp
+          JOIN target_payment tp ON tp."PaymentId" = iilp."PaymentId"
           JOIN "Invoice" i ON i."InvoiceID" = iilp."InvoiceId"
-          WHERE jiilp."JournalInvoiceInvoiceLinePaymentID" = @JournalInvoiceInvoiceLinePaymentId
-            AND iilp."OrganizationId" = @OrganizationId
+          WHERE iilp."OrganizationId" = @OrganizationId
           """;
 
-        using (var con = new NpgsqlConnection(_connectionString))
+        using (var con = new Npgsql.NpgsqlConnection(_connectionString))
         {
           var rows = await con.QueryAsync<Invoice>(
             sql,
             new { JournalInvoiceInvoiceLinePaymentId = journalInvoiceInvoiceLinePaymentId, OrganizationId = orgId });
-          
           return rows.ToList();
         }
       }

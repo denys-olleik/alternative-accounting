@@ -92,18 +92,28 @@ public class JournalApiController : BaseController
 
       case "payment":
         {
-          var journalTransaction = await _journalInvoiceInvoiceLineService.GetAsync(id, orgId);
+          var journalTransaction = await _journalInvoiceInvoiceLinePaymentService.GetAsync(id, orgId);
           var invoiceInvoiceLinePayment = await _invoiceInvoiceLinePaymentService.GetByJournalInvoiceInvoiceLinePaymentIdAsync(id, orgId);
           if (invoiceInvoiceLinePayment == null) return NotFound();
 
           var payment = await _paymentService.GetAsync(invoiceInvoiceLinePayment.PaymentId, orgId);
           var invoices = await _invoiceService.GetByJournalInvoiceInvoiceLinePaymentIdAsync(id, orgId);
+          foreach (var invoice in invoices)
+          {
+            invoice.BusinessEntity = await _businessEntityService.GetAsync(invoice.BusinessEntityId, orgId);
+          }
+
           List<Journal> journal = await _journalService.GetByTransactionGuid(FeaturesIntegratedJournalConstants.JournalInvoiceInvoiceLinePayment, journalTransaction.TransactionGuid, orgId);
+
+          foreach (var j in journal)
+          {
+            j.Account = await _accountService.GetAsync(j.AccountId, orgId);
+          }
 
           return Ok(new
           {
             type = "payment",
-            payment = invoiceInvoiceLinePayment.Payment,
+            payment = payment,
             invoices = invoices,
             journal = journal
           });

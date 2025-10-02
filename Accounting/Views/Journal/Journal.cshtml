@@ -128,8 +128,8 @@
         journalTransactions: [],
         invoices: [],
         invoiceLines: [],
-        payment: null,
-        reconciliation: null,
+        payment: [],
+        reconciliation: [],
         journal: [],
         page: @Model.Page,
         pageSize: @Model.PageSize,
@@ -223,15 +223,32 @@
       onSelectionChanged(id, type) {
         this.invoices = [];
         this.invoiceLines = [];
-        this.payment = null;
-        this.reconciliation = null;
+        this.payments = [];
+        this.reconciliations = [];
 
         if (type === 'invoice') {
           fetch(`/api/journal/get-details?linkType=invoice&id=${id}`)
             .then(r => r.json())
             .then(data => {
               this.invoices = [data.invoice];
-              this.invoiceLines = data.lines || [];
+              this.invoiceLines = data.lines;
+              this.journal = data.journal;
+            });
+        }
+        else if (type === 'payment') {
+          fetch(`/api/journal/get-details?linkType=payment&id=${id}`)
+            .then(r => r.json())
+            .then(data => {
+              this.payments = data.payments;
+              this.invoices = data.invoices;
+              this.journal = data.journal;
+            });
+        }
+        else if (type === 'reconciliation') {
+          fetch(`/api/journal/get-details?linkType=reconciliation&id=${id}`)
+            .then(r => r.json())
+            .then(data => {
+              this.reconciliation = data.reconciliation || null;
               this.journal = data.journal || [];
             });
         }
