@@ -48,6 +48,21 @@
     :page="page">
   </pagination-component>
 
+  <table v-if="payment && payment.paymentID" class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left">Reference number</th>
+        <th class="text-align-right width-1px">Amount</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <tr>
+        <td class="text-align-left">{{ payment.referenceNumber }}</td>
+        <td class="text-align-right width-1px">{{ payment.amount }}</td>
+      </tr>
+    </tbody>
+  </table>
+
   <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
       <tr>
@@ -223,7 +238,7 @@
       onSelectionChanged(id, type) {
         this.invoices = [];
         this.invoiceLines = [];
-        this.payments = [];
+        this.payment = [];
         this.reconciliations = [];
 
         if (type === 'invoice') {
@@ -239,7 +254,7 @@
           fetch(`/api/journal/get-details?linkType=payment&id=${id}`)
             .then(r => r.json())
             .then(data => {
-              this.payments = data.payments;
+              this.payment = data.payment;
               this.invoices = data.invoices;
               this.journal = data.journal;
             });

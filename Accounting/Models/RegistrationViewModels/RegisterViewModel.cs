@@ -14,6 +14,7 @@ namespace Accounting.Models.RegistrationViewModels
     private string? _noReplyEmailAddress;
     private string? _emailKey;
     private string? _cloudKey;
+    private string? _openAIKey;
     private SecretViewModel? _dropletLimitSecret;
     private int _currentDropletCount;
 
@@ -69,6 +70,12 @@ namespace Accounting.Models.RegistrationViewModels
     {
       get => _cloudKey;
       set => _cloudKey = value?.Trim();
+    }
+
+    public string? OpenAIKey
+    {
+      get => _openAIKey;
+      set => _openAIKey = value?.Trim();
     }
 
     public SecretViewModel? DropletLimitSecret

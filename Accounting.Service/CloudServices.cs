@@ -116,6 +116,7 @@ namespace Accounting.Service
         bool tenantManagement,
         string fullyQualifiedDomainName,
         string cloudApiKey = null,
+        string openAIkey = null,
         string noReplyEmailAddress = null,
         string? whitelabel = null,
         string? controllerAction = null)
@@ -140,6 +141,11 @@ namespace Accounting.Service
         string cloudApiKeyScript =
             @"
 sudo -i -u postgres psql -d ""Accounting"" -c ""INSERT INTO \""Secret\"" (\""Master\"", \""Value\"", \""Type\"", \""CreatedById\"", \""OrganizationId\"", \""TenantId\"") VALUES (false, '${CloudApiKey}', 'cloud', 1, 1, 1);"" > /var/log/accounting/cloud-api-key-insert.log 2>&1
+";
+
+        string openAIKeyScript =
+            @"
+sudo -i -u postgres psql -d ""Accounting"" -c ""INSERT INTO \""Secret\"" (\""Master\"", \""Value\"", \""Type\"", \""CreatedById\"", \""OrganizationId\"", \""TenantId\"") VALUES (false, '${OpenAIKey}', 'openai', 1, 1, 1);"" > /var/log/accounting/openai-key-insert.log 2>&1
 ";
 
         string noReplyScript =
@@ -316,6 +322,9 @@ sudo -i -u postgres psql -d "Accounting" -f /opt/accounting/Accounting.Database/
 
 # Create cloud API key
 """ + cloudApiKeyScript + $"""
+
+# Create openai API key
+""" + openAIKeyScript + $"""
 
 # Build the .NET project
 export DOTNET_CLI_HOME=/root

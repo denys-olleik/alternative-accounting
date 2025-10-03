@@ -388,6 +388,7 @@ namespace Accounting.Controllers
           });
 
           var cloudServices = new CloudServices(_secretService, _tenantService);
+          Secret openAISecret = await _secretService.GetAsync(Secret.SecretTypeConstants.OpenAI, 1);
 
           try
           {
@@ -395,7 +396,7 @@ namespace Accounting.Controllers
               tenant,
               tenant.DatabasePassword, tenant.Email, model.Password, null!, null!, false,
               emailSecretValue, model.FullyQualifiedDomainName,
-              string.IsNullOrEmpty(model.CloudKey) ? null : model.CloudKey, model.NoReplyEmailAddress ?? defaultNoReplyEmailSecret?.Value!);
+              string.IsNullOrEmpty(model.CloudKey) ? null : model.CloudKey, openAISecret.Value, model.NoReplyEmailAddress ?? defaultNoReplyEmailSecret?.Value!);
           }
           catch (ApiException e)
           {

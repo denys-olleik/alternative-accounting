@@ -697,7 +697,7 @@ namespace Accounting.Controllers
       else
       {
         Secret cloudSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Cloud, 1);
-        //Secret emailSecret = await _secretService.GetAsync(Secret.SecretTypeConstants.Email, 1);
+        Secret openAISecret = await _secretService.GetAsync(Secret.SecretTypeConstants.OpenAI, 1);
 
         Tenant defaultTenant = await _tenantService.GetByDatabaseNameAsync(DatabaseThing.DatabaseConstants.DatabaseName);
         Secret noReplySecret = await _secretService.GetAsync(Secret.SecretTypeConstants.NoReply, defaultTenant.TenantID);
@@ -729,7 +729,7 @@ namespace Accounting.Controllers
               tenant.Email, model.Password, null!, null!, 
               model.EnableTenantManagement, 
               model.FullyQualifiedDomainName,
-              cloudSecret.Value,
+              cloudSecret.Value, openAISecret.Value,
               noReplySecret.Value, whitelabel: model.ApplicationName, controllerAction: model.ControllerAction);
           }
           catch (ApiException e)
