@@ -5877,7 +5877,7 @@ namespace Accounting.Database
             FROM "JournalReconciliationTransaction" 
             WHERE "JournalReconciliationTransactionID" = @JournalReconciliationTransactionID
             AND "OrganizationId" = @OrganizationId;
-            """);
+            """, p);
         }
 
         return result.SingleOrDefault();

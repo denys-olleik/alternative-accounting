@@ -55,6 +55,7 @@ public class JournalApiController : BaseController
     _paymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _journalInvoiceInvoiceLineService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _journalInvoiceInvoiceLinePaymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+    _journalReconciliationTransactionService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _reconciliationTransactionService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     _invoiceInvoiceLinePaymentService = new(requestContext.DatabaseName!, requestContext.DatabasePassword!);
   }
