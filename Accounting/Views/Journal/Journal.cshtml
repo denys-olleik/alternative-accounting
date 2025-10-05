@@ -43,10 +43,29 @@
   </table>
 
   <pagination-component :prev-page-url="prevPageUrl"
-    :next-page-url="nextPageUrl"
-    :is-filtered="false"
-    :page="page">
+                        :next-page-url="nextPageUrl"
+                        :is-filtered="false"
+                        :page="page">
   </pagination-component>
+
+  <table v-if="reconciliation && reconciliation.reconciliationTransactionID" class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">Date</th>
+        <th class="text-align-left">Description</th>
+        <th class="text-align-right width-1px">Amount</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <tr>
+        <td class="text-align-left width-1px padding-right-20px white-space-nowrap font-size-12px vertical-align-middle">
+          {{ reconciliation.transactionDate }}
+        </td>
+        <td class="text-align-left">{{ reconciliation.description }}</td>
+        <td class="text-align-right width-1px">{{ reconciliation.amount }}</td>
+      </tr>
+    </tbody>
+  </table>
 
   <table v-if="payment && payment.paymentID" class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
     <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
@@ -239,7 +258,7 @@
         this.invoices = [];
         this.invoiceLines = [];
         this.payment = [];
-        this.reconciliations = [];
+        this.reconciliation = [];
 
         if (type === 'invoice') {
           fetch(`/api/journal/get-details?linkType=invoice&id=${id}`)
@@ -263,8 +282,8 @@
           fetch(`/api/journal/get-details?linkType=reconciliation&id=${id}`)
             .then(r => r.json())
             .then(data => {
-              this.reconciliation = data.reconciliation || null;
-              this.journal = data.journal || [];
+              this.reconciliation = data.reconciliationTransaction;
+              this.journal = data.journal;
             });
         }
       }

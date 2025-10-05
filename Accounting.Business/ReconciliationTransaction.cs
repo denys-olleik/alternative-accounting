@@ -7,7 +7,7 @@ namespace Accounting.Business
   public class ReconciliationTransaction : IIdentifiable<int>
   {
     public int ReconciliationTransactionID { get; set; }
-    public string? Status { get; set; }
+    //public string? Status { get; set; }
     public string? RawData { get; set; }
     public Guid? TransactionGuid { get; set; }
     public DateTime? TransactionDate { get; set; }

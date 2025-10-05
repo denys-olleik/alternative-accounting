@@ -780,6 +780,10 @@ td.fitwidth, th.fitwidth {
   vertical-align: top;
 }
 
+.vertical-align-middle {
+  vertical-align: middle;
+}
+
 .white-space-nowrap {
   white-space: nowrap;
 }
