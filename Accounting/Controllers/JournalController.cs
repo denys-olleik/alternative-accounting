@@ -127,10 +127,17 @@ public class JournalApiController : BaseController
 
           var reconciliationTransaction = await _reconciliationTransactionService.GetAsync(journalTransaction.ReconciliationTransactionId, orgId);
 
+          List<Journal> journal = await _journalService.GetByTransactionGuid(FeaturesIntegratedJournalConstants.JournalReconciliationTransaction, journalTransaction.TransactionGuid, orgId);
+
+          foreach (var j in journal)
+          {
+            j.Account = await _accountService.GetAsync(j.AccountId, orgId);
+          }
+
           return Ok(new
           {
             type = "reconciliation",
-            reconciliationTransaction = reconciliationTransaction
+            journal = journal
           });
         }
 
