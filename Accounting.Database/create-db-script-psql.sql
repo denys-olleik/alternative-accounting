@@ -61,6 +61,34 @@ CREATE TABLE "UserOrganization"
 	UNIQUE ("UserId", "OrganizationId")
 );
 
+CREATE TABLE "Metals"
+(
+  "MetalsID" SERIAL PRIMARY KEY NOT NULL,
+  "Type" VARCHAR(20) NOT NULL CHECK ("Type" IN ('gold','silver')),
+  "Weight" NUMERIC(20,6) NOT NULL,
+  "Unit" VARCHAR(10) NOT NULL CHECK ("Unit" IN ('g','oz')),
+  "OrganizationId" INT NOT NULL,
+  "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+  "CreatedById" INT NOT NULL,
+  FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+  FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
+);
+
+CREATE TABLE "MetalMonetization"
+(
+  "MetalMonetizationID" SERIAL PRIMARY KEY NOT NULL,
+  "MetalsID" INT NOT NULL,
+  "Amount" NUMERIC(20,4) NOT NULL,
+  "MetalWeight" NUMERIC(20,6) NOT NULL,
+  "Unit" VARCHAR(10) NOT NULL CHECK ("Unit" IN ('g','oz')),
+  "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+  "CreatedById" INT NOT NULL,
+  "OrganizationId" INT NOT NULL,
+  FOREIGN KEY ("MetalsID") REFERENCES "Metals"("MetalsID"),
+  FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+  FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
+);
+
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Reconciliation";'
 CREATE TABLE "Reconciliation"
 (
@@ -560,6 +588,23 @@ CREATE TABLE "JournalReconciliationTransaction"
 	FOREIGN KEY ("ReversedJournalReconciliationTransactionId") REFERENCES "JournalReconciliationTransaction"("JournalReconciliationTransactionID"),
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
+);
+
+CREATE TABLE "JournalMetalMonetization"
+(
+  "JournalMetalMonetizationID" SERIAL PRIMARY KEY NOT NULL,
+  "JournalId" INT NOT NULL,
+  "MetalMonetizationId" INT NOT NULL,
+  "ReversedJournalMetalMonetizationId" INT NULL,
+  "TransactionGuid" UUID NOT NULL,
+  "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+  "CreatedById" INT NOT NULL,
+  "OrganizationId" INT NOT NULL,
+  FOREIGN KEY ("JournalId") REFERENCES "Journal"("JournalID"),
+  FOREIGN KEY ("MetalMonetizationId") REFERENCES "MetalMonetization"("MetalMonetizationID"),
+  FOREIGN KEY ("ReversedJournalMetalMonetizationId") REFERENCES "JournalMetalMonetization"("JournalMetalMonetizationID"),
+  FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+  FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
 
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "PaymentInstruction";'
