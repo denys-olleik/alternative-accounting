@@ -137,6 +137,7 @@ public class JournalApiController : BaseController
           return Ok(new
           {
             type = "reconciliation",
+            reconciliation = reconciliationTransaction,
             journal = journal
           });
         }

@@ -34,96 +34,96 @@ namespace Accounting.Controllers
       _userOrganizationService = new UserOrganizationService();
     }
 
-    [AllowAnonymous]
-    [HttpGet]
-    [Route("register")]
-    public IActionResult Register()
-    {
-      var model = new CompositeRegistrationViewModel();
-      model.SelectedRegistrationType = RegistrationType.Shared;
-      return View(model);
-    }
+    //[AllowAnonymous]
+    //[HttpGet]
+    //[Route("register")]
+    //public IActionResult Register()
+    //{
+    //  var model = new CompositeRegistrationViewModel();
+    //  model.SelectedRegistrationType = RegistrationType.Shared;
+    //  return View(model);
+    //}
 
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("register-shared")]
-    public async Task<IActionResult> RegisterShared(SharedRegistrationViewModel model)
-    {
-      var validator = new SharedRegistrationViewModel.SharedRegistrationViewModelValidator();
-      var validationResult = await validator.ValidateAsync(model);
-      if (!validationResult.IsValid)
-      {
-        var compositeModel = new CompositeRegistrationViewModel
-        {
-          SelectedRegistrationType = RegistrationType.Shared,
-          Shared = model,
-          ValidationResult = validationResult
-        };
-        return View("Register", compositeModel);
-      }
+    //[AllowAnonymous]
+    //[HttpPost]
+    //[Route("register-shared")]
+    //public async Task<IActionResult> RegisterShared(SharedRegistrationViewModel model)
+    //{
+    //  var validator = new SharedRegistrationViewModel.SharedRegistrationViewModelValidator();
+    //  var validationResult = await validator.ValidateAsync(model);
+    //  if (!validationResult.IsValid)
+    //  {
+    //    var compositeModel = new CompositeRegistrationViewModel
+    //    {
+    //      SelectedRegistrationType = RegistrationType.Shared,
+    //      Shared = model,
+    //      ValidationResult = validationResult
+    //    };
+    //    return View("Register", compositeModel);
+    //  }
 
-      // Check for duplicate email
-      if (await _tenantService.ExistsAsync(model.Email!))
-      {
-        validationResult.Errors.Add(new ValidationFailure("Email", "Email already exists"));
-        var compositeModel = new CompositeRegistrationViewModel
-        {
-          SelectedRegistrationType = RegistrationType.Shared,
-          Shared = model,
-          ValidationResult = validationResult
-        };
-        return View("Register", compositeModel);
-      }
+    //  // Check for duplicate email
+    //  if (await _tenantService.ExistsAsync(model.Email!))
+    //  {
+    //    validationResult.Errors.Add(new ValidationFailure("Email", "Email already exists"));
+    //    var compositeModel = new CompositeRegistrationViewModel
+    //    {
+    //      SelectedRegistrationType = RegistrationType.Shared,
+    //      Shared = model,
+    //      ValidationResult = validationResult
+    //    };
+    //    return View("Register", compositeModel);
+    //  }
 
-      Tenant tenant;
-      using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-      {
-        var defaultTenant = await _tenantService.GetByDatabaseNameAsync(DatabaseThing.DatabaseConstants.DatabaseName);
-        tenant = await _tenantService.CreateAsync(new Tenant()
-        {
-          Email = model.Email,
-          DatabasePassword = defaultTenant.DatabasePassword
-        });
-        scope.Complete();
-      }
+    //  Tenant tenant;
+    //  using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+    //  {
+    //    var defaultTenant = await _tenantService.GetByDatabaseNameAsync(DatabaseThing.DatabaseConstants.DatabaseName);
+    //    tenant = await _tenantService.CreateAsync(new Tenant()
+    //    {
+    //      Email = model.Email,
+    //      DatabasePassword = defaultTenant.DatabasePassword
+    //    });
+    //    scope.Complete();
+    //  }
 
-      string createSchemaScriptPath = Path.Combine(AppContext.BaseDirectory, "create-db-script-psql.sql");
-      string createSchemaScript = System.IO.File.ReadAllText(createSchemaScriptPath);
+    //  string createSchemaScriptPath = Path.Combine(AppContext.BaseDirectory, "create-db-script-psql.sql");
+    //  string createSchemaScript = System.IO.File.ReadAllText(createSchemaScriptPath);
 
-      var database = await _databaseService.CreateDatabaseAsync(tenant.PublicId);
-      await _databaseService.RunSQLScript(createSchemaScript, database.Name);
-      await _tenantService.UpdateDatabaseName(tenant.TenantID, database.Name);
+    //  var database = await _databaseService.CreateDatabaseAsync(tenant.PublicId);
+    //  await _databaseService.RunSQLScript(createSchemaScript, database.Name);
+    //  await _tenantService.UpdateDatabaseName(tenant.TenantID, database.Name);
 
-      using (TransactionScope scope = new (TransactionScopeAsyncFlowOption.Enabled))
-      {
-        var user = new User()
-        {
-          Email = model.Email,
-          FirstName = model.FirstName,
-          LastName = model.LastName,
-          Password = PasswordStorage.CreateHash(model.Password!)
-        };
+    //  using (TransactionScope scope = new (TransactionScopeAsyncFlowOption.Enabled))
+    //  {
+    //    var user = new User()
+    //    {
+    //      Email = model.Email,
+    //      FirstName = model.FirstName,
+    //      LastName = model.LastName,
+    //      Password = PasswordStorage.CreateHash(model.Password!)
+    //    };
 
-        var userService = new UserService(database.Name!, tenant.DatabasePassword!);
-        user = await userService.CreateAsync(user);
+    //    var userService = new UserService(database.Name!, tenant.DatabasePassword!);
+    //    user = await userService.CreateAsync(user);
 
-        var organizationService = new OrganizationService(database.Name!, tenant.DatabasePassword);
-        string sampleDataPath = Path.Combine(AppContext.BaseDirectory, "sample-data-production.sql");
-        string sampleDataScript = System.IO.File.ReadAllText(sampleDataPath);
-        await organizationService.InsertSampleOrganizationDataAsync(sampleDataScript);
+    //    var organizationService = new OrganizationService(database.Name!, tenant.DatabasePassword);
+    //    string sampleDataPath = Path.Combine(AppContext.BaseDirectory, "sample-data-production.sql");
+    //    string sampleDataScript = System.IO.File.ReadAllText(sampleDataPath);
+    //    await organizationService.InsertSampleOrganizationDataAsync(sampleDataScript);
 
-        var userOrganizationService = new UserOrganizationService();
-        await userOrganizationService.CreateAsync(user.UserID, 1, database.Name!, tenant.DatabasePassword);
+    //    var userOrganizationService = new UserOrganizationService();
+    //    await userOrganizationService.CreateAsync(user.UserID, 1, database.Name!, tenant.DatabasePassword);
 
-        var claimService = new ClaimService(database.Name!, tenant.DatabasePassword);
-        await claimService.CreateRoleAsync(user.UserID, 1, UserRoleClaimConstants.RoleManager);
-        await claimService.CreateRoleAsync(user.UserID, 1, UserRoleClaimConstants.OrganizationManager);
+    //    var claimService = new ClaimService(database.Name!, tenant.DatabasePassword);
+    //    await claimService.CreateRoleAsync(user.UserID, 1, UserRoleClaimConstants.RoleManager);
+    //    await claimService.CreateRoleAsync(user.UserID, 1, UserRoleClaimConstants.OrganizationManager);
 
-        scope.Complete();
-      }
+    //    scope.Complete();
+    //  }
 
-      return RedirectToAction("RegistrationComplete", "Registration");
-    }
+    //  return RedirectToAction("RegistrationComplete", "Registration");
+    //}
 
     //[AllowAnonymous]
     //[HttpPost]
