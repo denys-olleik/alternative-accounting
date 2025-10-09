@@ -1,0 +1,47 @@
+﻿@model Accounting.Models.MetalsViewModels.DepositMetalViewModel
+
+@{
+  ViewData["Title"] = "Deposit metal - " + ConfigurationSingleton.Instance.ApplicationName;
+  string headerText = "Deposit metal";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<form asp-action="Deposit" asp-controller="Metals" method="post"
+      class="display-flex flex-direction-column margin-bottom-5px">
+
+  <!-- Type -->
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Type">Type</label>
+    <select asp-for="Type" class="font-size-20px" required>
+      <option value="">Select type:</option>
+      <option value="gold">gold</option>
+      <option value="silver">silver</option>
+    </select>
+  </div>
+
+  <!-- Unit -->
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Unit">Unit</label>
+    <select asp-for="Unit" class="font-size-20px" required>
+      <option value="">Select unit:</option>
+      <option value="g">g</option><option value="oz">oz</option>
+    </select>
+  </div>
+
+  <!-- Weight -->
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Weight">Weight</label>
+    <input asp-for="Weight" class="font-size-20px" autocomplete="off" inputmode="decimal" required />
+  </div>
+
+  <button type="submit" class="full-width-regular-button">Deposit</button>
+</form>
+
+@if (Model != null && Model.ValidationResult != null)
+{
+  foreach (var error in Model.ValidationResult.Errors)
+  {
+    <div><small class="color-red">@error.ErrorMessage</small></div>
+  }
+  <div class="margin-bottom-5px"></div>
+}

@@ -6,8 +6,10 @@ namespace Accounting.Common
   {
     public const string Piece = "piece";
     public const string Kilogram = "kilogram";
+    public const string Gram = "g";
     public const string Meter = "meter";
     public const string Liter = "liter";
+    public const string Ounce = "oz";
 
     private static readonly List<string> _all = new List<string>();
 
@@ -23,6 +25,6 @@ namespace Accounting.Common
       }
     }
 
-    public static IReadOnlyList<string> All => _all.AsReadOnly();
+    public static List<string> All => _all;
   }
 }
