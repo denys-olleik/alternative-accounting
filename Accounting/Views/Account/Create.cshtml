@@ -56,40 +56,6 @@
     <account-type-selector :account-types="accountTypes"></account-type-selector>
   </div>
 
-  <div class="margin-bottom-5px background-color-antiquewhite">
-    <label class="">Show in drop-down options for...</label>
-    <div class="display-flex flex-direction-column">
-      <div class="display-flex flex-direction-column">
-        <div class="display-flex flex-1">
-          <input asp-for="ShowInInvoiceCreationDropDownForCredit" type="checkbox" />
-          <label asp-for="ShowInInvoiceCreationDropDownForCredit">Invoice creation for credit</label>
-        </div>
-        <div class="width-5px"></div>
-        <div class="display-flex flex-1">
-          <input asp-for="ShowInInvoiceCreationDropDownForDebit" type="checkbox" />
-          <label asp-for="ShowInInvoiceCreationDropDownForDebit">Invoice creation for debit</label>
-        </div>
-      </div>
-      <div class="display-flex flex-direction-column">
-        <div class="display-flex flex-1">
-          <input asp-for="ShowInReceiptOfPaymentDropDownForCredit" type="checkbox" />
-          <label asp-for="ShowInReceiptOfPaymentDropDownForCredit">Payment receipt for credit</label>
-        </div>
-        <div class="width-5px"></div>
-        <div class="display-flex flex-1">
-          <input asp-for="ShowInReceiptOfPaymentDropDownForDebit" type="checkbox" />
-          <label asp-for="ShowInReceiptOfPaymentDropDownForDebit">Payment receipt for debit</label>
-        </div>
-      </div>
-      <div class="display-flex flex-direction-column">
-        <div class="display-flex flex-1">
-          <input asp-for="ReconciliationExpense" type="checkbox" />
-          <label asp-for="ReconciliationExpense">Reconciliation Expense</label>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="display-flex flex-direction-column">
     <button type="submit" class="full-width-regular-button width-100">Create Account</button>
   </div>

@@ -345,13 +345,7 @@ namespace Accounting.Database
         DynamicParameters p = new DynamicParameters();
         p.Add("@Name", entity.Name);
         p.Add("@Type", entity.Type);
-        p.Add("@InvoiceCreationForCredit", entity.InvoiceCreationForCredit);
-        p.Add("@InvoiceCreationForDebit", entity.InvoiceCreationForDebit);
-        p.Add("@ReceiptOfPaymentForCredit", entity.ReceiptOfPaymentForCredit);
-        p.Add("@ReceiptOfPaymentForDebit", entity.ReceiptOfPaymentForDebit);
         p.Add("@ParentAccountId", entity.ParentAccountId);
-        p.Add("@ReconciliationExpense", entity.ReconciliationExpense);
-        p.Add("@ReconciliationLiabilitiesAndAssets", entity.ReconciliationLiabilitiesAndAssets);
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
 
@@ -361,9 +355,9 @@ namespace Accounting.Database
         {
           result = await con.QueryAsync<Account>("""
             INSERT INTO "Account" 
-            ("Name", "Type", "InvoiceCreationForCredit", "InvoiceCreationForDebit", "ReceiptOfPaymentForCredit", "ReceiptOfPaymentForDebit", "ReconciliationExpense", "ReconciliationLiabilitiesAndAssets", "ParentAccountId", "CreatedById", "OrganizationId") 
+            ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") 
             VALUES 
-            (@Name, @Type, @InvoiceCreationForCredit, @InvoiceCreationForDebit, @ReceiptOfPaymentForCredit, @ReceiptOfPaymentForDebit, @ReconciliationExpense, @ReconciliationLiabilitiesAndAssets, @ParentAccountId, @CreatedById, @OrganizationId)
+            (@Name, @Type, @ParentAccountId, @CreatedById, @OrganizationId)
             RETURNING *;
             """, p);
         }
@@ -856,12 +850,6 @@ namespace Accounting.Database
         p.Add("@AccountID", account.AccountID);
         p.Add("@Name", account.Name);
         p.Add("@Type", account.Type);
-        p.Add("@InvoiceCreationForCredit", account.InvoiceCreationForCredit);
-        p.Add("@InvoiceCreationForDebit", account.InvoiceCreationForDebit);
-        p.Add("@ReceiptOfPaymentForCredit", account.ReceiptOfPaymentForCredit);
-        p.Add("@ReceiptOfPaymentForDebit", account.ReceiptOfPaymentForDebit);
-        p.Add("@ReconciliationExpense", account.ReconciliationExpense);
-        p.Add("@ReconciliationLiabilitiesAndAssets", account.ReconciliationLiabilitiesAndAssets);
 
         int rowsModified;
 
@@ -870,13 +858,7 @@ namespace Accounting.Database
           rowsModified = await con.ExecuteAsync("""
             UPDATE "Account" SET 
             "Name" = @Name,
-            "Type" = @Type,
-            "InvoiceCreationForCredit" = @InvoiceCreationForCredit,
-            "InvoiceCreationForDebit" = @InvoiceCreationForDebit,
-            "ReceiptOfPaymentForCredit" = @ReceiptOfPaymentForCredit,
-            "ReceiptOfPaymentForDebit" = @ReceiptOfPaymentForDebit,
-            "ReconciliationExpense" = @ReconciliationExpense,
-            "ReconciliationLiabilitiesAndAssets" = @ReconciliationLiabilitiesAndAssets
+            "Type" = @Type
             WHERE "AccountID" = @AccountID
             """, p);
         }

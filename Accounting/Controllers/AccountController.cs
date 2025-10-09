@@ -144,12 +144,6 @@ namespace Accounting.Controllers
         AccountID = account.AccountID,
         AccountName = account.Name,
         SelectedAccountType = account.Type,
-        ShowInInvoiceCreationDropDownForCredit = account.InvoiceCreationForCredit,
-        ShowInInvoiceCreationDropDownForDebit = account.InvoiceCreationForDebit,
-        ShowInReceiptOfPaymentDropDownForCredit = account.ReceiptOfPaymentForCredit,
-        ShowInReceiptOfPaymentDropDownForDebit = account.ReceiptOfPaymentForDebit,
-        ReconciliationExpense = account.ReconciliationExpense,
-        ReconciliationLiabilitiesAndAssets = account.ReconciliationLiabilitiesAndAssets,
         AvailableAccountTypes = Account.AccountTypeConstants.All.ToList()
       };
 
@@ -200,12 +194,6 @@ namespace Accounting.Controllers
 
       account.Name = model.AccountName;
       account.Type = model.SelectedAccountType;
-      account.InvoiceCreationForCredit = model.ShowInInvoiceCreationDropDownForCredit;
-      account.InvoiceCreationForDebit = model.ShowInInvoiceCreationDropDownForDebit;
-      account.ReceiptOfPaymentForCredit = model.ShowInReceiptOfPaymentDropDownForCredit;
-      account.ReceiptOfPaymentForDebit = model.ShowInReceiptOfPaymentDropDownForDebit;
-      account.ReconciliationExpense = model.ReconciliationExpense;
-      account.ReconciliationLiabilitiesAndAssets = model.ReconciliationLiabilitiesAndAssets;
 
       await _accountService.UpdateAsync(account);
 
@@ -296,10 +284,6 @@ namespace Accounting.Controllers
           Name = account.Name,
           Type = account.Type,
           JournalEntryCount = account.JournalEntryCount,
-          InvoiceCreationForCredit = account.InvoiceCreationForCredit,
-          InvoiceCreationForDebit = account.InvoiceCreationForDebit,
-          ReceiptOfPaymentForCredit = account.ReceiptOfPaymentForCredit,
-          ReceiptOfPaymentForDebit = account.ReceiptOfPaymentForDebit,
           Created = account.Created,
           ParentAccountId = account.ParentAccountId,
           CreatedById = account.CreatedById,
@@ -326,30 +310,6 @@ namespace Accounting.Controllers
       });
     }
 
-    [HttpGet("all-reconciliation-expense")]
-    public async Task<IActionResult> GetAllReconciliationExpenseAccounts()
-    {
-      var organizationId = GetOrganizationId()!.Value;
-      List<Account> accounts = await _accountService.GetAllReconciliationExpenseAccountsAsync(organizationId);
-
-      List<AccountViewModel> accountsViewmodel = accounts.Select(x => new AccountViewModel
-      {
-        AccountID = x.AccountID,
-        Name = x.Name,
-        Type = x.Type,
-        InvoiceCreationForCredit = x.InvoiceCreationForCredit,
-        InvoiceCreationForDebit = x.InvoiceCreationForDebit,
-        ReceiptOfPaymentForCredit = x.ReceiptOfPaymentForCredit,
-        ReceiptOfPaymentForDebit = x.ReceiptOfPaymentForDebit,
-        Created = x.Created,
-        ParentAccountId = x.ParentAccountId,
-        CreatedById = x.CreatedById,
-        Children = new List<AccountViewModel>()
-      }).ToList();
-
-      return Ok(accountsViewmodel);
-    }
-
     [HttpGet("all-reconciliation-liabilities-and-assets")]
     public async Task<IActionResult> GetAllReconciliationLiabilitiesAndAssetsAccounts()
     {
@@ -361,10 +321,6 @@ namespace Accounting.Controllers
         AccountID = x.AccountID,
         Name = x.Name,
         Type = x.Type,
-        InvoiceCreationForCredit = x.InvoiceCreationForCredit,
-        InvoiceCreationForDebit = x.InvoiceCreationForDebit,
-        ReceiptOfPaymentForCredit = x.ReceiptOfPaymentForCredit,
-        ReceiptOfPaymentForDebit = x.ReceiptOfPaymentForDebit,
         Created = x.Created,
         ParentAccountId = x.ParentAccountId,
         CreatedById = x.CreatedById,
@@ -373,8 +329,6 @@ namespace Accounting.Controllers
 
       return Ok(accountsViewmodel);
     }
-
-    
   }
 }
 
