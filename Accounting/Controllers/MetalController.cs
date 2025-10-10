@@ -48,7 +48,7 @@ namespace Accounting.Controllers
         return View(depositMetalViewModel);
       }
 
-      using (TransactionScope scope = new())
+      using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
         Metal metal = await _metalService.CreateAsync(new Metal()
         {
