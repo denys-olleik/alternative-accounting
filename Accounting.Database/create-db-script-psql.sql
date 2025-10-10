@@ -67,9 +67,9 @@ CREATE TABLE "Metal"
   "Type" VARCHAR(20) NOT NULL CHECK ("Type" IN ('gold','silver')),
   "Weight" NUMERIC(20,6) NOT NULL,
   "Unit" VARCHAR(10) NOT NULL CHECK ("Unit" IN ('g','oz')),
-  "OrganizationId" INT NOT NULL,
   "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
   "CreatedById" INT NOT NULL,
+	"OrganizationId" INT NOT NULL,
   FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
   FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );

@@ -1,4 +1,4 @@
-﻿using Accounting.Common;
+﻿using Accounting.Business;
 using Accounting.CustomAttributes;
 using Accounting.Models.MetalsViewModels;
 using Accounting.Service;
@@ -10,13 +10,13 @@ namespace Accounting.Controllers
 {
   [AuthorizeWithOrganizationId]
   [Route("metals")]
-  public class MetalsController : BaseController
+  public class MetalController : BaseController
   {
-    private readonly MetalsService _metalsService;
+    private readonly MetalService _metalService;
 
-    public MetalsController(MetalsService metalsService)
+    public MetalController(MetalService metalService)
     {
-      _metalsService = metalsService;
+      _metalService = metalService;
     }
 
     [Route("metals")]
@@ -48,14 +48,21 @@ namespace Accounting.Controllers
         return View(depositMetalViewModel);
       }
 
-      using (TransactionScope scope = new ())
+      using (TransactionScope scope = new())
       {
-        
+        Metal metal = await _metalService.CreateAsync(new Metal()
+        {
+          Type = depositMetalViewModel.Type,
+          Weight = depositMetalViewModel.Weight,
+          Unit = depositMetalViewModel.Unit,
+          CreatedById = GetUserId(),
+          OrganizationId = GetOrganizationId()!.Value
+        });
 
         scope.Complete();
       }
 
-      throw new NotImplementedException();
+      return RedirectToAction("Metals");
     }
   }
 }

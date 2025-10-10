@@ -226,5 +226,10 @@ namespace Accounting.Database
     {
       return databaseFactoryDefinition.GetTaxManager();
     }
+
+    public IMetalManager GetMetalManager()
+    {
+      return databaseFactoryDefinition.GetMetalManager();
+    }
   }
 }

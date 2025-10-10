@@ -8911,6 +8911,69 @@ namespace Accounting.Database
       }
     }
 
+    public IMetalManager GetMetalManager()
+    {
+      return new MetalManager(_connectionString);
+    }
+
+    public class MetalManager : IMetalManager
+    {
+      private readonly string _connectionString;
+
+      public Metal Create(Metal entity)
+      {
+        throw new NotImplementedException();
+      }
+
+      public MetalManager(string connectionString)
+      {
+        _connectionString = connectionString;
+      }
+
+      public async Task<Metal> CreateAsync(Metal entity)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@Type", entity.Type);
+        p.Add("@Weight", entity.Weight);
+        p.Add("@Unit", entity.Unit);
+        p.Add("@CreatedById", entity.CreatedById);
+        p.Add("@OrganizationId", entity.OrganizationId);
+
+        IEnumerable<Metal> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<Metal>("""
+            INSERT INTO "Metal" ("Type", "Weight", "Unit", "OrganizationId", "CreatedById") 
+            VALUES (@Type, @Weight, @Unit, @OrganizationId, @CreatedById)
+            RETURNING *;
+            """, p);
+        }
+
+        return result.Single();
+      }
+
+      public int Delete(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public Metal Get(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public IEnumerable<Metal> GetAll()
+      {
+        throw new NotImplementedException();
+      }
+
+      public int Update(Metal entity)
+      {
+        throw new NotImplementedException();
+      }
+    }
+
     public IWalletManager GetWalletManager()
     {
       return new WalletManager(_connectionString);
