@@ -1,4 +1,6 @@
-﻿@{
+﻿@model Accounting.Models.MetalViewModels.MetalsViewModel
+
+@{
   ViewData["Title"] = "Metals - " + ConfigurationSingleton.Instance.ApplicationName;
 }
 
@@ -10,12 +12,41 @@
 <partial name="_H1HeaderPartial" model="@headerText" />
 
 <div class="display-flex margin-bottom-5px background-color-antiquewhite">
-	<div class="margin-left-20px">
-		<a asp-action="Deposit" asp-controller="Metals" class="font-Roboto font-size-16px color-blue padding-right-20px">Deposit</a>
-		<a asp-action="Withdraw" asp-controller="Metals" class="font-Roboto font-size-16px color-blue">Withdraw</a>
-	</div>
-	<div class="margin-left-20px flex-1 text-align-right">
-		<a asp-action="Metals" asp-controller="Metals" class="font-Roboto font-size-16px color-blue">Metals</a>
-		<a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
-	</div>
+  <div class="margin-left-20px">
+    <a asp-action="Deposit" asp-controller="Metals" class="font-Roboto font-size-16px color-blue padding-right-20px">Deposit</a>
+    <a asp-action="Withdraw" asp-controller="Metals" class="font-Roboto font-size-16px color-blue">Withdraw</a>
+  </div>
+  <div class="margin-left-20px flex-1 text-align-right">
+    <a asp-action="Metals" asp-controller="Metals" class="font-Roboto font-size-16px color-blue">Metals</a>
+    <a asp-action="Index" asp-controller="Home" class="font-Roboto font-size-16px color-blue margin-left-20px">Home</a>
+  </div>
 </div>
+
+<table id="app">
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  const { createApp } = Vue;
+
+  const app = createApp({
+    data() {
+      return {
+        metals: []
+      };
+    },
+    methods: {
+
+    },
+    mounted() {
+
+    }
+  });
+
+  app.mount('#app');
+</script>

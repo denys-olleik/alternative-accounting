@@ -1,6 +1,6 @@
 ﻿using Accounting.Business;
 using Accounting.CustomAttributes;
-using Accounting.Models.MetalsViewModels;
+using Accounting.Models.MetalViewModels;
 using Accounting.Service;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;

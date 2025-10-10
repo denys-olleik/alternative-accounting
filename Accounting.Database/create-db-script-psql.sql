@@ -64,6 +64,7 @@ CREATE TABLE "UserOrganization"
 CREATE TABLE "Metal"
 (
   "MetalID" SERIAL PRIMARY KEY NOT NULL,
+	"Name" VARCHAR(100) NOT NULL,
   "Type" VARCHAR(20) NOT NULL CHECK ("Type" IN ('gold','silver')),
   "Weight" NUMERIC(20,6) NOT NULL,
   "Unit" VARCHAR(10) NOT NULL CHECK ("Unit" IN ('g','oz')),

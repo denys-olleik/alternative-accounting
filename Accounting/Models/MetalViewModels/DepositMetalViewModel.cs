@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 
-namespace Accounting.Models.MetalsViewModels
+namespace Accounting.Models.MetalViewModels
 {
   public class DepositMetalViewModel
   {
