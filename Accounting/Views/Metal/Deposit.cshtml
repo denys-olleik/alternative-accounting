@@ -9,6 +9,11 @@
 <form asp-action="Deposit" asp-controller="Metals" method="post"
       class="display-flex flex-direction-column margin-bottom-5px">
 
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Name">Name</label>
+    <input asp-for="Name" class="font-size-20px" autocomplete="off" required />
+  </div>
+
   <!-- Type -->
   <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
     <label asp-for="Type">Type</label>

@@ -8933,6 +8933,7 @@ namespace Accounting.Database
       public async Task<Metal> CreateAsync(Metal entity)
       {
         DynamicParameters p = new DynamicParameters();
+        p.Add("@Name", entity.Name);
         p.Add("@Type", entity.Type);
         p.Add("@Weight", entity.Weight);
         p.Add("@Unit", entity.Unit);
@@ -8944,8 +8945,8 @@ namespace Accounting.Database
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           result = await con.QueryAsync<Metal>("""
-            INSERT INTO "Metal" ("Type", "Weight", "Unit", "OrganizationId", "CreatedById") 
-            VALUES (@Type, @Weight, @Unit, @OrganizationId, @CreatedById)
+            INSERT INTO "Metal" ("Name", "Type", "Weight", "Unit", "OrganizationId", "CreatedById") 
+            VALUES (@Name, @Type, @Weight, @Unit, @OrganizationId, @CreatedById)
             RETURNING *;
             """, p);
         }

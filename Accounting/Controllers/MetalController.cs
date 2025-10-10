@@ -52,6 +52,7 @@ namespace Accounting.Controllers
       {
         Metal metal = await _metalService.CreateAsync(new Metal()
         {
+          Name = depositMetalViewModel.Name,
           Type = depositMetalViewModel.Type,
           Weight = depositMetalViewModel.Weight,
           Unit = depositMetalViewModel.Unit,
