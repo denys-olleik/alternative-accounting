@@ -5,6 +5,7 @@ namespace Accounting.Models.MetalViewModels
 {
   public class DepositMetalViewModel
   {
+    public string Name { get; set; }
     public string Type { get; set; }
     public decimal Weight { get; set; }
     public string Unit { get; set; } = string.Empty;
