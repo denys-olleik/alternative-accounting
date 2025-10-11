@@ -51,7 +51,7 @@
     },
     methods: {
       loadMetals() {
-        fetch('/api/metals/get-metals')
+        fetch('/api/reserve/get-metals')
           .then(response => response.json())
           .then(data => {
             this.metals = data.metals;

@@ -10,7 +10,7 @@ namespace Accounting.Controllers
 {
   [AuthorizeWithOrganizationId]
   [ApiController]
-  [Route("api/metals")]
+  [Route("api/reserve")]
   public class MetalApiController : BaseController
   {
     private readonly MetalService _metalService;
@@ -29,12 +29,12 @@ namespace Accounting.Controllers
   }
 
   [AuthorizeWithOrganizationId]
-  [Route("metals")]
-  public class MetalController : BaseController
+  [Route("reserves")]
+  public class ReserveController : BaseController
   {
     private readonly MetalService _metalService;
 
-    public MetalController(MetalService metalService)
+    public ReserveController(MetalService metalService)
     {
       _metalService = metalService;
     }
