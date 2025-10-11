@@ -24,18 +24,18 @@
 <table id="app" class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
   <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
     <tr>
-      <th class="text-align-left width-1px padding-right-20px">Name</th>
+      <th class="text-align-left padding-right-20px">Name</th>
       <th class="text-align-left width-1px padding-right-20px">Type</th>
-      <th class="text-align-left width-1px padding-right-20px">Unit</th>
-      <th class="text-align-right">Weight</th>
+      <th class="text-align-right width-1px padding-right-20px">Unit</th>
+      <th class="text-align-right width-1px">Weight</th>
     </tr>
   </thead>
   <tbody class="font-Roboto-Mono">
     <tr v-for="metal in metals" :key="metal.metalID">
-      <td>{{ item.name }}</td>
-      <td>{{ item.type }}</td>
-      <td>{{ item.unit }}</td>
-      <td>{{ item.weight }}</td>
+      <td>{{ metal.name }}</td>
+      <td class="padding-right-20px">{{ metal.type }}</td>
+      <td class="text-align-right padding-right-20px">{{ metal.unit }}</td>
+      <td class="text-align-right">{{ metal.weight }}</td>
     </tr>
   </tbody>
 </table>
@@ -51,7 +51,7 @@
     },
     methods: {
       loadMetals() {
-        fetch('/api/metals')
+        fetch('/api/metals/get-metals')
           .then(response => response.json())
           .then(data => {
             this.metals = data.metals;
