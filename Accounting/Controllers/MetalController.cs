@@ -9,6 +9,26 @@ using System.Transactions;
 namespace Accounting.Controllers
 {
   [AuthorizeWithOrganizationId]
+  [ApiController]
+  [Route("api/metals")]
+  public class MetalApiController : BaseController
+  {
+    private readonly MetalService _metalService;
+
+    public MetalApiController(RequestContext requestContext)
+    {
+      _metalService = new MetalService(requestContext.DatabaseName, requestContext.DatabasePassword);
+    }
+
+    [HttpGet("get-metals")]    
+    public async Task<IActionResult> GetMetals()
+    {
+      var metals = await _metalService.GetAllAsync(GetOrganizationId()!.Value);
+      return Ok(new { metals = metals });
+    }
+  }
+
+  [AuthorizeWithOrganizationId]
   [Route("metals")]
   public class MetalController : BaseController
   {

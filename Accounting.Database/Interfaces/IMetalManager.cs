@@ -4,6 +4,6 @@ namespace Accounting.Database.Interfaces
 {
   public interface IMetalManager : IGenericRepository<Metal, int>
   {
-
+    Task<List<Metal>> GetAllAsync(int organizationId);
   }
 }

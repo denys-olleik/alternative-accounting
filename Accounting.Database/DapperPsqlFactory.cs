@@ -8973,6 +8973,26 @@ namespace Accounting.Database
       {
         throw new NotImplementedException();
       }
+
+      public async Task<List<Metal>> GetAllAsync(int organizationId)
+      {
+        DynamicParameters p = new ();
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<Metal> result;
+
+        using (NpgsqlConnection con = new (_connectionString))
+        {
+          result = await con.QueryAsync<Metal>("""
+            SELECT * 
+            FROM "Metal"
+            WHERE "OrganizationId" = @OrganizationId
+            ORDER BY "MetalID" DESC
+            """, p);
+        }
+
+        return result.ToList();
+      }
     }
 
     public IWalletManager GetWalletManager()

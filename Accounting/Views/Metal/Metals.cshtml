@@ -21,13 +21,23 @@
   </div>
 </div>
 
-<table id="app">
-  <thead>
+<table id="app" class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+  <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
     <tr>
-      <th></th>
+      <th class="text-align-left width-1px padding-right-20px">Name</th>
+      <th class="text-align-left width-1px padding-right-20px">Type</th>
+      <th class="text-align-left width-1px padding-right-20px">Unit</th>
+      <th class="text-align-right">Weight</th>
     </tr>
   </thead>
-  <tbody></tbody>
+  <tbody class="font-Roboto-Mono">
+    <tr v-for="metal in metals" :key="metal.metalID">
+      <td>{{ item.name }}</td>
+      <td>{{ item.type }}</td>
+      <td>{{ item.unit }}</td>
+      <td>{{ item.weight }}</td>
+    </tr>
+  </tbody>
 </table>
 
 <script>
@@ -40,10 +50,16 @@
       };
     },
     methods: {
-
+      loadMetals() {
+        fetch('/api/metals')
+          .then(response => response.json())
+          .then(data => {
+            this.metals = data.metals;
+          });
+      }
     },
     mounted() {
-
+      this.loadMetals();
     }
   });
 
