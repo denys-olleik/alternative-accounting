@@ -23,18 +23,18 @@ Beverly Hills, CA 90210',
 INSERT INTO "UnitType" ("Name", "Deletable", "OrganizationId") VALUES ('each', false, 1);
 INSERT INTO "UnitType" ("Name", "Deletable", "OrganizationId") VALUES ('hour', false, 1);
 
-INSERT INTO "Account" ("Name", "Type", "InvoiceCreationForDebit", "CreatedById", "OrganizationId") VALUES ('accounts-receivable', 'assets', TRUE, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "InvoiceCreationForCredit", "CreatedById", "OrganizationId") VALUES ('revenue', 'revenue', TRUE, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "InvoiceCreationForCredit", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('revenue-service', 'revenue', TRUE, 2, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "InvoiceCreationForCredit", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('revenue-product', 'revenue', TRUE, 2, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "InvoiceCreationForDebit", "ReceiptOfPaymentForDebit", "CreatedById", "OrganizationId") VALUES ('cash', 'assets', TRUE, TRUE, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('accounts-receivable', 'assets',1 , 1);
+INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('revenue', 'revenue',1 , 1);
+INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('revenue-service', 'revenue', 2, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('revenue-product', 'revenue', 2, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('cash', 'assets', 1, 1);
 INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('chase-9988', 'assets', 1, 1);
-INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "ReconciliationLiabilitiesAndAssets", "CreatedById", "OrganizationId") VALUES ('chase-9988-debit-card-2323', 'assets', 6, TRUE, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "ReconciliationExpense", "CreatedById", "OrganizationId") VALUES ('expense', 'expense', TRUE, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "ReconciliationExpense", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('expense-diesel', 'expense', TRUE,  8, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "ReconciliationExpense", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('expense-meals', 'expense', TRUE,  8, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "ReconciliationExpense", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('expense-maintenance', 'expense', TRUE,  8, 1, 1);
-INSERT INTO "Account" ("Name", "Type", "ReconciliationLiabilitiesAndAssets", "CreatedById", "OrganizationId") VALUES ('discover-5555', 'liabilities', TRUE, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('chase-9988-debit-card-2323', 'assets', 6, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('expense', 'expense', 1, 1);
+INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('expense-diesel', 'expense', 8, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('expense-meals', 'expense', 8, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('expense-maintenance', 'expense', 8, 1, 1);
+INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('discover-5555', 'liabilities',1, 1);
 INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('inventory', 'assets', 1, 1);
 
 INSERT INTO "PaymentTerm" ("Description", "DaysUntilDue", "OrganizationId", "CreatedById") VALUES ('Net 30', 30, 1, 1);
