@@ -712,17 +712,9 @@ namespace Accounting.Controllers
 
     private async System.Threading.Tasks.Task SetupAccrualAccounting(CreateInvoiceViewModel model, int organizationId)
     {
-      var creditAccounts = await _accountService.GetAccountOptionsForInvoiceCreationCredit(organizationId);
-      var debitAccounts = await _accountService.GetAccountOptionsForInvoiceCreationDebit(organizationId);
+      var accounts = await _accountService.GetAllAsync(organizationId, false);
 
-      model.CreditAccounts = creditAccounts.Select(x => new AccountViewModel
-      {
-        AccountID = x.AccountID,
-        Name = x.Name,
-        Type = x.Type,
-      }).ToList();
-
-      model.DebitAccounts = debitAccounts.Select(x => new AccountViewModel
+      model.Accounts = accounts.Select(x => new AccountViewModel
       {
         AccountID = x.AccountID,
         Name = x.Name,

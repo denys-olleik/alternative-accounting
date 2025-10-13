@@ -29,8 +29,9 @@ namespace Accounting.Models.InvoiceViewModels
     public string? SelectedPaymentTermJSON { get; set; }
     public DateTime? InvoiceDate { get; set; }
     public DateTime? DueDate { get; set; }
-    public List<AccountViewModel>? DebitAccounts { get; set; }
-      public List<AccountViewModel>? CreditAccounts { get; set; }
+    //public List<AccountViewModel>? DebitAccounts { get; set; }
+    //public List<AccountViewModel>? CreditAccounts { get; set; }
+    public List<AccountViewModel> Accounts { get; set; }
     public List<InvoiceAttachmentViewModel>? InvoiceAttachments { get; set; }
     public string? InvoiceAttachmentsJSON { get; set; }
     public string? PaymentInstructions { get; set; }

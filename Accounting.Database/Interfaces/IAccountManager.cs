@@ -8,7 +8,6 @@ namespace Accounting.Database.Interfaces
     Task<int> DeleteAsync(int accountID, int organizationId);
     Task<bool> ExistsAsync(int id, int organizationId);
     Task<List<Account>> GetAccountBalanceReport(int organizationId);
-    Task<List<Account>> GetAccountOptionsForInvoiceCreationCredit(int organizationId);
     Task<List<Account>> GetAccountOptionsForInvoiceCreationDebit(int organizationId);
     Task<List<Account>> GetAccountOptionsForPaymentReceptionCredit(int organizationId);
     Task<List<Account>> GetAccountOptionsForPaymentReceptionDebit(int organizationId);

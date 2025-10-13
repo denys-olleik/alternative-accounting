@@ -422,26 +422,6 @@ namespace Accounting.Database
         return result.ToList();
       }
 
-      public async Task<List<Account>> GetAccountOptionsForInvoiceCreationCredit(int organizationId)
-      {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@OrganizationId", organizationId);
-
-        IEnumerable<Account> result;
-
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          result = await con.QueryAsync<Account>("""
-            SELECT * 
-            FROM "Account" 
-            WHERE "InvoiceCreationForCredit" = true
-            AND "OrganizationId" = @OrganizationId
-            """, p);
-        }
-
-        return result.ToList();
-      }
-
       public async Task<List<Account>> GetAccountOptionsForInvoiceCreationDebit(int organizationId)
       {
         DynamicParameters p = new DynamicParameters();

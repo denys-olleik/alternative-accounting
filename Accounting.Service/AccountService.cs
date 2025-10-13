@@ -45,11 +45,11 @@ namespace Accounting.Service
       return await factoryManager.GetAccountManager().GetAccountOptionsForPaymentReceptionDebit(organizationId);
     }
 
-    public async Task<List<Account>> GetAccountOptionsForInvoiceCreationCredit(int organizationId)
-    {
-      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetAccountManager().GetAccountOptionsForInvoiceCreationCredit(organizationId);
-    }
+    //public async Task<List<Account>> GetAccountOptionsForInvoiceCreationCredit(int organizationId)
+    //{
+    //  var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+    //  return await factoryManager.GetAccountManager().GetAccountOptionsForInvoiceCreationCredit(organizationId);
+    //}
 
     public async Task<List<Account>> GetAccountOptionsForInvoiceCreationDebit(int organizationId)
     {
