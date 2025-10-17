@@ -20,8 +20,8 @@ namespace Accounting.Controllers
       _metalService = new MetalService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
-    [HttpGet("get-metals")]    
-    public async Task<IActionResult> GetMetals()
+    [HttpGet("get-reserves")]    
+    public async Task<IActionResult> GetReserves()
     {
       var metals = await _metalService.GetAllAsync(GetOrganizationId()!.Value);
       return Ok(new { metals = metals });
