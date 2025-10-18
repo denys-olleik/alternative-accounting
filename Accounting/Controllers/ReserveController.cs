@@ -29,7 +29,7 @@ namespace Accounting.Controllers
   }
 
   [AuthorizeWithOrganizationId]
-  [Route("reserves")]
+  [Route("res")]
   public class ReserveController : BaseController
   {
     private readonly MetalService _metalService;
