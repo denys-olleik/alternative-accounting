@@ -11,11 +11,11 @@ namespace Accounting.Controllers
   [AuthorizeWithOrganizationId]
   [ApiController]
   [Route("api/reserve")]
-  public class MetalApiController : BaseController
+  public class ReserveApiController : BaseController
   {
     private readonly MetalService _metalService;
 
-    public MetalApiController(RequestContext requestContext)
+    public ReserveApiController(RequestContext requestContext)
     {
       _metalService = new MetalService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
@@ -23,8 +23,8 @@ namespace Accounting.Controllers
     [HttpGet("get-reserves")]    
     public async Task<IActionResult> GetReserves()
     {
-      var metals = await _metalService.GetAllAsync(GetOrganizationId()!.Value);
-      return Ok(new { metals = metals });
+      var reserves = await _metalService.GetAllAsync(GetOrganizationId()!.Value);
+      return Ok(new { metals = reserves });
     }
   }
 
@@ -39,9 +39,9 @@ namespace Accounting.Controllers
       _metalService = metalService;
     }
 
-    [Route("metals")]
+    [Route("reserve")]
     [HttpGet]
-    public IActionResult Metals()
+    public IActionResult Reserve()
     {
       return View();
     }
