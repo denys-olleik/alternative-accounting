@@ -58,11 +58,16 @@
     </tr>
   </thead>
   <tbody class="font-Roboto-Mono">
-    <tr v-for="metal in metals" :key="metal.metalID">
-      <td>{{ metal.name }}</td>
-      <td class="padding-right-20px">{{ metal.type }}</td>
-      <td class="text-align-right padding-right-20px">{{ metal.unit }}</td>
-      <td class="text-align-right">{{ metal.weight }}</td>
+    <tr v-for="reserve in reserves" :key="reserve.reserveID">
+      <td class="padding-right-20px">
+        <reserve-action :reserve="reserve"
+                        :is-expanded="reserve.reserveID === expandedReserveId"
+                        @@expand="handleReserveExpand(reserve.reserveID)">
+        </reserve-action>
+      </td>
+      <td class="padding-right-20px">{{ reserve.type }}</td>
+      <td class="text-align-right padding-right-20px">{{ reserve.unit }}</td>
+      <td class="text-align-right">{{ reserve.weight }}</td>
     </tr>
   </tbody>
 </table>
@@ -87,7 +92,7 @@
     },
     data() {
       return {
-        metals: []
+        reserves: []
       };
     },
     methods: {
@@ -95,7 +100,7 @@
         fetch('/api/reserve/get-reserves')
           .then(response => response.json())
           .then(data => {
-            this.metals = data.metals;
+            this.reserves = data.metals;
           });
       }
     },
