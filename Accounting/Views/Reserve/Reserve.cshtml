@@ -11,6 +11,33 @@
 }
 <partial name="_H1HeaderPartial" model="@headerText" />
 
+<template id="reserve-action-template">
+  <div class="display-flex padding-top-bottom-2px">
+    <div class="display-flex flex-1">
+      <a href="#" @@click.prevent="toggleAction" class="margin-right-5px">{{ reserve.name }}</a>
+      <span v-if="isExpanded" class="display-flex">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex
+          flex-direction-column
+          background-color-333333
+          padding-right-5px
+          padding-left-5px
+          margin-left-2px">
+          <div class="flex-1"></div>
+          <a :href="'/res/monetize/' + reserve.reserveID" class="font-size-16px font-Roboto color-white text-decoration-none">
+            monetize
+          </a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>
+
 <div class="display-flex margin-bottom-5px background-color-antiquewhite">
   <div class="margin-left-20px">
     <a asp-action="Deposit" asp-controller="Reserves" class="font-Roboto font-size-16px color-blue padding-right-20px">Deposit</a>
@@ -43,7 +70,21 @@
 <script>
   const { createApp } = Vue;
 
+  const ReserveAction = {
+    name: 'ReserveAction',
+    props: ['reserve', 'isExpanded'],
+    template: '#reserve-action-template',
+    methods: {
+      toggleAction() {
+        this.$emit('expand');
+      }
+    }
+  };
+
   const app = createApp({
+    components: {
+      'reserve-action': ReserveAction
+    },
     data() {
       return {
         metals: []
