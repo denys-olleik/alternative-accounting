@@ -92,7 +92,8 @@
     },
     data() {
       return {
-        reserves: []
+        reserves: [],
+        expandedReserveId: null
       };
     },
     methods: {
@@ -102,6 +103,9 @@
           .then(data => {
             this.reserves = data.metals;
           });
+      },
+      handleReserveExpand(id) {
+        this.expandedReserveId = this.expandedReserveId === id ? null : id;
       }
     },
     mounted() {
