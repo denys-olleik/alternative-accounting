@@ -2,11 +2,11 @@
 {
   public class MetalsViewModel
   {
-    public List<MetalViewModel> Metals { get; set; } = new();
+    public List<ReserveViewModel> Metals { get; set; } = new();
 
-    public class MetalViewModel
+    public class ReserveViewModel
     {
-      public int MetalID { get; set; }
+      public int ReserveID { get; set; }
       public string Name { get; set; }
       public string Type { get; set; }
       public decimal Weight { get; set; }
