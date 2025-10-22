@@ -61,9 +61,9 @@ CREATE TABLE "UserOrganization"
 	UNIQUE ("UserId", "OrganizationId")
 );
 
-CREATE TABLE "Metal"
+CREATE TABLE "Reserve"
 (
-  "MetalID" SERIAL PRIMARY KEY NOT NULL,
+  "ReserveID" SERIAL PRIMARY KEY NOT NULL,
 	"Name" VARCHAR(100) NOT NULL,
   "Type" VARCHAR(20) NOT NULL CHECK ("Type" IN ('gold','silver')),
   "Weight" NUMERIC(20,6) NOT NULL,
@@ -78,14 +78,14 @@ CREATE TABLE "Metal"
 CREATE TABLE "MetalMonetization"
 (
   "MetalMonetizationID" SERIAL PRIMARY KEY NOT NULL,
-  "MetalID" INT NOT NULL,
+  "ReserveID" INT NOT NULL,
   "Amount" NUMERIC(20,4) NOT NULL,
   "MetalWeight" NUMERIC(20,6) NOT NULL,
   "Unit" VARCHAR(10) NOT NULL CHECK ("Unit" IN ('g','oz')),
   "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
   "CreatedById" INT NOT NULL,
   "OrganizationId" INT NOT NULL,
-  FOREIGN KEY ("MetalID") REFERENCES "Metal"("MetalID"),
+  FOREIGN KEY ("ReserveID") REFERENCES "Reserve"("ReserveID"),
   FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
   FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );

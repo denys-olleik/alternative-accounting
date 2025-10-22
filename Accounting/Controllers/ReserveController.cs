@@ -70,7 +70,7 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
-        Metal metal = await _metalService.CreateAsync(new Metal()
+        Reserve metal = await _metalService.CreateAsync(new Reserve()
         {
           Name = depositMetalViewModel.Name,
           Type = depositMetalViewModel.Type,

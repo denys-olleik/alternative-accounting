@@ -16,13 +16,13 @@ namespace Accounting.Service
 
     }
 
-    public async Task<Metal> CreateAsync(Metal metal)
+    public async Task<Reserve> CreateAsync(Reserve metal)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetMetalManager().CreateAsync(metal);
     }
 
-    public async Task<List<Metal>> GetAllAsync(int organizationId)
+    public async Task<List<Reserve>> GetAllAsync(int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetMetalManager().GetAllAsync(organizationId);

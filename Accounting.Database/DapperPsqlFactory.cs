@@ -8891,26 +8891,26 @@ namespace Accounting.Database
       }
     }
 
-    public IMetalManager GetMetalManager()
+    public IReserveManager GetMetalManager()
     {
-      return new MetalManager(_connectionString);
+      return new ReserveManager(_connectionString);
     }
 
-    public class MetalManager : IMetalManager
+    public class ReserveManager : IReserveManager
     {
       private readonly string _connectionString;
 
-      public Metal Create(Metal entity)
+      public Reserve Create(Reserve entity)
       {
         throw new NotImplementedException();
       }
 
-      public MetalManager(string connectionString)
+      public ReserveManager(string connectionString)
       {
         _connectionString = connectionString;
       }
 
-      public async Task<Metal> CreateAsync(Metal entity)
+      public async Task<Reserve> CreateAsync(Reserve entity)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@Name", entity.Name);
@@ -8920,11 +8920,11 @@ namespace Accounting.Database
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
 
-        IEnumerable<Metal> result;
+        IEnumerable<Reserve> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          result = await con.QueryAsync<Metal>("""
+          result = await con.QueryAsync<Reserve>("""
             INSERT INTO "Metal" ("Name", "Type", "Weight", "Unit", "OrganizationId", "CreatedById") 
             VALUES (@Name, @Type, @Weight, @Unit, @OrganizationId, @CreatedById)
             RETURNING *;
@@ -8939,35 +8939,35 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public Metal Get(int id)
+      public Reserve Get(int id)
       {
         throw new NotImplementedException();
       }
 
-      public IEnumerable<Metal> GetAll()
+      public IEnumerable<Reserve> GetAll()
       {
         throw new NotImplementedException();
       }
 
-      public int Update(Metal entity)
+      public int Update(Reserve entity)
       {
         throw new NotImplementedException();
       }
 
-      public async Task<List<Metal>> GetAllAsync(int organizationId)
+      public async Task<List<Reserve>> GetAllAsync(int organizationId)
       {
         DynamicParameters p = new ();
         p.Add("@OrganizationId", organizationId);
 
-        IEnumerable<Metal> result;
+        IEnumerable<Reserve> result;
 
         using (NpgsqlConnection con = new (_connectionString))
         {
-          result = await con.QueryAsync<Metal>("""
+          result = await con.QueryAsync<Reserve>("""
             SELECT * 
-            FROM "Metal"
+            FROM "Reserve"
             WHERE "OrganizationId" = @OrganizationId
-            ORDER BY "MetalID" DESC
+            ORDER BY "ReserveID" DESC
             """, p);
         }
 
