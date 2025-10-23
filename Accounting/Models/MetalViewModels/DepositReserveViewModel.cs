@@ -3,7 +3,7 @@ using FluentValidation.Results;
 
 namespace Accounting.Models.MetalViewModels
 {
-  public class DepositMetalViewModel
+  public class DepositReserveViewModel
   {
     public string Name { get; set; }
     public string Type { get; set; }
@@ -13,7 +13,7 @@ namespace Accounting.Models.MetalViewModels
 
     public ValidationResult ValidationResult = new();
 
-    public class DepositMetalViewModelValidator : AbstractValidator<DepositMetalViewModel>
+    public class DepositMetalViewModelValidator : AbstractValidator<DepositReserveViewModel>
     {
       // required: type, weight, and unit
     }

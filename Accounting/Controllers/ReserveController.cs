@@ -50,16 +50,16 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Deposit()
     {
-      DepositMetalViewModel vm = new();
+      DepositReserveViewModel vm = new();
 
       return View(vm);
     }
 
     [Route("deposit")]
     [HttpPost]
-    public async Task<IActionResult> Deposit(DepositMetalViewModel depositMetalViewModel)
+    public async Task<IActionResult> Deposit(DepositReserveViewModel depositMetalViewModel)
     {
-      DepositMetalViewModel.DepositMetalViewModelValidator validator = new();
+      DepositReserveViewModel.DepositMetalViewModelValidator validator = new();
       ValidationResult validationResult = await validator.ValidateAsync(depositMetalViewModel);
 
       if (!validationResult.IsValid)
@@ -83,7 +83,7 @@ namespace Accounting.Controllers
         scope.Complete();
       }
 
-      return RedirectToAction("Metals");
+      return RedirectToAction("Reserve");
     }
   }
 }
