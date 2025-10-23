@@ -8925,7 +8925,7 @@ namespace Accounting.Database
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
           result = await con.QueryAsync<Reserve>("""
-            INSERT INTO "Metal" ("Name", "Type", "Weight", "Unit", "OrganizationId", "CreatedById") 
+            INSERT INTO "Reserve" ("Name", "Type", "Weight", "Unit", "OrganizationId", "CreatedById") 
             VALUES (@Name, @Type, @Weight, @Unit, @OrganizationId, @CreatedById)
             RETURNING *;
             """, p);
