@@ -121,9 +121,12 @@ namespace Accounting.Controllers
   public class TaxApiController : BaseController
   {
     private readonly TaxService _taxService;
+    private readonly ItemService _itemService;
+
     public TaxApiController(RequestContext requestContext)
     {
       _taxService = new TaxService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
+      _itemService = new ItemService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
     }
 
     [Route("get-taxes")]
@@ -132,23 +135,33 @@ namespace Accounting.Controllers
       int page = 1,
       int pageSize = 10)
     {
-      var (taxes, nextPage) = await _taxService.GetAllAsync(
-          page,
-          pageSize,
-          GetOrganizationId()!.Value);
+      var organizationId = GetOrganizationId()!.Value;
+      var (taxes, nextPage) = await _taxService.GetAllAsync(page, pageSize, organizationId);
 
-      var result = new
+      List<TaxViewModel> taxViewModels = new ();
+      foreach (var t in taxes)
       {
-        Taxes = taxes.Select(t => new TaxViewModel
+        var item = await _itemService.GetAsync(t.ItemId, organizationId);
+        taxViewModels.Add(new TaxViewModel
         {
           TaxID = t.TaxID,
           Name = t.Name,
           Description = t.Description,
           Rate = t.Rate,
           ItemId = t.ItemId,
+          Item = new TaxViewModel.ItemViewModel
+          {
+            ItemID = item.ItemID,
+            Name = item.Name!
+          },
           LocationId = t.LocationId,
           LiabilityAccountId = t.LiabilityAccountId
-        }),
+        });
+      }
+
+      var result = new
+      {
+        Taxes = taxViewModels,
         NextPage = nextPage
       };
 

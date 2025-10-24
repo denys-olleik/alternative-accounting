@@ -70,7 +70,7 @@
           <taxes-action :taxes="tax" :is-expanded="tax.taxID === expandedTaxId" @@expand="handleTaxExpand(tax.taxID)"></taxes-action>
         </td>
         <td class="padding-right-20px">{{ tax.rate }}</td>
-        <td class="padding-right-20px">{{ tax.item }}</td>
+        <td class="padding-right-20px">{{ tax.item.name }}</td>
         <td class="padding-right-20px">{{ tax.account }}</td>
         <td>{{ tax.location }}</td>
       </tr>
