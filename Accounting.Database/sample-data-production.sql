@@ -36,6 +36,7 @@ INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "Organi
 INSERT INTO "Account" ("Name", "Type", "ParentAccountId", "CreatedById", "OrganizationId") VALUES ('expense-maintenance', 'expense', 8, 1, 1);
 INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('discover-5555', 'liabilities',1, 1);
 INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('inventory', 'assets', 1, 1);
+INSERT INTO "Account" ("Name", "Type", "CreatedById", "OrganizationId") VALUES ('oh sales tax', 'liabilities', 1, 1);
 
 INSERT INTO "PaymentTerm" ("Description", "DaysUntilDue", "OrganizationId", "CreatedById") VALUES ('Net 30', 30, 1, 1);
 INSERT INTO "PaymentTerm" ("Description", "DaysUntilDue", "OrganizationId", "CreatedById") VALUES ('Net 60', 60, 1, 1);

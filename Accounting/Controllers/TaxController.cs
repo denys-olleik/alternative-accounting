@@ -2,12 +2,7 @@
 using Accounting.CustomAttributes;
 using Accounting.Models.TaxViewModels;
 using Accounting.Service;
-using AngleSharp.Css.Values;
-using FluentValidation;
-using FluentValidation.Results;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Accounting.Controllers
 {
@@ -122,11 +117,15 @@ namespace Accounting.Controllers
   {
     private readonly TaxService _taxService;
     private readonly ItemService _itemService;
+    private readonly AccountService _accountService;
+    private readonly LocationService _locationService;
 
     public TaxApiController(RequestContext requestContext)
     {
       _taxService = new TaxService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
       _itemService = new ItemService(requestContext.DatabaseName!, requestContext!.DatabasePassword!);
+      _accountService = new AccountService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+      _locationService = new LocationService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     }
 
     [Route("get-taxes")]
@@ -142,6 +141,8 @@ namespace Accounting.Controllers
       foreach (var t in taxes)
       {
         var item = await _itemService.GetAsync(t.ItemId, organizationId);
+        var account = await _accountService.GetAsync(t.LiabilityAccountId, organizationId);
+
         taxViewModels.Add(new TaxViewModel
         {
           TaxID = t.TaxID,
@@ -153,6 +154,11 @@ namespace Accounting.Controllers
           {
             ItemID = item.ItemID,
             Name = item.Name!
+          },
+          LiabilityAccount = new TaxViewModel.AccountViewModel
+          {
+            AccountID = account.AccountID,
+            Name = account.Name!
           },
           LocationId = t.LocationId,
           LiabilityAccountId = t.LiabilityAccountId

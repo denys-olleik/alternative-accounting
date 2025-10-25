@@ -20,7 +20,7 @@
   <div class="display-flex flex-direction-column">
     <div class="flex-1 display-flex flex-direction-column margin-bottom-5px">
       @* <img class="width-100 margin-bottom-5px" src="~/images/cat.png" /> *@
-      <video class="width-100 margin-bottom-5px" src="~/videos/firefox_08yuMQrwtC.mp4" controls></video>
+      <video loop="loop" artist="Brandon - Steel" class="width-100 margin-bottom-5px" src="~/videos/firefox_08yuMQrwtC.mp4" controls></video>
       <div class="padding-5px flex-1 color-white background-color-black font-Roboto-Mono">
         <div class="text-align-center">
           Универсальная Система Администрирования (УСА) с журналом (debit/credit) для моделирования финансовых операций.
@@ -92,8 +92,6 @@
   </div>
 
   <div class="background-color-antiquewhite padding-10px font-Roboto-Mono margin-bottom-5px">
-    <img class="width-100 margin-bottom-5px" src="~/images/intuit.png" />
-    <p></p>
   </div>
 }
 
@@ -189,16 +187,13 @@
         <a href="@Url.Action("Reconciliations", "ReconciliationRev")">Reconciliations 🟩</a>
       </li>
       <li>
-        <a href="@Url.Action("Accounts", "Account")">Accounts 🟩 </a>
+        <a href="@Url.Action("Accounts", "Account")">Accounts 🟩</a>
         <ul>
           <li>
-            <a href="@Url.Action("Create", "Account")">Create account 🟩 </a>
+            <a href="@Url.Action("Create", "Account")">Create account 🟩</a>
           </li>
         </ul>
       </li>
-      @* <li>
-        <a href="@Url.Action("ShippingAndReceiving", "ShippingAndReceiving")">Shipping and receiving</a>
-      </li> *@
       <li>
         <a href="@Url.Action("Blogs", "Blog")">Blog 🟩 </a>
         <ul>
