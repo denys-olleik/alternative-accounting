@@ -13,17 +13,17 @@ namespace Accounting.Controllers
   [Route("api/reserve")]
   public class ReserveApiController : BaseController
   {
-    private readonly MetalService _metalService;
+    private readonly ReserveService _reserveService;
 
     public ReserveApiController(RequestContext requestContext)
     {
-      _metalService = new MetalService(requestContext.DatabaseName, requestContext.DatabasePassword);
+      _reserveService = new ReserveService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
 
     [HttpGet("get-reserves")]    
     public async Task<IActionResult> GetReserves()
     {
-      var reserves = await _metalService.GetAllAsync(GetOrganizationId()!.Value);
+      var reserves = await _reserveService.GetAllAsync(GetOrganizationId()!.Value);
       return Ok(new { metals = reserves });
     }
   }
@@ -32,11 +32,21 @@ namespace Accounting.Controllers
   [Route("res")]
   public class ReserveController : BaseController
   {
-    private readonly MetalService _metalService;
+    private readonly ReserveService _reserveService;
 
-    public ReserveController(MetalService metalService)
+    public ReserveController(ReserveService metalService)
     {
-      _metalService = metalService;
+      _reserveService = metalService;
+    }
+
+    [Route("monetize")]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Monetize(int id)
+    {
+      var reserve = await _reserveService.GetAsync(id, GetOrganizationId()!.Value);
+      if (reserve == null) return NotFound();
+
+      return View(reserve);
     }
 
     [Route("reserve")]
@@ -70,7 +80,7 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
-        Reserve metal = await _metalService.CreateAsync(new Reserve()
+        Reserve metal = await _reserveService.CreateAsync(new Reserve()
         {
           Name = depositMetalViewModel.Name,
           Type = depositMetalViewModel.Type,

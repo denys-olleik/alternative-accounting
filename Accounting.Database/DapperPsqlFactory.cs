@@ -8891,7 +8891,7 @@ namespace Accounting.Database
       }
     }
 
-    public IReserveManager GetMetalManager()
+    public IReserveManager GetReserveManager()
     {
       return new ReserveManager(_connectionString);
     }
@@ -8972,6 +8972,27 @@ namespace Accounting.Database
         }
 
         return result.ToList();
+      }
+
+      public async Task<Reserve> GetAsync(int reserveId, int organizationId)
+      {
+        DynamicParameters p = new ();
+        p.Add("@ReserveID", reserveId);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<Reserve> result;
+
+        using (NpgsqlConnection con = new (_connectionString))
+        {
+          result = await con.QueryAsync<Reserve>("""
+            SELECT * 
+            FROM "Reserve"
+            WHERE "ReserveID" = @ReserveID
+            AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return result.SingleOrDefault();
       }
     }
 

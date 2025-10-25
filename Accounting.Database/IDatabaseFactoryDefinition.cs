@@ -46,6 +46,6 @@ namespace Accounting.Database
     IPlayerManager GetPlayerManager();
     IWalletManager GetWalletManager();
     ITaxManager GetTaxManager();
-    IReserveManager GetMetalManager();
+    IReserveManager GetReserveManager();
   }
 }

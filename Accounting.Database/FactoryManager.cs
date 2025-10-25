@@ -227,9 +227,9 @@ namespace Accounting.Database
       return databaseFactoryDefinition.GetTaxManager();
     }
 
-    public IReserveManager GetMetalManager()
+    public IReserveManager GetReserveManager()
     {
-      return databaseFactoryDefinition.GetMetalManager();
+      return databaseFactoryDefinition.GetReserveManager();
     }
   }
 }

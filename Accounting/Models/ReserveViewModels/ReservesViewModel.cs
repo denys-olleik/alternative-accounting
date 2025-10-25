@@ -1,6 +1,6 @@
 ﻿namespace Accounting.Models.MetalViewModels
 {
-  public class MetalsViewModel
+  public class ReservesViewModel
   {
     public List<ReserveViewModel> Metals { get; set; } = new();
 
