@@ -1,6 +1,6 @@
 ﻿using Accounting.Business;
 using Accounting.CustomAttributes;
-using Accounting.Models.MetalViewModels;
+using Accounting.Models.ReserveViewModels;
 using Accounting.Service;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -39,8 +39,8 @@ namespace Accounting.Controllers
       _reserveService = metalService;
     }
 
-    [Route("monetize")]
-    [HttpGet("{id}")]
+    [Route("monetize/{id}")]
+    [HttpGet]
     public async Task<IActionResult> Monetize(int id)
     {
       var reserve = await _reserveService.GetAsync(id, GetOrganizationId()!.Value);

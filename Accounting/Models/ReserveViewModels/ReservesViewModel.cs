@@ -1,4 +1,4 @@
-﻿namespace Accounting.Models.MetalViewModels
+﻿namespace Accounting.Models.ReserveViewModels
 {
   public class ReservesViewModel
   {
