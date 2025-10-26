@@ -100,7 +100,7 @@
         fetch('/api/reserve/get-reserves')
           .then(response => response.json())
           .then(data => {
-            this.reserves = data.metals;
+            this.reserves = data.reserves;
           });
       },
       handleReserveExpand(id) {

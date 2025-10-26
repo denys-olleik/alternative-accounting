@@ -24,7 +24,7 @@ namespace Accounting.Controllers
     public async Task<IActionResult> GetReserves()
     {
       var reserves = await _reserveService.GetAllAsync(GetOrganizationId()!.Value);
-      return Ok(new { metals = reserves });
+      return Ok(new { reserves = reserves });
     }
   }
 
@@ -34,9 +34,9 @@ namespace Accounting.Controllers
   {
     private readonly ReserveService _reserveService;
 
-    public ReserveController(ReserveService metalService)
+    public ReserveController(ReserveService reserveService)
     {
-      _reserveService = metalService;
+      _reserveService = reserveService;
     }
 
     [Route("monetize/{id}")]
@@ -51,6 +51,30 @@ namespace Accounting.Controllers
 
       return View(vm);
     }
+
+    [Route("monetize/{id}")]
+    [HttpPost]
+    public async Task<IActionResult> Monetize(MonetizeReserveViewModel monetizeReserveViewModel)
+    {
+      //MonetizeReserveViewModel.MonetizeMetalViewModelValidator validator = new();
+      //ValidationResult validationResult = await validator.ValidateAsync(monetizeReserveViewModel);
+      //if (!validationResult.IsValid)
+      //{
+      //  monetizeReserveViewModel.ValidationResult = validationResult;
+      //  return View(monetizeReserveViewModel);
+      //}
+      //using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
+      //{
+      //  Reserve? reserve = await _reserveService.GetAsync(monetizeReserveViewModel.ReserveId, GetOrganizationId()!.Value);
+      //  if (reserve == null) return NotFound();
+      //  // Logic to monetize the reserve would go here
+      //  scope.Complete();
+      //}
+      //return RedirectToAction("Reserve");
+
+      throw new NotImplementedException();
+    }
+
 
     [Route("reserve")]
     [HttpGet]
