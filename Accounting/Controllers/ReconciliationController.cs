@@ -11,7 +11,7 @@ namespace Accounting.Controllers
 {
   [Route("recrev")]
   [AuthorizeWithOrganizationId]
-  public class ReconciliationRevController
+  public class ReconciliationController
     : BaseController
   {
     private readonly ReconciliationTransactionService _reconciliationTransactionService;
@@ -19,7 +19,7 @@ namespace Accounting.Controllers
     private readonly ReconciliationAttachmentService _reconciliationAttachmentService;
     private readonly AccountService _accountService;
 
-    public ReconciliationRevController(
+    public ReconciliationController(
       RequestContext requestContext)
     {
       _reconciliationTransactionService = new(requestContext.DatabaseName, requestContext.DatabasePassword);
