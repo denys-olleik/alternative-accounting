@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using FluentValidation;
+using FluentValidation.Results;
 
 namespace Accounting.Models.ReserveViewModels
 {
@@ -8,5 +9,10 @@ namespace Accounting.Models.ReserveViewModels
     public decimal Amount { get; set; }
 
     public ValidationResult ValidationResult { get; set; } = new();
+
+    public class MonetizeReserveViewModelValidator : AbstractValidator<MonetizeReserveViewModel>
+    {
+
+    }
   }
 }
