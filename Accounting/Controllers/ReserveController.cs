@@ -46,7 +46,10 @@ namespace Accounting.Controllers
       var reserve = await _reserveService.GetAsync(id, GetOrganizationId()!.Value);
       if (reserve == null) return NotFound();
 
-      return View(reserve);
+      MonetizeReserveViewModel vm = new();
+      //vm.
+
+      return View(vm);
     }
 
     [Route("reserve")]
