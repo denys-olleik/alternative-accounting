@@ -13,8 +13,14 @@
   </div>
 </div>
 
-<form>
+<form asp-action="Monetize" asp-controller="Reserve" method="post" class="display-flex flex-direction-column">
+  <input type="hidden" asp-for="ReserveId" />
 
+  <div class="display-flex flex-direction-column">
+    <label asp-for="Amount" class="background-color-antiquewhite"></label>
+    <input asp-for="Amount" class="margin-bottom-5px font-size-20px" />
+  </div>
+  <button type="submit" class="full-width-regular-button">Monetize</button>
 </form>
 
 @if (Model != null && Model.ValidationResult != null)

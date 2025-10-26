@@ -47,7 +47,7 @@ namespace Accounting.Controllers
       if (reserve == null) return NotFound();
 
       MonetizeReserveViewModel vm = new();
-      //vm.
+      vm.ReserveId = id;
 
       return View(vm);
     }

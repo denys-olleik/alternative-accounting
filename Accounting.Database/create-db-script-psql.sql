@@ -75,13 +75,12 @@ CREATE TABLE "Reserve"
   FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
 
-CREATE TABLE "MetalMonetization"
+CREATE TABLE "Monetization"
 (
-  "MetalMonetizationID" SERIAL PRIMARY KEY NOT NULL,
+  "MonetizationID" SERIAL PRIMARY KEY NOT NULL,
   "ReserveID" INT NOT NULL,
   "Amount" NUMERIC(20,4) NOT NULL,
-  "MetalWeight" NUMERIC(20,6) NOT NULL,
-  "Unit" VARCHAR(10) NOT NULL CHECK ("Unit" IN ('g','oz')),
+  "WeightGrams" NUMERIC(20,6) NOT NULL,
   "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
   "CreatedById" INT NOT NULL,
   "OrganizationId" INT NOT NULL,
