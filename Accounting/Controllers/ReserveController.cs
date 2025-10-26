@@ -56,21 +56,21 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Monetize(MonetizeReserveViewModel monetizeReserveViewModel)
     {
-      //MonetizeReserveViewModel.MonetizeMetalViewModelValidator validator = new();
-      //ValidationResult validationResult = await validator.ValidateAsync(monetizeReserveViewModel);
-      //if (!validationResult.IsValid)
-      //{
-      //  monetizeReserveViewModel.ValidationResult = validationResult;
-      //  return View(monetizeReserveViewModel);
-      //}
-      //using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
-      //{
-      //  Reserve? reserve = await _reserveService.GetAsync(monetizeReserveViewModel.ReserveId, GetOrganizationId()!.Value);
-      //  if (reserve == null) return NotFound();
-      //  // Logic to monetize the reserve would go here
-      //  scope.Complete();
-      //}
-      //return RedirectToAction("Reserve");
+      MonetizeReserveViewModel.MonetizeReserveViewModelValidator validator = new();
+      ValidationResult validationResult = await validator.ValidateAsync(monetizeReserveViewModel);
+      if (!validationResult.IsValid)
+      {
+        monetizeReserveViewModel.ValidationResult = validationResult;
+        return View(monetizeReserveViewModel);
+      }
+      using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
+      {
+        Reserve? reserve = await _reserveService.GetAsync(monetizeReserveViewModel.ReserveId, GetOrganizationId()!.Value);
+        if (reserve == null) return NotFound();
+        // Logic to monetize the reserve would go here
+        scope.Complete();
+      }
+      return RedirectToAction("Reserve");
 
       throw new NotImplementedException();
     }
@@ -94,25 +94,25 @@ namespace Accounting.Controllers
 
     [Route("deposit")]
     [HttpPost]
-    public async Task<IActionResult> Deposit(DepositReserveViewModel depositMetalViewModel)
+    public async Task<IActionResult> Deposit(DepositReserveViewModel depositReserveViewModel)
     {
-      DepositReserveViewModel.DepositMetalViewModelValidator validator = new();
-      ValidationResult validationResult = await validator.ValidateAsync(depositMetalViewModel);
+      DepositReserveViewModel.DepositReserveViewModelValidator validator = new();
+      ValidationResult validationResult = await validator.ValidateAsync(depositReserveViewModel);
 
       if (!validationResult.IsValid)
       {
-        depositMetalViewModel.ValidationResult = validationResult;
-        return View(depositMetalViewModel);
+        depositReserveViewModel.ValidationResult = validationResult;
+        return View(depositReserveViewModel);
       }
 
       using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
         Reserve metal = await _reserveService.CreateAsync(new Reserve()
         {
-          Name = depositMetalViewModel.Name,
-          Type = depositMetalViewModel.Type,
-          Weight = depositMetalViewModel.Weight,
-          Unit = depositMetalViewModel.Unit,
+          Name = depositReserveViewModel.Name,
+          Type = depositReserveViewModel.Type,
+          Weight = depositReserveViewModel.Weight,
+          Unit = depositReserveViewModel.Unit,
           CreatedById = GetUserId(),
           OrganizationId = GetOrganizationId()!.Value
         });

@@ -13,7 +13,7 @@ namespace Accounting.Models.ReserveViewModels
 
     public ValidationResult ValidationResult = new();
 
-    public class DepositMetalViewModelValidator : AbstractValidator<DepositReserveViewModel>
+    public class DepositReserveViewModelValidator : AbstractValidator<DepositReserveViewModel>
     {
       // required: type, weight, and unit
     }
