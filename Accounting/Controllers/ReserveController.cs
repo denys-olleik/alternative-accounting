@@ -43,7 +43,7 @@ namespace Accounting.Controllers
     [HttpGet]
     public async Task<IActionResult> Monetize(int id)
     {
-      var reserve = await _reserveService.GetAsync(id, GetOrganizationId()!.Value);
+      Reserve? reserve = await _reserveService.GetAsync(id, GetOrganizationId()!.Value);
       if (reserve == null) return NotFound();
 
       MonetizeReserveViewModel vm = new();
@@ -56,9 +56,12 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Monetize(MonetizeReserveViewModel monetizeReserveViewModel)
     {
+      Reserve? reserve = await _reserveService.GetAsync(monetizeReserveViewModel.ReserveId, GetOrganizationId()!.Value);
+      if (reserve == null) return NotFound();
+
       MonetizeReserveViewModel.MonetizeReserveViewModelValidator validator = new();
       ValidationResult validationResult = await validator.ValidateAsync(monetizeReserveViewModel);
-      
+
       if (!validationResult.IsValid)
       {
         monetizeReserveViewModel.ValidationResult = validationResult;
@@ -67,17 +70,12 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
-        Reserve? reserve = await _reserveService.GetAsync(monetizeReserveViewModel.ReserveId, GetOrganizationId()!.Value);
-        if (reserve == null) return NotFound();
         // Logic to monetize the reserve would go here
         scope.Complete();
       }
 
       return RedirectToAction("Reserve");
-
-      throw new NotImplementedException();
     }
-
 
     [Route("reserve")]
     [HttpGet]
