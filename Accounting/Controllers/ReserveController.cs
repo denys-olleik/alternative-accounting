@@ -33,21 +33,35 @@ namespace Accounting.Controllers
   public class ReserveController : BaseController
   {
     private readonly ReserveService _reserveService;
+      private readonly AccountService _accountService;
 
-    public ReserveController(ReserveService reserveService)
+    public ReserveController(RequestContext requestContext)
     {
-      _reserveService = reserveService;
+      _reserveService = new ReserveService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
+      _accountService = new AccountService(requestContext.DatabaseName!, requestContext.DatabasePassword!);
     }
 
     [Route("monetize/{id}")]
     [HttpGet]
     public async Task<IActionResult> Monetize(int id)
     {
-      Reserve? reserve = await _reserveService.GetAsync(id, GetOrganizationId()!.Value);
+      var orgId = GetOrganizationId()!.Value;
+
+      var reserve = await _reserveService.GetAsync(id, orgId);
       if (reserve == null) return NotFound();
 
-      MonetizeReserveViewModel vm = new();
-      vm.ReserveId = id;
+      var accounts = await _accountService.GetAllAsync(orgId, false);
+
+      var vm = new MonetizeReserveViewModel
+      {
+        ReserveId = id,
+        Accounts = accounts.Select(a => new MonetizeReserveViewModel.AccountViewModel
+        {
+          AccountID = a.AccountID,
+          Name = a.Name,
+          Type = a.Type
+        }).ToList()
+      };
 
       return View(vm);
     }
