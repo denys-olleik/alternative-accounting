@@ -83,7 +83,6 @@ CREATE TABLE "Monetization"
   "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
   "CreatedById" INT NOT NULL,
   "OrganizationId" INT NOT NULL,
-  FOREIGN KEY ("ReserveID") REFERENCES "Reserve"("ReserveID"),
   FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
   FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
@@ -583,19 +582,19 @@ CREATE TABLE "JournalReconciliationTransaction"
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
 
-CREATE TABLE "JournalMetalMonetization"
+CREATE TABLE "JournalMonetization"
 (
-  "JournalMetalMonetizationID" SERIAL PRIMARY KEY NOT NULL,
+  "JournalMonetizationID" SERIAL PRIMARY KEY NOT NULL,
   "JournalId" INT NOT NULL,
-  "MetalMonetizationId" INT NOT NULL,
-  "ReversedJournalMetalMonetizationId" INT NULL,
+  "MonetizationId" INT NOT NULL,
+  "ReversedJournalMonetizationId" INT NULL,
   "TransactionGuid" UUID NOT NULL,
   "Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
   "CreatedById" INT NOT NULL,
   "OrganizationId" INT NOT NULL,
   FOREIGN KEY ("JournalId") REFERENCES "Journal"("JournalID"),
-  FOREIGN KEY ("MetalMonetizationId") REFERENCES "MetalMonetization"("MetalMonetizationID"),
-  FOREIGN KEY ("ReversedJournalMetalMonetizationId") REFERENCES "JournalMetalMonetization"("JournalMetalMonetizationID"),
+  FOREIGN KEY ("MonetizationId") REFERENCES "Monetization"("MonetizationID"),
+  FOREIGN KEY ("ReversedJournalMonetizationId") REFERENCES "JournalMonetization"("JournalMonetizationID"),
   FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
   FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
