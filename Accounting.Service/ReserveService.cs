@@ -16,6 +16,12 @@ namespace Accounting.Service
 
     }
 
+    public async Task<decimal> GetUnmonetizedWeightAsync(string type, int organizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetReserveManager().GetUnmonetizedWeightAsync(type, organizationId);
+    }
+
     public async Task<Reserve> CreateAsync(Reserve metal)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);

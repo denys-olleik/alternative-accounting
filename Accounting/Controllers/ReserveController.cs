@@ -70,9 +70,6 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Monetize(MonetizeReserveViewModel monetizeReserveViewModel)
     {
-      Reserve? reserve = await _reserveService.GetAsync(monetizeReserveViewModel.ReserveId, GetOrganizationId()!.Value);
-      if (reserve == null) return NotFound();
-
       MonetizeReserveViewModel.MonetizeReserveViewModelValidator validator = new();
       ValidationResult validationResult = await validator.ValidateAsync(monetizeReserveViewModel);
 
@@ -84,7 +81,8 @@ namespace Accounting.Controllers
 
       using (TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled))
       {
-        // Logic to monetize the reserve would go here
+        decimal gramsAvailableForMonetization = await _reserveService.GetUnmonetizedWeightAsync(monetizeReserveViewModel.Type!, GetOrganizationId()!.Value);
+
         scope.Complete();
       }
 

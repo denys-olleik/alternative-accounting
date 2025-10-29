@@ -7,13 +7,22 @@ namespace Accounting.Models.ReserveViewModels
   {
     public int ReserveId { get; set; }
     public decimal Amount { get; set; }
+    public decimal Weight { get; set; }
+    public string? Type { get; set; }
+
     public List<AccountViewModel> Accounts { get; set; } = new ();
 
     public ValidationResult ValidationResult { get; set; } = new();
 
     public class MonetizeReserveViewModelValidator : AbstractValidator<MonetizeReserveViewModel>
     {
-
+      public MonetizeReserveViewModelValidator()
+      {
+        RuleFor(x => x.Type)
+          .NotEmpty().WithMessage("Type is required.")
+          .Must(t => Business.Reserve.ReserveTypesConstants.All.Contains(t!))
+          .WithMessage($"Wrong reserve type.");
+      }
     }
 
     public class AccountViewModel

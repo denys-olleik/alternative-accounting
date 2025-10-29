@@ -20,6 +20,22 @@
     <label asp-for="Amount" class="background-color-antiquewhite"></label>
     <input asp-for="Amount" class="margin-bottom-5px font-size-20px" />
   </div>
+
+  <div class="display-flex flex-direction-column">
+    <label asp-for="Weight" class="background-color-antiquewhite">Weight (g)</label>
+    <input asp-for="Weight" class="margin-bottom-5px font-size-20px" />
+  </div>
+
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Type">Type</label>
+    <select asp-for="Type" class="font-size-20px">
+      <option value="">Select type:</option>
+      @foreach (var type in Accounting.Business.Reserve.ReserveTypesConstants.All)
+      {
+        <option value="@type">@type</option>
+      }
+    </select>
+  </div>
   <button type="submit" class="full-width-regular-button">Monetize</button>
 </form>
 
@@ -33,6 +49,10 @@
   }
 }
 
-<script>
+<script src="~/js/SelectAccountDropdown.js" asp-append-version="true"></script>
 
+<script>
+  const { createApp } = Vue;
+
+  app.mount('#app');
 </script>

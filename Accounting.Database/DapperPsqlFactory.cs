@@ -8994,6 +8994,44 @@ namespace Accounting.Database
 
         return result.SingleOrDefault();
       }
+
+      public async Task<decimal> GetUnmonetizedWeightAsync(string type, int organizationId)
+      {
+        const string reservesSql = """
+          SELECT COALESCE(SUM(
+            CASE 
+              WHEN "Unit" = 'g' THEN "Weight"
+              WHEN "Unit" = 'oz' THEN "Weight" * 31.1034768
+              ELSE 0
+            END
+          ), 0)
+          FROM "Reserve"
+          WHERE "OrganizationId" = @OrganizationId
+            AND "Type" = @Type;
+        """;
+
+        const string monetizedSql = """
+          SELECT COALESCE(SUM("WeightGrams"), 0)
+          FROM "Monetization"
+          WHERE "OrganizationId" = @OrganizationId;
+        """;
+
+        DynamicParameters p = new();
+        p.Add("@OrganizationId", organizationId);
+        p.Add("@Type", type);
+
+        decimal totalGrams;
+        decimal monetizedGrams;
+
+        using (NpgsqlConnection con = new(_connectionString))
+        {
+          totalGrams = await con.ExecuteScalarAsync<decimal>(reservesSql, p);
+          monetizedGrams = await con.ExecuteScalarAsync<decimal>(monetizedSql, new { OrganizationId = organizationId });
+        }
+
+        var available = totalGrams - monetizedGrams;
+        return available;
+      }
     }
 
     public IWalletManager GetWalletManager()
