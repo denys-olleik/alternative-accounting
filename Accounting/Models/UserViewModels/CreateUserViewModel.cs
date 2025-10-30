@@ -8,6 +8,8 @@ namespace Accounting.Models.UserViewModels
     public string? Email { get; set; }
     public string? Password { get; set; }
 
+    public bool EmailExistsInAnyTenant { get; set; }
+
     public ValidationResult ValidationResult { get; set; } = new();
 
     public class CreateUserViewModelValidator : AbstractValidator<CreateUserViewModel>
@@ -21,7 +23,14 @@ namespace Accounting.Models.UserViewModels
 
         RuleFor(x => x.Password)
           .Cascade(CascadeMode.Stop)
-          .NotEmpty();
+          .NotEmpty()
+          .When(x => !x.EmailExistsInAnyTenant)
+          .WithMessage("Password is required for a new user.");
+
+        RuleFor(x => x.Password)
+          .Empty()
+          .When(x => x.EmailExistsInAnyTenant)
+          .WithMessage("Password must be empty for an existing user.");
       }
     }
   }

@@ -266,16 +266,7 @@ namespace Accounting.Controllers
     [Route("create")]
     public async Task<ActionResult> Create(CreateUserViewModel model)
     {
-      CreateUserViewModel.CreateUserViewModelValidator validator = new();
-      ValidationResult validationResult = await validator.ValidateAsync(model);
-
-      if (!validationResult.IsValid)
-      {
-        model.ValidationResult = validationResult;
-        return View(model);
-      }
-
-      User existingUser = await _userService.GetAsync(model.Email);
+      var existingUser = await _userService.GetAsync(model.Email);
       if (existingUser != null)
       {
         model.ValidationResult = new ValidationResult(new List<ValidationFailure>()
@@ -286,10 +277,29 @@ namespace Accounting.Controllers
       }
 
       var (existingUser2, tenant) = await _userService.GetFirstOfAnyTenantAsync(model.Email);
+      model.EmailExistsInAnyTenant = existingUser2 != null;
+
+      var validator = new CreateUserViewModel.CreateUserViewModelValidator();
+      var validationResult = await validator.ValidateAsync(model);
+
+      if (!validationResult.IsValid)
+      {
+        model.ValidationResult = validationResult;
+        return View(model);
+      }
+
+      if (existingUser2 != null && !string.IsNullOrEmpty(model.Password))
+      {
+        model.ValidationResult = new ValidationResult(new List<ValidationFailure>()
+        {
+          new ValidationFailure("Password", "Password must be empty for an existing user.")
+        });
+        return View(model);
+      }
 
       using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
       {
-        User user = await _userService.CreateAsync(new User()
+        var user = await _userService.CreateAsync(new User()
         {
           Email = model.Email,
           FirstName = existingUser2?.FirstName,
