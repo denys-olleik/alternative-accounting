@@ -1,5 +1,5 @@
 ﻿using Accounting.CustomAttributes;
-using Accounting.Models.Item;
+using Accounting.Models.VideoViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounting.Controllers
@@ -24,6 +24,20 @@ namespace Accounting.Controllers
       };
 
       return View(vm);
+    }
+
+    [HttpGet]
+    [Route("upload")]
+    public IActionResult Upload()
+    {
+      return View();
+    }
+
+    [HttpPost]
+    [Route("upload")]
+    public IActionResult Upload(UploadVideoViewModel model)
+    {
+      return RedirectToAction("Videos");
     }
   }
 }

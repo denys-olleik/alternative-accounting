@@ -1,0 +1,27 @@
+﻿@model Accounting.Models.VideoViewModels.UploadVideoViewModel
+
+@{
+  ViewData["Title"] = "Upload video - " + ConfigurationSingleton.Instance.ApplicationName;
+}
+
+@{
+  string headerText = "Upload video";
+}
+<partial name="_H1HeaderPartial" model="@headerText" />
+
+<form asp-action="Upload" asp-controller="Video" method="post" enctype="multipart/form-data"
+      class="display-flex flex-direction-column margin-bottom-5px">
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="File">Select video file to upload:</label>
+    <input asp-for="File" type="file" class="font-size-20px" />
+  </div>
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Title"></label>
+    <input asp-for="Title" class="font-size-20px" />
+  </div>
+  <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
+    <label asp-for="Description"></label>
+    <textarea asp-for="Description" class="font-size-20px"></textarea>
+  </div>
+  <button type="submit" class="full-width-regular-button">Upload video</button>
+  </form>
