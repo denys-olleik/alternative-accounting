@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"]</title>
+  <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  <script src="~/js/luxon.js" asp-append-version="true"></script>
+  <script src="https://code.jquery.com/jquery-3.6.3.min.js"
+          integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+          crossorigin="anonymous"></script>
+</head>
+
+<body class="background-color-darkslategray">
+  <header class="container margin-bottom-2px">
+    <nav class="display-flex max-width-768-flex-direction-column">
+      <a asp-controller="Home" asp-action="Index" class="background-color-A62626
+        font-Oswald
+        color-white
+        padding-sides-25px
+        font-weight-600
+
+        margin-bottom-2px
+        max-width-768-text-align-center">
+        @ConfigurationSingleton.Instance.ApplicationName
+      </a>
+
+      <div class="display-flex flex-direction-column flex-1 text-align-center">
+        <a asp-controller="Home" asp-action="Index" class="font-Oswald color-white background-color-A62626 margin-left-2px margin-right-2px margin-bottom-2px">alternative-accounting</a>
+      </div>
+      <div class="display-flex margin-bottom-2px">
+        @*  <div class="flex-1 max-width-768-display-none"></div> *@
+        @if (User.Identity.IsAuthenticated)
+        {
+          <a asp-action="ChooseOrganization" asp-controller="UserAccount"
+             class="max-width-768-flex-1
+                  text-align-center
+                  background-color-A62626
+                  font-Oswald
+                  color-white
+                  padding-sides-25px
+                  margin-right-2px">Change organization</a>
+          @* <form id="logoutForm" asp-action="Logout" asp-controller="UserAccount" method="post"
+                class="max-width-768-flex-1 background-color-A62626 text-align-center">
+            <a href="javascript:void(0);" onclick="document.getElementById('logoutForm').submit();"
+               class="display-block font-Oswald color-white padding-sides-25px ">
+              Logout
+            </a>
+          </form> *@
+        }
+        else
+        {
+          @*<a asp-action="Login" asp-controller="Account" class="max-width-768-flex-1 max-width-768-text-align-center background-color-A62626 font-Oswald color-white padding-sides-25px  margin-right-2px">Pay Invoice</a>*@
+          @*<a asp-action="Careers" asp-controller="Home" class="max-width-768-flex-1 max-width-768-text-align-center background-color-A62626 font-Oswald color-white padding-sides-25px  margin-right-2px">Careers</a>*@
+          @* <a asp-action="ProcessLover" asp-controller="PlaylistLover" class="max-width-768-flex-1 max-width-768-text-align-center background-color-A62626 font-Oswald color-white padding-sides-25px  margin-right-2px">Playlist Lover</a> *@
+          @* <a asp-action="Index" asp-controller="Index" class="max-width-768-flex-1 max-width-768-text-align-center background-color-A62626 font-Oswald color-white padding-sides-25px  margin-right-2px">Index</a> *@
+          @* <a asp-action="PublicBlogs" asp-controller="Blog" class="max-width-768-flex-1 max-width-768-text-align-center background-color-A62626 font-Oswald color-white padding-sides-25px  margin-right-2px">Blog</a> *@
+          @* <a asp-action="Register" asp-controller="Registration" class="max-width-768-flex-1 max-width-768-text-align-center background-color-A62626 font-Oswald color-white padding-sides-25px  margin-right-2px">Demo</a> *@
+          <a asp-action="Login" asp-controller="UserAccount" class="max-width-768-flex-1 max-width-768-text-align-center background-color-A62626 font-Oswald color-white padding-sides-25px ">Enter</a>
+        }
+      </div>
+    </nav>
+    @if (!User.Identity.IsAuthenticated)
+    {
+      <div class="border-2px-solid-white">
+        <div class="display-flex flex-direction-column background-color-black">
+          <div class="background-color-black padding-2px">
+            <div class="display-flex border-2px-solid-white font-Roboto-Mono">
+              <div class="flex-1 background-color-blue color-white text-align-center">▲ <span class="truncate-3">asset</span> ▼</div>
+              <div class="flex-1 background-color-yellow text-align-center">▼ <span class="truncate-3">liability</span> ▲</div>
+              <div class="flex-1 background-color-red color-white text-align-center">▼ <span class="truncate-3">equity</span> ▲</div>
+              <div class="flex-1 background-color-green color-white text-align-center">▼ <span class="truncate-3">revenue</span> ▲</div>
+              <div class="flex-1 background-color-magenta color-white text-align-center">▲ <span class="truncate-3">expense</span> ▼</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    else
+    {
+      <div class="border-2px-solid-white">
+        <div class="display-flex flex-direction-column background-color-black">
+          <div class="background-color-black padding-2px">
+            <div class="display-flex border-2px-solid-white font-Roboto-Mono height-10px">
+              <div class="flex-1 background-color-blue color-white text-align-center"></div>
+              <div class="flex-1 background-color-yellow text-align-center"></div>
+              <div class="flex-1 background-color-red color-white text-align-center"></div>
+              <div class="flex-1 background-color-green color-white text-align-center"></div>
+              <div class="flex-1 background-color-magenta color-white text-align-center"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </header>
+  <div class="container">
+    @RenderBody()
+  </div>
+   <footer class="display-flex flex-direction-column width-100 text-align-center background-color-lightcoral border-top-2px-solid-white">
+    <a href="https://github.com/denys-olleik/alternative-accounting/issues" class="color-blue">limited support</a>
+  </footer>
+</body>
+</html>
