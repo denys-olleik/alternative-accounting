@@ -678,6 +678,20 @@ CREATE TABLE "Blog"
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID")
 );
 
+-- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "BlogAttachment";'
+CREATE TABLE "BlogAttachment"
+(
+	"BlogAttachmentID" SERIAL PRIMARY KEY NOT NULL,
+	"BlogId" INT NOT NULL,
+	"OriginalFileName" VARCHAR(255) NOT NULL,
+	"FilePath" VARCHAR(1000) NOT NULL,
+	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+	"CreatedById" INT NOT NULL,
+	FOREIGN KEY ("BlogId") REFERENCES "Blog"("BlogID"),
+	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+	UNIQUE ("BlogId", "OriginalFileName")
+);
+
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Exception";'
 CREATE TABLE "Exception"
 (

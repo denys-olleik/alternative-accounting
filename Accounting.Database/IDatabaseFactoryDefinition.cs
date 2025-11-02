@@ -47,5 +47,6 @@ namespace Accounting.Database
     IWalletManager GetWalletManager();
     ITaxManager GetTaxManager();
     IReserveManager GetReserveManager();
+    IBlogAttachmentManager GetBlogAttachmentManager();
   }
 }

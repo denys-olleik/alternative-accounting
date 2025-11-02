@@ -10,12 +10,44 @@ namespace Accounting.Controllers
   [Route("api/blog-attachment")]
   public class BlogAttachmentApiController : BaseController
   {
-    private readonly BlogAttachmentService blogAttachmentService;
+    private readonly BlogAttachmentService _blogAttachmentService;
 
     public BlogAttachmentApiController(
       RequestContext requestContext)
     {
+      _blogAttachmentService = new BlogAttachmentService(
+        requestContext.DatabaseName,
+        requestContext.DatabasePassword);
+    }
 
+    //[Route("upload")]
+    //[HttpPost]
+    //public async Task<IActionResult> UploadFile(IFormFile formFile)
+    //{
+    //  Common.File fileUpload = new Common.File
+    //  {
+    //    FileName = formFile.FileName,
+    //    Stream = formFile.OpenReadStream()
+    //  };
+
+    //  InvoiceAttachment attachment = await _invoiceAttachmentService.UploadInvoiceAttachmentAsync(fileUpload, GetUserId(), GetOrganizationId()!.Value, GetDatabaseName());
+
+    //  return Ok(new { InvoiceAttachmentID = attachment.InvoiceAttachmentID, FileName = attachment.OriginalFileName });
+    //}
+
+    [Route("upload")]
+    [HttpPost]
+    public async Task<IActionResult> UploadFile(IFormFile formFile)
+    {
+      Common.File fileUpload = new Common.File
+      {
+        FileName = formFile.FileName,
+        Stream = formFile.OpenReadStream()
+      };
+
+      BlogAttachment blogAttachment = await _blogAttachmentService.UploadBlogAttachmentAsync(fileUpload, GetUserId(), GetOrganizationId()!.Value, GetDatabaseName());
+
+      return Ok(new { BlogAttachmentID = blogAttachment.BlogAttachmentID, FileName = blogAttachment.OriginalFileName });
     }
   }
 }

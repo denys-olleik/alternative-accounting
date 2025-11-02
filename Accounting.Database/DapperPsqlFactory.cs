@@ -9034,6 +9034,51 @@ namespace Accounting.Database
       }
     }
 
+    public IBlogAttachmentManager GetBlogAttachmentManager()
+    {
+      return new BlogAttachmentManager(_connectionString);
+    }
+
+    public class BlogAttachmentManager : IBlogAttachmentManager
+    {
+      private readonly string _connectionString;
+
+      public BlogAttachmentManager(string connectionString)
+      {
+        _connectionString = connectionString;
+      }
+
+      public BlogAttachment Create(BlogAttachment entity)
+      {
+        throw new NotImplementedException();
+      }
+
+      public Task<BlogAttachment> CreateAsync(BlogAttachment entity)
+      {
+        throw new NotImplementedException();
+      }
+
+      public int Delete(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public BlogAttachment Get(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public IEnumerable<BlogAttachment> GetAll()
+      {
+        throw new NotImplementedException();
+      }
+
+      public int Update(BlogAttachment entity)
+      {
+        throw new NotImplementedException();
+      }
+    }
+
     public IWalletManager GetWalletManager()
     {
       return new WalletManager(_connectionString);

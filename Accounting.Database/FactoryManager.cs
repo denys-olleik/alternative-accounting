@@ -231,5 +231,10 @@ namespace Accounting.Database
     {
       return databaseFactoryDefinition.GetReserveManager();
     }
+
+    public IBlogAttachmentManager GetBlogAttachmentManager()
+    {
+      return databaseFactoryDefinition.GetBlogAttachmentManager();
+    }
   }
 }
