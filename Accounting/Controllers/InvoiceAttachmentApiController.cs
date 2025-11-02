@@ -13,7 +13,7 @@ namespace Accounting.Controllers
   {
     private readonly InvoiceAttachmentService _invoiceAttachmentService;
 
-    public InvoiceAttachmentApiController(RequestContext requestContext, InvoiceAttachmentService invoiceAttachmentService)
+    public InvoiceAttachmentApiController(RequestContext requestContext)
     {
       _invoiceAttachmentService = new InvoiceAttachmentService(requestContext.DatabaseName, requestContext.DatabasePassword);
     }
