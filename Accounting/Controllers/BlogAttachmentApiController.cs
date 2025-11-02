@@ -20,21 +20,6 @@ namespace Accounting.Controllers
         requestContext.DatabasePassword);
     }
 
-    //[Route("upload")]
-    //[HttpPost]
-    //public async Task<IActionResult> UploadFile(IFormFile formFile)
-    //{
-    //  Common.File fileUpload = new Common.File
-    //  {
-    //    FileName = formFile.FileName,
-    //    Stream = formFile.OpenReadStream()
-    //  };
-
-    //  InvoiceAttachment attachment = await _invoiceAttachmentService.UploadInvoiceAttachmentAsync(fileUpload, GetUserId(), GetOrganizationId()!.Value, GetDatabaseName());
-
-    //  return Ok(new { InvoiceAttachmentID = attachment.InvoiceAttachmentID, FileName = attachment.OriginalFileName });
-    //}
-
     [Route("upload")]
     [HttpPost]
     public async Task<IActionResult> UploadFile(IFormFile formFile)
