@@ -9053,9 +9053,26 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public Task<BlogAttachment> CreateAsync(BlogAttachment entity)
+      public async Task<BlogAttachment> CreateAsync(BlogAttachment entity)
       {
-        throw new NotImplementedException();
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@BlogID", entity.BlogID);
+        p.Add("@OriginalFileName", entity.OriginalFileName);
+        p.Add("@FilePath", entity.FilePath);
+        p.Add("@CreatedById", entity.CreatedById);
+        p.Add("@OrganizationId", entity.OrganizationId);
+
+        IEnumerable<BlogAttachment> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<BlogAttachment>("""
+            INSERT INTO "BlogAttachment" ("BlogID", "OriginalFileName", "FilePath", "CreatedById", "OrganizationId") 
+            VALUES (@BlogID, @OriginalFileName, @FilePath, @CreatedById, @OrganizationId)
+            RETURNING *;
+            """, p);
+        }
+        return result.Single();
       }
 
       public int Delete(int id)
