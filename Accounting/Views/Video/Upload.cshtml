@@ -12,8 +12,9 @@
 <form asp-action="Upload" asp-controller="Video" method="post" enctype="multipart/form-data"
       class="display-flex flex-direction-column margin-bottom-5px">
   <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
-    <label asp-for="File">Select video file to upload:</label>
-    <input asp-for="File" type="file" class="font-size-20px" />
+    <div class="flex-1 padding-5px background-color-antiquewhite">
+      <input asp-for="File" type="file" />
+    </div>
   </div>
   <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
     <label asp-for="Title"></label>
@@ -24,4 +25,4 @@
     <textarea asp-for="Description" class="font-size-20px"></textarea>
   </div>
   <button type="submit" class="full-width-regular-button">Upload video</button>
-  </form>
+</form>
