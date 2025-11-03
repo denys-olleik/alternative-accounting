@@ -26,32 +26,35 @@
   </div>
   <div class="display-flex flex-direction-column margin-bottom-5px background-color-antiquewhite">
     <div class="flex-1 padding-5px background-color-antiquewhite">
-      <input asp-for="File" type="file" @@change="uploadFile" ref="fileInput" />
+      <input name="File" type="file" @@change="uploadFile" ref="fileInput" />
     </div>
   </div>
   <button type="submit" class="full-width-regular-button">Create post</button>
 </form>
-@* 
+
 <script>
   const { createApp } = Vue;
 
-
-
-  const app = createApp({
-    components: {
-      attachments: @Html.Raw(Model?.Blo
-    },
+    const app = createApp({
     data() {
       return {
-        file: null
+        attachments: @Html.Raw(Model?.BlogAttachments != null ? Json.Serialize(Model.BlogAttachments) : "[]"),
       };
     },
     methods: {
       uploadFile(event) {
-        this.file = event.target.files[0];
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('formFile', file);
+
+        fetch('/api/blog-attachment/upload', { method: 'POST', body: formData })
+          .then(r => r.ok ? r.json() : Promise.reject('Upload failed'))
+          .catch(console.error);
       }
     }
   });
 
   app.mount('#app');
-</script> *@
+</script>

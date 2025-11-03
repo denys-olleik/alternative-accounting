@@ -10,6 +10,8 @@ namespace Accounting.Models.BlogViewModels
     public IFormFile File { get; set; }
     public bool Public { get; set; }
 
+    public List<BlogAttachmentViewModel>? BlogAttachments { get; set; }
+
     public ValidationResult ValidationResult { get; set; } = new();
 
     public class CreateBlogViewModelValidator : AbstractValidator<CreateBlogViewModel>
@@ -22,6 +24,12 @@ namespace Accounting.Models.BlogViewModels
         RuleFor(x => x.Content)
           .NotEmpty().WithMessage("Content is required.");
       }
+    }
+
+    public class BlogAttachmentViewModel
+    {
+      public int BlogAttachmentID { get; set; }
+      public string? FileName { get; set; }
     }
   }
 }
