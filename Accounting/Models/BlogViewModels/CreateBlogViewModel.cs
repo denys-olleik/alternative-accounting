@@ -7,7 +7,6 @@ namespace Accounting.Models.BlogViewModels
   {
     public string? Title { get; set; }
     public string? Content { get; set; }
-    public IFormFile File { get; set; }
     public bool Public { get; set; }
 
     public List<BlogAttachmentViewModel>? BlogAttachments { get; set; }

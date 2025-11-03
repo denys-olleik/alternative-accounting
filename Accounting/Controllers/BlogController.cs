@@ -148,15 +148,15 @@ namespace Accounting.Controllers
       var validator = new CreateBlogViewModel.CreateBlogViewModelValidator();
       var validationResult = await validator.ValidateAsync(model);
 
-      if (model.File != null && model.File.Length > 0)
-      {
-        var isMp4 = Path.GetExtension(model.File.FileName).Equals(".mp4", StringComparison.OrdinalIgnoreCase);
+      //if (model.File != null && model.File.Length > 0)
+      //{
+      //  var isMp4 = Path.GetExtension(model.File.FileName).Equals(".mp4", StringComparison.OrdinalIgnoreCase);
 
-        if (isMp4)
-        {
+      //  if (isMp4)
+      //  {
 
-        }
-      }
+      //  }
+      //}
 
       if (!validationResult.IsValid)
       {
