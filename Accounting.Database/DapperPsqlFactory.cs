@@ -9055,24 +9055,22 @@ namespace Accounting.Database
 
       public async Task<BlogAttachment> CreateAsync(BlogAttachment entity)
       {
-        DynamicParameters p = new DynamicParameters();
-        p.Add("@BlogID", entity.BlogID);
+        var p = new DynamicParameters();
         p.Add("@OriginalFileName", entity.OriginalFileName);
         p.Add("@FilePath", entity.FilePath);
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
+        p.Add("@BlogId", entity.BlogId == 0 ? null : entity.BlogId);
 
-        IEnumerable<BlogAttachment> result;
+        var sql = """
+          INSERT INTO "BlogAttachment"
+          ("BlogId", "OriginalFileName", "FilePath", "CreatedById", "OrganizationId")
+          VALUES (@BlogId, @OriginalFileName, @FilePath, @CreatedById, @OrganizationId)
+          RETURNING *;
+        """;
 
-        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
-        {
-          result = await con.QueryAsync<BlogAttachment>("""
-            INSERT INTO "BlogAttachment" ("BlogID", "OriginalFileName", "FilePath", "CreatedById", "OrganizationId") 
-            VALUES (@BlogID, @OriginalFileName, @FilePath, @CreatedById, @OrganizationId)
-            RETURNING *;
-            """, p);
-        }
-        return result.Single();
+        using var con = new NpgsqlConnection(_connectionString);
+        return await con.QuerySingleAsync<BlogAttachment>(sql, p);
       }
 
       public int Delete(int id)

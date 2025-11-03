@@ -5,7 +5,7 @@ namespace Accounting.Business
   public class BlogAttachment : IIdentifiable<int>
   {
     public int BlogAttachmentID { get; set; }
-    public int BlogID { get; set; }
+    public int BlogId { get; set; }
     public string OriginalFileName { get; set; }
     public string FilePath { get; set; }
     public DateTime Created { get; set; }

@@ -687,8 +687,10 @@ CREATE TABLE "BlogAttachment"
 	"FilePath" VARCHAR(1000) NOT NULL,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NOT NULL,
+	"OrganizationId" INT NULL,
 	FOREIGN KEY ("BlogId") REFERENCES "Blog"("BlogID"),
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
+	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID"),
 	UNIQUE ("BlogId", "OriginalFileName")
 );
 
