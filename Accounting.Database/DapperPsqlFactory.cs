@@ -9093,11 +9093,11 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId)
+      public async Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogId, int organizationId)
       {
         DynamicParameters p = new();
         p.Add("@BlogAttachmentID", blogAttachmentID);
-        p.Add("@BlogID", blogID);
+        p.Add("@BlogId", blogId);
         p.Add("@OrganizationId", organizationId);
 
         int rowsAffected;
@@ -9106,7 +9106,7 @@ namespace Accounting.Database
         {
           rowsAffected = await con.ExecuteAsync("""
             UPDATE "BlogAttachment"
-            SET "BlogId" = @BlogID
+            SET "BlogId" = @BlogId
             WHERE "BlogAttachmentID" = @BlogAttachmentID
             AND "OrganizationId" = @OrganizationId
             """, p);

@@ -191,14 +191,8 @@ namespace Accounting.Controllers
         blog = await _blogService.CreateAsync(blog);
 
         foreach (var attachment in model.BlogAttachments)
-        {
-          var blogAttachment = new BlogAttachment
-          {
-            BlogId = blog.BlogID,
-            FilePath = attachment.FileName,
-            CreatedById = GetUserId(),
-          };
-          await _blogAttachmentService.UpdateBlogIdAsync(blogAttachment.BlogAttachmentID, blog.BlogID, GetOrganizationId()!.Value);
+        { 
+          await _blogAttachmentService.UpdateBlogIdAsync(attachment.BlogAttachmentID, blog.BlogID, GetOrganizationId()!.Value);
         }
 
         scope.Complete();
