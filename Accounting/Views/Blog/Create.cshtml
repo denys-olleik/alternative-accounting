@@ -11,7 +11,31 @@
 }
 <partial name="_H1HeaderPartial" model="@headerText" />
 
+<template id="attachment-action-template">
+  <div class="display-flex padding-top-bottom-2px">
+    <div class="display-flex flex-1">
+      <a href="#" @@click.prevent="toggleAction" class="margin-right-5px">{{ attachment.fileName }}</a>
+      <span v-if="isExpanded" class="display-flex margin-left-2px">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div
+          class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a href="#" @@click.prevent="$emit('remove', attachment.blogAttachmentID)"
+            class="font-size-16px font-Roboto color-white text-decoration-none">remove</a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>
+
 <form id="app" asp-action="Create" asp-controller="Blog" method="post" class="display-flex flex-direction-column margin-bottom-5px">
+  <input type="hidden" name="BlogAttachmentsJSON" :value="JSON.stringify(attachments)" />
+
   <div class="display-flex flex-direction-column margin-bottom-5px">
     <label asp-for="Title" class="background-color-antiquewhite"></label>
     <input asp-for="Title" class="font-size-20px" maxlength="100" autocomplete="off" />
@@ -29,30 +53,79 @@
       <input name="File" type="file" @@change="uploadFile" ref="fileInput" />
     </div>
   </div>
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">File name</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <tr v-for="attachment in attachments" :key="attachment.blogAttachmentID">
+        <td class="padding-right-20px white-space-nowrap">
+          <attachment-action :attachment='attachment'
+            :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
+            @@expand="handleAttachmentExpand(attachment.blogAttachmentID)"
+            @@remove=" "></attachment-action>
+        </td>
+      </tr>
+    </tbody>
+  </table>
   <button type="submit" class="full-width-regular-button">Create post</button>
 </form>
 
 <script>
   const { createApp } = Vue;
 
-    const app = createApp({
+  const AttachmentAction = {
+    name: 'AttachmentAction',
+    props: ['attachment', 'isExpanded'],
+    template: '#attachment-action-template',
+    methods: {
+      toggleAction() {
+        this.$emit('expand');
+      },
+      removeAttachment() {
+        this.$emit('remove', this.attachment.blogAttachmentID);
+      }
+    }
+  };
+
+  const app = createApp({
+    components: {
+      'attachment-action': AttachmentAction,
+    },
     data() {
       return {
         attachments: @Html.Raw(Model?.BlogAttachments != null ? Json.Serialize(Model.BlogAttachments) : "[]"),
+        expandedAttachmentId: null,
       };
     },
     methods: {
       uploadFile(event) {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
+        const file = event.target.files[0];
         const formData = new FormData();
         formData.append('formFile', file);
-
-        fetch('/api/blog-attachment/upload', { method: 'POST', body: formData })
-          .then(r => r.ok ? r.json() : Promise.reject('Upload failed'))
-          .catch(console.error);
-      }
+        fetch('/api/blog-attachment/upload', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            this.attachments.push(data);
+            this.$refs.fileInput.value = '';
+          })
+          .catch(error => {
+            console.log('There was a problem with the fetch operation: ', error);
+          });
+      },
+      handleAttachmentExpand(id) {
+        this.expandedAttachmentId = this.expandedAttachmentId === id ? null : id;
+      },
     }
   });
 

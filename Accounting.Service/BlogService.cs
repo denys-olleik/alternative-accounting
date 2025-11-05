@@ -17,11 +17,11 @@ namespace Accounting.Service
 
     }
 
-    public async System.Threading.Tasks.Task CreateAsync(Blog blog)
+    public async Task<Blog> CreateAsync(Blog blog)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       var blogManager = factoryManager.GetBlogManager();
-      await blogManager.CreateAsync(blog);
+      return await blogManager.CreateAsync(blog);
     }
 
     public async Task<int> DeleteAsync(int blogId)

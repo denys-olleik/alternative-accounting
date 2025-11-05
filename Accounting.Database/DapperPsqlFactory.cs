@@ -4105,7 +4105,7 @@ namespace Accounting.Database
           p.Add("@Amount", transaction.Amount);
           p.Add("@CreatedById", transaction.CreatedById);
           p.Add("@OrganizationId", transaction.OrganizationId);
-          
+
           return await con.ExecuteAsync("""
             INSERT INTO "ReconciliationTransaction" 
             (
@@ -8821,7 +8821,7 @@ namespace Accounting.Database
         p.Add("@Rate", entity.Rate);
         p.Add("@CreatedById", entity.CreatedById);
         p.Add("@OrganizationId", entity.OrganizationId);
-        
+
         IEnumerable<Tax> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
@@ -8841,15 +8841,15 @@ namespace Accounting.Database
       }
 
       public async Task<(List<Tax> taxes, int? nextPage)> GetAllAsync(
-        int page, 
-        int pageSize, 
+        int page,
+        int pageSize,
         int organizationId)
       {
         DynamicParameters p = new DynamicParameters();
         p.Add("@Page", page);
         p.Add("@PageSize", pageSize);
         p.Add("@OrganizationId", organizationId);
-        
+
         IEnumerable<Tax> paginatedResult;
 
         using (NpgsqlConnection con = new(_connectionString))
@@ -8864,7 +8864,7 @@ namespace Accounting.Database
             AND "OrganizationId" = @OrganizationId
             """, p);
         }
-        
+
         var result = paginatedResult.ToList();
         int? nextPage = null;
         if (result.Count > pageSize)
@@ -8956,12 +8956,12 @@ namespace Accounting.Database
 
       public async Task<List<Reserve>> GetAllAsync(int organizationId)
       {
-        DynamicParameters p = new ();
+        DynamicParameters p = new();
         p.Add("@OrganizationId", organizationId);
 
         IEnumerable<Reserve> result;
 
-        using (NpgsqlConnection con = new (_connectionString))
+        using (NpgsqlConnection con = new(_connectionString))
         {
           result = await con.QueryAsync<Reserve>("""
             SELECT * 
@@ -8976,13 +8976,13 @@ namespace Accounting.Database
 
       public async Task<Reserve> GetAsync(int reserveId, int organizationId)
       {
-        DynamicParameters p = new ();
+        DynamicParameters p = new();
         p.Add("@ReserveID", reserveId);
         p.Add("@OrganizationId", organizationId);
 
         IEnumerable<Reserve> result;
 
-        using (NpgsqlConnection con = new (_connectionString))
+        using (NpgsqlConnection con = new(_connectionString))
         {
           result = await con.QueryAsync<Reserve>("""
             SELECT * 
@@ -9091,6 +9091,28 @@ namespace Accounting.Database
       public int Update(BlogAttachment entity)
       {
         throw new NotImplementedException();
+      }
+
+      public async Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId)
+      {
+        DynamicParameters p = new();
+        p.Add("@BlogAttachmentID", blogAttachmentID);
+        p.Add("@BlogID", blogID);
+        p.Add("@OrganizationId", organizationId);
+
+        int rowsAffected;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          rowsAffected = await con.ExecuteAsync("""
+            UPDATE "BlogAttachment"
+            SET "BlogId" = @BlogID
+            WHERE "BlogAttachmentID" = @BlogAttachmentID
+            AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return rowsAffected;
       }
     }
 

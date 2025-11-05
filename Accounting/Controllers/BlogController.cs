@@ -1,12 +1,15 @@
 ﻿using Accounting.Business;
+using Accounting.Common;
 using Accounting.CustomAttributes;
 using Accounting.Models.BlogViewModels;
 using Accounting.Service;
-using Microsoft.AspNetCore.Mvc;
 using Ganss.Xss;
-using Accounting.Common;
 using Markdig;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Transactions;
+using static Accounting.Models.BlogViewModels.CreateBlogViewModel;
 
 namespace Accounting.Controllers
 {
@@ -15,10 +18,15 @@ namespace Accounting.Controllers
   public class BlogController : BaseController
   {
     private readonly BlogService _blogService;
+    private readonly BlogAttachmentService _blogAttachmentService;
 
     public BlogController(RequestContext requestContext, BlogService blogService)
     {
       _blogService = new BlogService(
+        requestContext.DatabaseName,
+        requestContext.DatabasePassword);
+
+      _blogAttachmentService = new BlogAttachmentService(
         requestContext.DatabaseName,
         requestContext.DatabasePassword);
     }
@@ -145,6 +153,8 @@ namespace Accounting.Controllers
     [HttpPost]
     public async Task<IActionResult> Create(CreateBlogViewModel model)
     {
+      model.BlogAttachments = JsonConvert.DeserializeObject<List<BlogAttachmentViewModel>>(model.BlogAttachmentsJSON ?? "[]");
+
       var validator = new CreateBlogViewModel.CreateBlogViewModelValidator();
       var validationResult = await validator.ValidateAsync(model);
 
@@ -176,7 +186,24 @@ namespace Accounting.Controllers
         blog.PublicId = RandomHelper.GenerateSecureAlphanumericString(10, true);
       }
 
-      await _blogService.CreateAsync(blog);
+      using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+      {
+        blog = await _blogService.CreateAsync(blog);
+
+        foreach (var attachment in model.BlogAttachments)
+        {
+          var blogAttachment = new BlogAttachment
+          {
+            BlogId = blog.BlogID,
+            FilePath = attachment.FileName,
+            CreatedById = GetUserId(),
+          };
+          await _blogAttachmentService.UpdateBlogIdAsync(blogAttachment.BlogAttachmentID, blog.BlogID, GetOrganizationId()!.Value);
+        }
+
+        scope.Complete();
+      }
+
       return RedirectToAction("Blogs");
     }
 

@@ -20,6 +20,12 @@ namespace Accounting.Service
 
     }
 
+    public async Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetBlogAttachmentManager().UpdateBlogIdAsync(blogAttachmentID, blogID, organizationId);
+    }
+
     public async Task<BlogAttachment> UploadBlogAttachmentAsync(Common.File fileUpload, int userId, int organizationId, string databaseName)
     {
       string path = RandomHelper.GenerateSecureAlphanumericString(15) + Path.GetExtension(fileUpload.FileName);

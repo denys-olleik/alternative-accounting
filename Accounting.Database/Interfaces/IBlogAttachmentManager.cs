@@ -4,6 +4,6 @@ namespace Accounting.Database.Interfaces
 {
   public interface IBlogAttachmentManager : IGenericRepository<BlogAttachment, int>
   {
-
+    Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId);
   }
 }

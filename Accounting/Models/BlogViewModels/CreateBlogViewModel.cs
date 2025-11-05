@@ -8,8 +8,9 @@ namespace Accounting.Models.BlogViewModels
     public string? Title { get; set; }
     public string? Content { get; set; }
     public bool Public { get; set; }
+    public string? BlogAttachmentsJSON { get; set; }
 
-    public List<BlogAttachmentViewModel>? BlogAttachments { get; set; }
+    public List<BlogAttachmentViewModel> BlogAttachments { get; set; }
 
     public ValidationResult ValidationResult { get; set; } = new();
 
