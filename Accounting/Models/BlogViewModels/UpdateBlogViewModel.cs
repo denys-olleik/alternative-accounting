@@ -3,7 +3,7 @@ using FluentValidation.Results;
 
 namespace Accounting.Models.BlogViewModels
 {
-  public class UpdateBlogViewModel
+  public partial class UpdateBlogViewModel
   {
     public int BlogID { get; set; }
     public string? Title { get; set; }
