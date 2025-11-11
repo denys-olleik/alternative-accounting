@@ -7,7 +7,7 @@ using FluentValidation.Results;
 
 namespace Accounting.Models.InvoiceViewModels
 {
-  public partial class UpdateInvoiceViewModel
+  public class UpdateInvoiceViewModel : ISupportsAttachments
   {
     public int ID { get; set; }
     public BusinessEntityViewModel? Customer { get; set; }
@@ -31,5 +31,10 @@ namespace Accounting.Models.InvoiceViewModels
     public DateTime LastUpdated { get; set; }
 
     public ValidationResult? ValidationResult { get; set; }
+    #region ISupportsAttachments
+    public string? DeletedAttachmentIdsCsv { get; set; }
+    public string? NewAttachmentIdsCsv { get; set; }
+    public List<ISupportsAttachments.InvoiceAttachmentViewModel> Attachments { get; set; } = new ();
+    #endregion
   }
 }

@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace Accounting.Models.InvoiceViewModels
+﻿namespace Accounting.Models.InvoiceViewModels
 {
-  public partial class UpdateInvoiceViewModel
+  public interface ISupportsAttachments
   {
     public string? DeletedAttachmentIdsCsv { get; set; }
     public string? NewAttachmentIdsCsv { get; set; }
-
-    public List<InvoiceAttachmentViewModel> Attachments { get; set; } = new ();
+    public List<InvoiceAttachmentViewModel> Attachments { get; set; }
 
     public class InvoiceAttachmentViewModel
     {
