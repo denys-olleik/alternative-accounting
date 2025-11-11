@@ -4,9 +4,10 @@ using Accounting.Models.Item;
 using Accounting.Models.PaymentTermViewModels;
 using FluentValidation.Results;
 
+
 namespace Accounting.Models.InvoiceViewModels
 {
-  public class UpdateInvoiceViewModel
+  public partial class UpdateInvoiceViewModel
   {
     public int ID { get; set; }
     public BusinessEntityViewModel? Customer { get; set; }
@@ -29,17 +30,6 @@ namespace Accounting.Models.InvoiceViewModels
     public DateTime? DueDate { get; set; }
     public DateTime LastUpdated { get; set; }
 
-    public string? DeletedAttachmentIdsCsv { get; set; }
-    public string? NewAttachmentIdsCsv { get; set; }
-
-    public List<InvoiceAttachmentViewModel> Attachments { get; set; } = new List<InvoiceAttachmentViewModel>();
-
     public ValidationResult? ValidationResult { get; set; }
-
-    public class InvoiceAttachmentViewModel
-    {
-      public int InvoiceAttachmentID { get; set; }
-      public string FileName { get; set; }
-    }
   }
 }
