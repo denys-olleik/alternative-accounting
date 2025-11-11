@@ -1,9 +1,10 @@
-﻿using FluentValidation;
+﻿using Accounting.Models.InvoiceViewModels;
+using FluentValidation;
 using FluentValidation.Results;
 
 namespace Accounting.Models.BlogViewModels
 {
-  public partial class UpdateBlogViewModel
+  public class UpdateBlogViewModel : ISupportsAttachments
   {
     public int BlogID { get; set; }
     public string? Title { get; set; }
@@ -11,6 +12,11 @@ namespace Accounting.Models.BlogViewModels
     public bool Public { get; set; }
 
     public ValidationResult ValidationResult { get; set; } = new();
+    #region ISupportsAttachments
+    public string? DeletedAttachmentIdsCsv { get; set; }
+    public string? NewAttachmentIdsCsv { get; set; }
+    public List<ISupportsAttachments.InvoiceAttachmentViewModel> Attachments { get; set; } = new();
+    #endregion
 
     public class UpdateBlogViewModelValidator : AbstractValidator<UpdateBlogViewModel>
     {
