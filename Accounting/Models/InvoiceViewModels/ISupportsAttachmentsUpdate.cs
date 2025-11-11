@@ -1,6 +1,6 @@
 ﻿namespace Accounting.Models.InvoiceViewModels
 {
-  public interface ISupportsAttachments
+  public interface ISupportsAttachmentsUpdate
   {
     public string? DeletedAttachmentIdsCsv { get; set; }
     public string? NewAttachmentIdsCsv { get; set; }

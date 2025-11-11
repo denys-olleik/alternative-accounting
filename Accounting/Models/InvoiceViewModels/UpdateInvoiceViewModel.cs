@@ -7,7 +7,7 @@ using FluentValidation.Results;
 
 namespace Accounting.Models.InvoiceViewModels
 {
-  public class UpdateInvoiceViewModel : ISupportsAttachments
+  public class UpdateInvoiceViewModel : ISupportsAttachmentsUpdate
   {
     public int ID { get; set; }
     public BusinessEntityViewModel? Customer { get; set; }
@@ -34,7 +34,7 @@ namespace Accounting.Models.InvoiceViewModels
     #region ISupportsAttachments
     public string? DeletedAttachmentIdsCsv { get; set; }
     public string? NewAttachmentIdsCsv { get; set; }
-    public List<ISupportsAttachments.InvoiceAttachmentViewModel> Attachments { get; set; } = new ();
+    public List<ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel> Attachments { get; set; } = new ();
     #endregion
   }
 }

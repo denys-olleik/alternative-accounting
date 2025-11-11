@@ -357,7 +357,7 @@ namespace Accounting.Controllers
         InvoiceStatuses = Invoice.InvoiceStatusConstants.All.ToList(),
         ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId()!.Value),
         Attachments = (await _invoiceAttachmentService.GetAllAsync(invoice.InvoiceID, GetOrganizationId()!.Value))
-          .Select(a => new ISupportsAttachments.InvoiceAttachmentViewModel
+          .Select(a => new ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel
           {
             InvoiceAttachmentID = a.InvoiceAttachmentID,
             FileName = a.OriginalFileName

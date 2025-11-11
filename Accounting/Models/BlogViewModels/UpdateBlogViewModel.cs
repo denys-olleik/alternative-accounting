@@ -4,7 +4,7 @@ using FluentValidation.Results;
 
 namespace Accounting.Models.BlogViewModels
 {
-  public class UpdateBlogViewModel : ISupportsAttachments
+  public class UpdateBlogViewModel : ISupportsAttachmentsUpdate
   {
     public int BlogID { get; set; }
     public string? Title { get; set; }
@@ -15,7 +15,7 @@ namespace Accounting.Models.BlogViewModels
     #region ISupportsAttachments
     public string? DeletedAttachmentIdsCsv { get; set; }
     public string? NewAttachmentIdsCsv { get; set; }
-    public List<ISupportsAttachments.InvoiceAttachmentViewModel> Attachments { get; set; } = new();
+    public List<ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel> Attachments { get; set; } = new();
     #endregion
 
     public class UpdateBlogViewModelValidator : AbstractValidator<UpdateBlogViewModel>
