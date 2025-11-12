@@ -76,7 +76,37 @@ namespace Accounting.Controllers
         blog.PublicId = RandomHelper.GenerateSecureAlphanumericString(10, true);
       }
 
-      await _blogService.UpdateAsync(blog);
+      using (TransactionScope scope = new (TransactionScopeAsyncFlowOption.Enabled))
+      {
+        if (!string.IsNullOrEmpty(model.DeletedAttachmentIdsCsv))
+        {
+          var ids = model.DeletedAttachmentIdsCsv
+              .Split(',', StringSplitOptions.RemoveEmptyEntries)
+              .Select(id => int.Parse(id.Trim()))
+              .ToList();
+          await _blogAttachmentService.DeleteAttachmentsAsync(ids, blog.BlogID, GetOrganizationId()!.Value);
+        }
+
+        if (!string.IsNullOrEmpty(model.NewAttachmentIdsCsv))
+        {
+          var newAttachmentIds = model.NewAttachmentIdsCsv
+              .Split(',', StringSplitOptions.RemoveEmptyEntries)
+              .Select(id => int.Parse(id.Trim()))
+              .ToList();
+
+          var newAttachments = await _blogAttachmentService.GetAllAsync(newAttachmentIds.ToArray(), GetOrganizationId()!.Value);
+
+          foreach (var attachment in newAttachments)
+          {
+            await _blogAttachmentService.UpdateBlogIdAsync(attachment.BlogAttachmentID, blog.BlogID, GetOrganizationId()!.Value);
+            // Optionally move file or update path if needed
+            await _blogAttachmentService.MoveAndUpdateBlogAttachmentPathAsync(attachment, ConfigurationSingleton.Instance.PermPath, GetOrganizationId()!.Value, GetDatabaseName());
+          }
+        }
+
+        await _blogService.UpdateAsync(blog);
+      }
+      
       return RedirectToAction("Blogs");
     }
 

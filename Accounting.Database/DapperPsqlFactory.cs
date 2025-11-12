@@ -9078,12 +9078,22 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public System.Threading.Tasks.Task DeleteAsync(int blogAttachmentID, int blogID, int organizationId)
+      {
+        throw new NotImplementedException();
+      }
+
       public BlogAttachment Get(int id)
       {
         throw new NotImplementedException();
       }
 
       public IEnumerable<BlogAttachment> GetAll()
+      {
+        throw new NotImplementedException();
+      }
+
+      public async Task<IEnumerable<BlogAttachment>> GetAllAsync(int[] ids, int organizationId)
       {
         throw new NotImplementedException();
       }
@@ -9113,6 +9123,11 @@ namespace Accounting.Database
         }
 
         return rowsAffected;
+      }
+
+      public Task<int> UpdateFilePathAsync(int blogAttachmentID, string newPath, int organizationId)
+      {
+        throw new NotImplementedException();
       }
     }
 
