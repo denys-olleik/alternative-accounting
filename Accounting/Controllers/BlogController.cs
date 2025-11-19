@@ -220,10 +220,19 @@ namespace Accounting.Controllers
       {
         blog = await _blogService.CreateAsync(blog);
 
-        foreach (var attachment in model.BlogAttachments)
-        { 
-          await _blogAttachmentService.UpdateBlogIdAsync(attachment.BlogAttachmentID, blog.BlogID, GetOrganizationId()!.Value);
-          //await _blogAttachmentService.MoveAndUpdateBlogAttachmentPathAsync(attachment, ConfigurationSingleton.Instance.PermPath, GetOrganizationId()!.Value, GetDatabaseName());
+        var blogAttachments = await _blogAttachmentService.GetAllAsync(
+          model.BlogAttachments.Select(x => x.BlogAttachmentID).ToArray(),
+          GetOrganizationId()!.Value);
+
+        foreach (var blogAttachment in blogAttachments)
+        {
+          await _blogAttachmentService.UpdateBlogIdAsync(blogAttachment.BlogAttachmentID, blog.BlogID, GetOrganizationId()!.Value);
+          await _blogAttachmentService.MoveAndUpdateBlogAttachmentPathAsync(
+              blogAttachment,
+              ConfigurationSingleton.Instance.PermPath,
+              GetOrganizationId()!.Value,
+              GetDatabaseName()
+          );
         }
 
         scope.Complete();

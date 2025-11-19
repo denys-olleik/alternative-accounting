@@ -9125,9 +9125,26 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
-      public Task<int> UpdateFilePathAsync(int blogAttachmentID, string newPath, int organizationId)
+      public async Task<int> UpdateFilePathAsync(int blogAttachmentID, string newPath, int organizationId)
       {
-        throw new NotImplementedException();
+        DynamicParameters p = new();
+        p.Add("@BlogAttachmentID", blogAttachmentID);
+        p.Add("@FilePath", newPath);
+        p.Add("@OrganizationId", organizationId);
+
+        int rowsAffected;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          rowsAffected = await con.ExecuteAsync("""
+            UPDATE "BlogAttachment"
+            SET "FilePath" = @FilePath
+            WHERE "BlogAttachmentID" = @BlogAttachmentID
+            AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return rowsAffected;
       }
     }
 
