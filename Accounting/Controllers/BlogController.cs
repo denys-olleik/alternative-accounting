@@ -223,6 +223,7 @@ namespace Accounting.Controllers
         foreach (var attachment in model.BlogAttachments)
         { 
           await _blogAttachmentService.UpdateBlogIdAsync(attachment.BlogAttachmentID, blog.BlogID, GetOrganizationId()!.Value);
+          //await _blogAttachmentService.MoveAndUpdateBlogAttachmentPathAsync(attachment, ConfigurationSingleton.Instance.PermPath, GetOrganizationId()!.Value, GetDatabaseName());
         }
 
         scope.Complete();
