@@ -9095,7 +9095,22 @@ namespace Accounting.Database
 
       public async Task<IEnumerable<BlogAttachment>> GetAllAsync(int[] ids, int organizationId)
       {
-        throw new NotImplementedException();
+        if (ids == null || ids.Length == 0)
+          return Enumerable.Empty<BlogAttachment>();
+
+        var sql = """
+          SELECT *
+          FROM "BlogAttachment"
+          WHERE "BlogAttachmentID" = ANY(@Ids)
+            AND "OrganizationId" = @OrganizationId
+        """;
+
+        var p = new DynamicParameters();
+        p.Add("@Ids", ids);
+        p.Add("@OrganizationId", organizationId);
+
+        using var con = new NpgsqlConnection(_connectionString);
+        return await con.QueryAsync<BlogAttachment>(sql, p);
       }
 
       public int Update(BlogAttachment entity)
