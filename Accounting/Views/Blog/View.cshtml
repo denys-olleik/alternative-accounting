@@ -11,7 +11,8 @@
 
 <div>
   <div class="background-color-antiquewhite padding-5px-5px-5px-10px margin-bottom-5px">
-    <a href="@Url.Action("View", "Blog", new { id = Model.PublicId })" class="color-333333 font-size-40px font-Oswald">@Model.Title</a>
+    <a href="@Url.Action("View", "Blog", new { id = !string.IsNullOrEmpty(Model.PublicId) ? Model.PublicId : Model.BlogID.ToString() })"
+       class="color-333333 font-size-40px font-Oswald">@Model.Title</a>
   </div>
   <div class="background-color-antiquewhite color-333333 no-top-margin-for-children font-size-16px font-Roboto-Mono font-Roboto-Mono-all-children-elemetns">
     @Html.Raw(Model.ContentHtml)
