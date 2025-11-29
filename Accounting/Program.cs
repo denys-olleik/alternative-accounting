@@ -77,6 +77,7 @@ builder.Services.AddScoped<ExceptionService>();
 builder.Services.AddScoped<ClaimService>();
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddScoped<ReserveService>();
+builder.Services.AddScoped<FfmpegService>();
 
 ConfigurationSingleton.Instance.ApplicationName =
     !string.IsNullOrEmpty(builder.Configuration["Whitelabel"])

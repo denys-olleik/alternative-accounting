@@ -264,6 +264,9 @@ sudo systemctl restart postgresql
 # Install PostGIS
 sudo apt-get install -y postgis > /var/log/accounting/postgis-install.log 2>&1
 
+# Install FFmpeg for video processing
+sudo apt-get install -y ffmpeg > /var/log/accounting/ffmpeg-install.log 2>&1
+
 # Clone repository
 git clone https://github.com/denys-olleik/alternative-accounting /opt/accounting > /var/log/accounting/git-clone.log 2>&1
 git -C /opt/accounting config core.fileMode false

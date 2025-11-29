@@ -223,6 +223,20 @@ namespace Accounting.Controllers
               GetOrganizationId()!.Value,
               GetDatabaseName()
           );
+
+          //// combine perm path with file name
+          //string fullPath = Path.Combine(
+          //    ConfigurationSingleton.Instance.PermPath!,
+          //    GetDatabaseName(),
+          //    Path.GetFileName(blogAttachment.FilePath)
+          //);
+
+          //bool validMp4 = await _ffmpegService.CheckAsync(fullPath);
+
+          //if (validMp4)
+          //{
+          //  await _ffmpegService.ScheduleEncoderAsync(fullPath);
+          //}
         }
 
         scope.Complete();
