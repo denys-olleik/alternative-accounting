@@ -27,3 +27,67 @@
   </div>
   <button type="submit" class="full-width-regular-button">Update post</button>
 </form>
+
+<script>
+  const { createApp } = Vue;
+
+  const AttachmentAction = {
+      name: 'AttachmentAction',
+      props: ['attachment', 'isExpanded'],
+      template: '#attachment-action-template',
+      methods: {
+        toggleAction() {
+          this.$emit('expand');
+        },
+        removeAttachment() {
+          this.$emit('remove', this.attachment.blogAttachmentID);
+        }
+      }
+    };
+
+    const app = createApp({
+    components: {
+      'attachment-action': AttachmentAction,
+    },
+    data() {
+      return {
+        attachments: @Html.Raw(Model?.Attachments != null ? Json.Serialize(Model.Attachments) : "[]"),
+        expandedAttachmentId: null,
+      };
+    },
+    methods: {
+      removeAttachment(id) {
+        this.attachments = this.attachments.filter(
+          attachment => attachment.blogAttachmentID !== id
+        );
+      },
+      uploadFile(event) {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        formData.append('formFile', file);
+        fetch('/api/blog-attachment/upload', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            this.attachments.push(data);
+            this.$refs.fileInput.value = '';
+          })
+          .catch(error => {
+            console.log('There was a problem with the fetch operation: ', error);
+          });
+      },
+      handleAttachmentExpand(id) {
+        this.expandedAttachmentId = this.expandedAttachmentId === id ? null : id;
+      },
+    }
+  });
+
+  app.mount('#app');
+</script>
