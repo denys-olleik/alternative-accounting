@@ -52,7 +52,9 @@
     data() {
       return {
         attachments: @Html.Raw(Model?.Attachments != null ? Json.Serialize(Model.Attachments) : "[]"),
+        deletedAttachmentIds: [],
         expandedAttachmentId: null,
+        newAttachmentsIds: []
       };
     },
     methods: {
