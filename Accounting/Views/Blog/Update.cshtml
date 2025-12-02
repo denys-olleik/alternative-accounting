@@ -11,7 +11,61 @@
 }
 <partial name="_H1HeaderPartial" model="@headerText" />
 
-<form asp-action="Update" asp-controller="Blog" method="post" class="display-flex flex-direction-column margin-bottom-5px">
+<template id="attachment-action-template">
+  <div class="display-flex padding-top-bottom-2px">
+    <div class="display-flex flex-direction-column flex-1">
+      <a href="#" @@click.prevent ="toggleAction" class="margin-right-5px">{{ attachment.fileName }}</a>
+      <span v-if="isExpanded" class="display-flex margin-left-2px margin-bottom-2px">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">options:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a :href="'/api/blog-attachment/download/' + attachment.blogAttachmentID"
+             class="font-size-16px font-Roboto color-white text-decoration-none"
+             download>download</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a href="#"
+             @@click.prevent ="$emit('remove', attachment.blogAttachmentID)"
+             class="font-size-16px font-Roboto color-white text-decoration-none">remove</a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+      <span v-if="isExpanded" class="display-flex margin-left-2px">
+        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
+          <div class="flex-1"></div>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">ffmpeg:</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a href="#" @@click.prevent ="$emit('ffmpeg-mp3', attachment.blogAttachmentID)"
+             class="font-size-16px font-Roboto text-decoration-none color-forestgreen">mp3</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a href="#" @@click.prevent ="$emit('ffmpeg-720p', attachment.blogAttachmentID)"
+             class="font-size-16px font-Roboto text-decoration-none color-forestgreen">720p</a>
+          <div class="flex-1"></div>
+        </div>
+        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
+          <div class="flex-1"></div>
+          <a href="#" @@click.prevent ="$emit('ffmpeg-original', attachment.blogAttachmentID)"
+             class="font-size-16px font-Roboto text-decoration-none color-forestgreen">original</a>
+          <div class="flex-1"></div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>
+
+<form id="app" asp-action="Update" asp-controller="Blog" method="post" class="display-flex flex-direction-column margin-bottom-5px">
   <input type="hidden" asp-for="BlogID" />
   <div class="display-flex flex-direction-column margin-bottom-5px">
     <label asp-for="Title" class="background-color-antiquewhite"></label>
@@ -25,6 +79,35 @@
       <label asp-for="Public">public</label>
     </span>
   </div>
+
+  <!-- Attachments section -->
+  <div class="display-flex margin-bottom-5px">
+    <div class="flex-1 padding-5px background-color-antiquewhite">
+      <input type="file" @@change ="uploadFile" ref="fileInput" />
+    </div>
+  </div>
+
+  <table class="border-collapse width-100 margin-bottom-5px background-color-antiquewhite">
+    <thead class="border-bottom-1px-solid-1a3b56 font-Roboto">
+      <tr>
+        <th class="text-align-left width-1px padding-right-20px">File name</th>
+      </tr>
+    </thead>
+    <tbody class="font-Roboto-Mono">
+      <tr v-for="attachment in attachments" :key="attachment.blogAttachmentID">
+        <td class="padding-right-20px white-space-nowrap">
+          <attachment-action :attachment="attachment"
+                             :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
+                             @@expand ="handleAttachmentExpand(attachment.blogAttachmentID)"
+                             @@remove ="removeAttachment"></attachment-action>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <input type="hidden" name="DeletedAttachmentIdsCsv" :value="deletedAttachmentIds.join(',')" />
+  <input type="hidden" name="NewAttachmentIdsCsv" :value="newAttachmentIds.join(',')" />
+
   <button type="submit" class="full-width-regular-button">Update post</button>
 </form>
 
@@ -32,20 +115,20 @@
   const { createApp } = Vue;
 
   const AttachmentAction = {
-      name: 'AttachmentAction',
-      props: ['attachment', 'isExpanded'],
-      template: '#attachment-action-template',
-      methods: {
-        toggleAction() {
-          this.$emit('expand');
-        },
-        removeAttachment() {
-          this.$emit('remove', this.attachment.blogAttachmentID);
-        }
+    name: 'AttachmentAction',
+    props: ['attachment', 'isExpanded'],
+    template: '#attachment-action-template',
+    methods: {
+      toggleAction() {
+        this.$emit('expand');
+      },
+      removeAttachment() {
+        this.$emit('remove', this.attachment.blogAttachmentID);
       }
-    };
+    }
+  };
 
-    const app = createApp({
+  const app = createApp({
     components: {
       'attachment-action': AttachmentAction,
     },
@@ -54,13 +137,22 @@
         attachments: @Html.Raw(Model?.Attachments != null ? Json.Serialize(Model.Attachments) : "[]"),
         deletedAttachmentIds: [],
         expandedAttachmentId: null,
-        newAttachmentsIds: []
+        newAttachmentIds: []
       };
     },
     methods: {
       removeAttachment(id) {
+        // Add to deletedAttachmentIds if not already present
+        if (!this.deletedAttachmentIds.includes(id)) {
+          this.deletedAttachmentIds.push(id);
+        }
+        // Remove from attachments list
         this.attachments = this.attachments.filter(
           attachment => attachment.blogAttachmentID !== id
+        );
+        // Also remove from newAttachmentIds if it was just uploaded and then deleted
+        this.newAttachmentIds = this.newAttachmentIds.filter(
+          newId => newId !== id
         );
       },
       uploadFile(event) {
@@ -79,6 +171,7 @@
           })
           .then(data => {
             this.attachments.push(data);
+            this.newAttachmentIds.push(data.blogAttachmentID);
             this.$refs.fileInput.value = '';
           })
           .catch(error => {
