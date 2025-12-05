@@ -1,7 +1,9 @@
 ﻿using Accounting.Business;
 using Accounting.Common;
 using Accounting.CustomAttributes;
+using Accounting.Models;
 using Accounting.Models.BlogViewModels;
+using Accounting.Models.InvoiceViewModels;
 using Accounting.Service;
 using Ganss.Xss;
 using Markdig;
@@ -46,7 +48,19 @@ namespace Accounting.Controllers
         BlogID = blog.BlogID,
         Title = blog.Title,
         Content = blog.Content,
-        Public = !string.IsNullOrEmpty(blog.PublicId)
+        Public = !string.IsNullOrEmpty(blog.PublicId),
+        //Attachments = (await _invoiceAttachmentService.GetAllAsync(invoice.InvoiceID, GetOrganizationId()!.Value))
+        //  .Select(a => new ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel
+        //  {
+        //    InvoiceAttachmentID = a.InvoiceAttachmentID,
+        //    FileName = a.OriginalFileName
+        //  }).ToList(),
+        Attachments = (await _blogAttachmentService.GetAllAsync(new[] { blogID }, GetOrganizationId()!.Value))
+          .Select(a => (IAttachmentViewModel)new BlogAttachmentViewModel
+          {
+            BlogAttachmentID = a.BlogAttachmentID,
+            FileName = a.OriginalFileName
+          }).ToList()
       };
 
       return View(updateBlogViewModel);

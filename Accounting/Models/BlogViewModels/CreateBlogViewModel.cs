@@ -26,10 +26,10 @@ namespace Accounting.Models.BlogViewModels
       }
     }
 
-    public class BlogAttachmentViewModel
-    {
-      public int BlogAttachmentID { get; set; }
-      public string? FileName { get; set; }
-    }
+    //public class BlogAttachmentViewModel
+    //{
+    //  public int BlogAttachmentID { get; set; }
+    //  public string? FileName { get; set; }
+    //}
   }
 }

@@ -1,6 +1,7 @@
 ﻿using Accounting.Business;
 using Accounting.Common;
 using Accounting.CustomAttributes;
+using Accounting.Models;
 using Accounting.Models.Account;
 using Accounting.Models.AddressViewModels;
 using Accounting.Models.BusinessEntityViewModels;
@@ -357,7 +358,7 @@ namespace Accounting.Controllers
         InvoiceStatuses = Invoice.InvoiceStatusConstants.All.ToList(),
         ProductsAndServices = await GetAllProductsAndServices(GetOrganizationId()!.Value),
         Attachments = (await _invoiceAttachmentService.GetAllAsync(invoice.InvoiceID, GetOrganizationId()!.Value))
-          .Select(a => new ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel
+          .Select(a => (IAttachmentViewModel)new InvoiceAttachmentViewModel
           {
             InvoiceAttachmentID = a.InvoiceAttachmentID,
             FileName = a.OriginalFileName

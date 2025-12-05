@@ -1,5 +1,4 @@
-﻿using Accounting.Models.InvoiceViewModels;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Results;
 
 namespace Accounting.Models.BlogViewModels
@@ -15,7 +14,7 @@ namespace Accounting.Models.BlogViewModels
     #region ISupportsAttachments
     public string? DeletedAttachmentIdsCsv { get; set; }
     public string? NewAttachmentIdsCsv { get; set; }
-    public List<ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel> Attachments { get; set; } = new();
+    public List<IAttachmentViewModel> Attachments { get; set; } = new();
     #endregion
 
     public class UpdateBlogViewModelValidator : AbstractValidator<UpdateBlogViewModel>

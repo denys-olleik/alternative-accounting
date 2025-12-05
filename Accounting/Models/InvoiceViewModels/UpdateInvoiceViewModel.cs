@@ -34,7 +34,7 @@ namespace Accounting.Models.InvoiceViewModels
     #region ISupportsAttachments
     public string? DeletedAttachmentIdsCsv { get; set; }
     public string? NewAttachmentIdsCsv { get; set; }
-    public List<ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel> Attachments { get; set; } = new ();
+    public List<IAttachmentViewModel> Attachments { get; set; } = new ();
     #endregion
   }
 }
