@@ -85,7 +85,7 @@
     <div class="flex-1 background-color-A62626 text-align-center">
       <a href="https://github.com/denys-olleik/alternative-accounting" class="font-Oswald color-white font-size-40px">source</a>
     </div>
-     <div class="width-5px"></div>
+    <div class="width-5px"></div>
     <div class="flex-1 background-color-A62626 text-align-center">
       <a asp-action="Register" asp-controller="Registration" class="font-Oswald color-white font-size-40px">demo</a>
     </div>
@@ -101,129 +101,136 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-  <div class="background-color-antiquewhite">
-    <ul class="margin-0">
-      <li>
-        <a href="@Url.Action("Reserve", "Reserve")">Reserves 🟨</a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Deposit", "Reserve")">Deposit 🟨</a>
-          </li>
-          <li>
-            <a href="@Url.Action("Withdraw", "Reserve")">Withdraw 🟧</a>
-          </li>
-          <li>
-            <a href="@Url.Action("Withdraw", "Reserve")">Monetizations 🟧</a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Journal", "Journal")">Journal 🟨</a>
-      </li>
-      <li>
-        <a href="@Url.Action("Update", "Organization")">Organization 🟩</a>
-      </li>
-      <li>
-        <a href="@Url.Action("Users", "User")">Users 🟩 </a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "User")">Create user 🟩 </a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Tasks", "Task")">Project management 🟧</a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Task")">Create task 🟧</a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Invoices", "Invoice")">Invoices 🟩 </a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Invoice")">Create invoice 🟩 </a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Customers", "Customer")">Customers and vendors 🟩 </a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Customer")">Create customer and or vendor 🟩 </a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("PaymentTerms", "PaymentTerm")">Payment terms 🟩 </a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "PaymentTerm")">Create payment term 🟩 </a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Taxes", "Tax")">Taxes 🟧</a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Tax")">Create tax 🟧</a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Items", "Item")">Items 🟨</a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Item")">Create item 🟧</a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Locations", "Location")">Locations 🟧</a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Location")">Create location 🟩</a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Reconciliations", "Reconciliation")">Reconciliations 🟩</a>
-      </li>
-      <li>
-        <a href="@Url.Action("Accounts", "Account")">Accounts 🟩</a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Account")">Create account 🟩</a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Blogs", "Blog")">Blog 🟩 </a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Create", "Blog")">Create post 🟨</a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("Tenants", "Tenant")">Tenants 🟩 </a>
-        <ul>
-          <li>
-            <a href="@Url.Action("Secrets", "Secret")">Secrets 🟩 </a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="@Url.Action("UpdatePassword", "User")">Update password 🟩</a>
-      </li>
-      <li>
-        <a href="@Url.Action("RequestLogs", "Diagnostics")">Request logs 🟩</a>
-      </li>
-      <li>
-        <a href="@Url.Action("Exceptions", "Diagnostics")">Exceptions 🟩</a>
-      </li>
-    </ul>
+  <div class="display-flex background-color-antiquewhite">
+    <div class="flex-1 margin-0">
+      <ul class="margin-0">
+        <li>
+          <a href="@Url.Action("Reserve", "Reserve")">Reserves 🟨</a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Deposit", "Reserve")">Deposit 🟨</a>
+            </li>
+            <li>
+              <a href="@Url.Action("Withdraw", "Reserve")">Withdraw 🟧</a>
+            </li>
+            <li>
+              <a href="@Url.Action("Withdraw", "Reserve")">Monetizations 🟧</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Journal", "Journal")">Journal 🟨</a>
+        </li>
+        <li>
+          <a href="@Url.Action("Update", "Organization")">Organization 🟩</a>
+        </li>
+        <li>
+          <a href="@Url.Action("Users", "User")">Users 🟩 </a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "User")">Create user 🟩 </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Tasks", "Task")">Project management 🟧</a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Task")">Create task 🟧</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Invoices", "Invoice")">Invoices 🟩 </a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Invoice")">Create invoice 🟩 </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Customers", "Customer")">Customers and vendors 🟩 </a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Customer")">Create customer and or vendor 🟩 </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("PaymentTerms", "PaymentTerm")">Payment terms 🟩 </a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "PaymentTerm")">Create payment term 🟩 </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div class="width-5px"></div>
+    <div class="flex-1 margin-0">
+      <ul class="margin-0">
+        <li>
+          <a href="@Url.Action("Taxes", "Tax")">Taxes 🟧</a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Tax")">Create tax 🟧</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Items", "Item")">Items 🟨</a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Item")">Create item 🟧</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Locations", "Location")">Locations 🟧</a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Location")">Create location 🟩</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Reconciliations", "Reconciliation")">Reconciliations 🟩</a>
+        </li>
+        <li>
+          <a href="@Url.Action("Accounts", "Account")">Accounts 🟩</a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Account")">Create account 🟩</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Blogs", "Blog")">Blog 🟩 </a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Create", "Blog")">Create post 🟨</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("Tenants", "Tenant")">Tenants 🟩 </a>
+          <ul>
+            <li>
+              <a href="@Url.Action("Secrets", "Secret")">Secrets 🟩 </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="@Url.Action("UpdatePassword", "User")">Update password 🟩</a>
+        </li>
+        <li>
+          <a href="@Url.Action("RequestLogs", "Diagnostics")">Request logs 🟩</a>
+        </li>
+        <li>
+          <a href="@Url.Action("Exceptions", "Diagnostics")">Exceptions 🟩</a>
+        </li>
+      </ul>
+    </div>
   </div>
 }
 
