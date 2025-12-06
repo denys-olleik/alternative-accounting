@@ -101,8 +101,8 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-  <div class="display-flex background-color-antiquewhite">
-    <div class="flex-1 margin-0">
+  <div class="display-flex">
+    <div class="flex-1 margin-0 background-color-antiquewhite">
       <ul class="margin-0">
         <li>
           <a href="@Url.Action("Reserve", "Reserve")">Reserves 🟨</a>
@@ -167,7 +167,7 @@
       </ul>
     </div>
     <div class="width-5px"></div>
-    <div class="flex-1 margin-0">
+    <div class="flex-1 margin-0 background-color-antiquewhite">
       <ul class="margin-0">
         <li>
           <a href="@Url.Action("Taxes", "Tax")">Taxes 🟧</a>
