@@ -8,11 +8,11 @@ namespace Accounting.Controllers
   [AuthorizeWithOrganizationId]
   [ApiController]
   [Route("api/blog-attachment")]
-  public class BlogAttachmentController : BaseController
+  public class BlogAttachmentApiController : BaseController
   {
     private readonly BlogAttachmentService _blogAttachmentService;
 
-    public BlogAttachmentController(
+    public BlogAttachmentApiController(
       RequestContext requestContext)
     {
       _blogAttachmentService = new BlogAttachmentService(
