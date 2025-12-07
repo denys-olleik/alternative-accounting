@@ -44,19 +44,19 @@
         </div>
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
-          <a href="#" @@click.prevent ="$emit('ffmpeg-mp3', attachment.blogAttachmentID)"
+          <a href="#" @@click.prevent="$emit('schedule-mp3', attachment.blogAttachmentID)"
              class="font-size-16px font-Roboto text-decoration-none color-forestgreen">mp3</a>
           <div class="flex-1"></div>
         </div>
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
-          <a href="#" @@click.prevent ="$emit('ffmpeg-720p', attachment.blogAttachmentID)"
+          <a href="#" @@click.prevent="$emit('schedule-720', attachment.blogAttachmentID)"
              class="font-size-16px font-Roboto text-decoration-none color-forestgreen">720p</a>
           <div class="flex-1"></div>
         </div>
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
-          <a href="#" @@click.prevent ="$emit('ffmpeg-original', attachment.blogAttachmentID)"
+          <a href="#" @@click.prevent="$emit('schedule-original', attachment.blogAttachmentID)"
              class="font-size-16px font-Roboto text-decoration-none color-forestgreen">original</a>
           <div class="flex-1"></div>
         </div>
@@ -99,7 +99,10 @@
           <attachment-action :attachment="attachment"
                              :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
                              @@expand ="handleAttachmentExpand(attachment.blogAttachmentID)"
-                             @@remove ="removeAttachment"></attachment-action>
+                             @@remove ="removeAttachment"
+                             @@schedule-mp3="scheduleMp3"
+                             @@schedule-720="schedule720"
+                             @@schedule-original="scheduleOriginal"></attachment-action>
         </td>
       </tr>
     </tbody>
@@ -141,6 +144,15 @@
       };
     },
     methods: {
+      scheduleMp3(id) {
+        console.log('scheduleMp3', id);
+      },
+      schedule720(id) {
+        console.log('schedule720', id);
+      },
+      scheduleOriginal(id) {
+        console.log('scheduleOriginal', id);
+      },
       removeAttachment(id) {
         // Add to deletedAttachmentIds if not already present
         if (!this.deletedAttachmentIds.includes(id)) {

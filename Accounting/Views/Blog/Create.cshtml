@@ -28,31 +28,6 @@
           <div class="flex-1"></div>
         </div>
       </span>
-      <span v-if="isExpanded" class="display-flex margin-left-2px">
-        <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
-          <div class="flex-1"></div>
-          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">ffmpeg:</a>
-          <div class="flex-1"></div>
-        </div>
-        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
-          <div class="flex-1"></div>
-          <a href="#" @@click.prevent="$emit('schedule-mp3', attachment.blogAttachmentID)"
-             class="font-size-16px font-Roboto color-white text-decoration-none">mp3</a>
-          <div class="flex-1"></div>
-        </div>
-        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
-          <div class="flex-1"></div>
-          <a href="#" @@click.prevent="$emit('schedule-720', attachment.blogAttachmentID)"
-             class="font-size-16px font-Roboto color-white text-decoration-none">720p</a>
-          <div class="flex-1"></div>
-        </div>
-        <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
-          <div class="flex-1"></div>
-          <a href="#" @@click.prevent="$emit('schedule-original', attachment.blogAttachmentID)"
-             class="font-size-16px font-Roboto color-white text-decoration-none">original</a>
-          <div class="flex-1"></div>
-        </div>
-      </span>
     </div>
   </div>
 </template>
@@ -89,10 +64,7 @@
           <attachment-action :attachment="attachment"
                              :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
                              @@expand="handleAttachmentExpand(attachment.blogAttachmentID)"
-                             @@remove="removeAttachment"
-                             @@schedule-mp3="scheduleMp3"
-                             @@schedule-720="schedule720"
-                             @@schedule-original="scheduleOriginal"></attachment-action>
+                             @@remove="removeAttachment"></attachment-action>
         </td>
       </tr>
     </tbody>
@@ -167,15 +139,6 @@
       },
       handleAttachmentExpand(id) {
         this.expandedAttachmentId = this.expandedAttachmentId === id ? null : id;
-      },
-      scheduleMp3(id) {
-        console.log('scheduleMp3', id);
-      },
-      schedule720(id) {
-        console.log('schedule720', id);
-      },
-      scheduleOriginal(id) {
-        console.log('scheduleOriginal', id);
       },
     }
   });
