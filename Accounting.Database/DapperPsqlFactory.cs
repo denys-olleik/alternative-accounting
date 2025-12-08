@@ -9078,9 +9078,22 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public System.Threading.Tasks.Task DeleteAsync(int blogAttachmentID, int blogID, int organizationId)
+      public async Task<int> DeleteAsync(int blogAttachmentID, int blogID, int organizationId)
       {
-        throw new NotImplementedException();
+        const string sql = """
+          DELETE FROM "BlogAttachment"
+          WHERE "BlogAttachmentID" = @BlogAttachmentID
+            AND "BlogId" = @BlogId
+            AND "OrganizationId" = @OrganizationId;
+          """;
+
+        var p = new DynamicParameters();
+        p.Add("@BlogAttachmentID", blogAttachmentID);
+        p.Add("@BlogId", blogID);
+        p.Add("@OrganizationId", organizationId);
+
+        using var con = new NpgsqlConnection(_connectionString);
+        return await con.ExecuteAsync(sql, p);
       }
 
       public BlogAttachment Get(int id)

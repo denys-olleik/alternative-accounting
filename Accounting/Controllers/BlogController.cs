@@ -119,6 +119,8 @@ namespace Accounting.Controllers
         }
 
         await _blogService.UpdateAsync(blog);
+
+        scope.Complete();
       }
       
       return RedirectToAction("Blogs");
