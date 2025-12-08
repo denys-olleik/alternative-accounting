@@ -14,7 +14,9 @@
 <template id="attachment-action-template">
   <div class="display-flex padding-top-bottom-2px">
     <div class="display-flex flex-direction-column flex-1">
-      <a href="#" @@click.prevent ="toggleAction" class="margin-right-5px">{{ attachment.fileName }}</a>
+      <a href="#" @@click.prevent="toggleAction" class="margin-right-5px">{{ attachment.fileName }}</a>
+
+      <!-- General options (always shown when expanded) -->
       <span v-if="isExpanded" class="display-flex margin-left-2px margin-bottom-2px">
         <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
           <div class="flex-1"></div>
@@ -30,13 +32,16 @@
         </div>
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
-          <a href="#"
-             @@click.prevent ="$emit('remove', attachment.blogAttachmentID)"
+          <a href="#" @@click.prevent="$emit('remove', attachment.blogAttachmentID)"
              class="font-size-16px font-Roboto color-white text-decoration-none">remove</a>
           <div class="flex-1"></div>
         </div>
       </span>
-      <span v-if="isExpanded" class="display-flex margin-left-2px">
+
+      <!-- mp4 ffmpeg options: only show when expanded AND file is .mp4 -->
+      <span v-if="isExpanded && attachment.fileName &&
+               attachment.fileName.toLowerCase().endsWith('.mp4')"
+            class="display-flex margin-left-2px">
         <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
           <div class="flex-1"></div>
           <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">mp4 ffmpeg:</a>
@@ -83,7 +88,7 @@
   <!-- Attachments section -->
   <div class="display-flex margin-bottom-5px">
     <div class="flex-1 padding-5px background-color-antiquewhite">
-      <input type="file" @@change ="uploadFile" ref="fileInput" />
+      <input type="file" @@change="uploadFile" ref="fileInput" />
     </div>
   </div>
 
@@ -98,8 +103,8 @@
         <td class="padding-right-20px white-space-nowrap">
           <attachment-action :attachment="attachment"
                              :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
-                             @@expand ="handleAttachmentExpand(attachment.blogAttachmentID)"
-                             @@remove ="removeAttachment"
+                             @@expand="handleAttachmentExpand(attachment.blogAttachmentID)"
+                             @@remove="removeAttachment"
                              @@schedule-mp3="scheduleMp3"
                              @@schedule-720="schedule720"
                              @@schedule-original="scheduleOriginal"></attachment-action>
