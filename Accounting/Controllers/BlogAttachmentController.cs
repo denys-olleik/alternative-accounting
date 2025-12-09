@@ -50,13 +50,19 @@ namespace Accounting.Controllers
         return BadRequest();
       }
 
-      // Determine expected on-disk variant path for this encoder option
-      string baseDirectory = ConfigurationSingleton.Instance.PermPath!;
-      string path = blogAttachment.FilePath;              // e.g. "{random}.mp4"
-      string? encoderOption = request.EncoderOption;            // "mp3", "720p", "original"
+      string? encoderOption = request.EncoderOption; // "mp3", "720p", "original"
+      if (string.IsNullOrWhiteSpace(encoderOption))
+      {
+        return BadRequest();
+      }
 
-      string expectedFileName = $"{encoderOption}.{path}"; // e.g. "mp3.{random}.mp4"
-      string expectedPath = Path.Combine(baseDirectory, expectedFileName);
+      // FilePath is already an absolute path on disk; derive variant path from it
+      string filePath = blogAttachment.FilePath;                     // e.g. "/var/accounting/attachments/Accounting/{random}.mp4"
+      string? directoryPart = Path.GetDirectoryName(filePath);
+      string fileNameOnly = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
+      string variantFileName = $"{encoderOption}.{fileNameOnly}";    // e.g. "mp3.{random}.mp4"
+
+      string expectedPath = Path.Combine(directoryPart, variantFileName);
 
       // 1. Check if variant already exists on disk
       if (System.IO.File.Exists(expectedPath))
