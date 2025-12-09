@@ -43,7 +43,7 @@ namespace Accounting.Controllers
     public async Task<IActionResult> Tasks()
     {
       TasksPaginatedViewModel vm = new TasksPaginatedViewModel();
-      vm.AvailableStatuses = Business.Task.TaskStatuses.All.ToList();
+      vm.AvailableStatuses = Business.Task.TaskStatusConstants.All.ToList();
 
       return View(vm);
     }
@@ -53,7 +53,7 @@ namespace Accounting.Controllers
     public async Task<IActionResult> TasksRev()
     {
       TasksPaginatedViewModel vm = new ();
-      vm.AvailableStatuses = Business.Task.TaskStatuses.All.ToList();
+      vm.AvailableStatuses = Business.Task.TaskStatusConstants.All.ToList();
       return View("Tasks", vm);
     }
 
@@ -82,7 +82,7 @@ namespace Accounting.Controllers
         HtmlContent = toDo.Content
       } : null;
 
-      createToDoViewModel.ToDoStatuses = Business.Task.TaskStatuses.All.Select(s => s.ToLower()).ToList();
+      createToDoViewModel.ToDoStatuses = Business.Task.TaskStatusConstants.All.Select(s => s.ToLower()).ToList();
 
       return View(createToDoViewModel);
     }
@@ -122,7 +122,7 @@ namespace Accounting.Controllers
         }
 
         model.ParentToDoId = model.ParentToDoId;
-        model.ToDoStatuses = Business.Task.TaskStatuses.All.Select(s => s.ToLower()).ToList();
+        model.ToDoStatuses = Business.Task.TaskStatusConstants.All.Select(s => s.ToLower()).ToList();
 
         model.Users = (await _userService.GetAllAsync(GetOrganizationId()!.Value)).Select(user => new UserViewModel
         {
@@ -143,7 +143,7 @@ namespace Accounting.Controllers
           Title = model.Title,
           Content = model.Content,
           ParentToDoId = model.ParentToDoId,
-          Status = Business.Task.TaskStatuses.Open,
+          Status = Business.Task.TaskStatusConstants.Open,
           CreatedById = GetUserId(),
           OrganizationId = GetOrganizationId()!.Value
         });

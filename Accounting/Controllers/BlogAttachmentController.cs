@@ -34,5 +34,19 @@ namespace Accounting.Controllers
 
       return Ok(new { BlogAttachmentID = blogAttachment.BlogAttachmentID, FileName = blogAttachment.OriginalFileName });
     }
+
+    //[HttpPost("{blogAttachmentId:int}/transcode")]
+    //public async Task<IActionResult> Transcode(int blogAttachmentId, BlogAttachmentTranscodeRequest request)
+    //{
+      //await _blogAttachmentService.ScheduleTranscodeAsync(
+        //blogAttachmentId,
+        //request.Target,
+        //GetUserId(),
+        //GetOrganizationId()!.Value,
+        //GetDatabaseName()
+      //);
+
+      //return Ok();
+    //}
   }
 }
