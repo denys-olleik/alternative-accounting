@@ -15,7 +15,7 @@ namespace Accounting.Business
 
     public int Identifiable => this.BlogAttachmentID;
 
-    public static class BlogAttachmentEncoderOptions
+    public static class EncoderOptions
     {
       public const string Mp3 = "mp3";
       public const string Video720p = "720p";
@@ -23,9 +23,9 @@ namespace Accounting.Business
 
       private static readonly List<string> _all = new List<string>();
 
-      static BlogAttachmentEncoderOptions()
+      static EncoderOptions()
       {
-        var fields = typeof(BlogAttachmentEncoderOptions)
+        var fields = typeof(EncoderOptions)
           .GetFields(
             BindingFlags.Public
             | BindingFlags.Static

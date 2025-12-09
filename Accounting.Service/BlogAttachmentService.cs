@@ -45,6 +45,12 @@ namespace Accounting.Service
       return await factoryManager.GetBlogAttachmentManager().GetAllAsync(ints, organizationId);
     }
 
+    public async Task<BlogAttachment> GetAsync(int blogAttachmentId, int organizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetBlogAttachmentManager().GetAsync(blogAttachmentId, organizationId);
+    }
+
     public async System.Threading.Tasks.Task MoveAndUpdateBlogAttachmentPathAsync(BlogAttachment attachment, string? permPath, int organizationId, string databaseName)
     {
       if (permPath == null)
@@ -62,6 +68,16 @@ namespace Accounting.Service
 
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       await factoryManager.GetBlogAttachmentManager().UpdateFilePathAsync(attachment.BlogAttachmentID, newPath, organizationId);
+    }
+
+    public async System.Threading.Tasks.Task ScheduleTranscodeAsync(
+      int blogAttachmentId, 
+      string encoderOption, 
+      int userId, 
+      int organizationId, 
+      string databaseName)
+    {
+      throw new NotImplementedException();
     }
 
     public async Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId)

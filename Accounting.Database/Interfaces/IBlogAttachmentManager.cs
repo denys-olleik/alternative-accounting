@@ -6,6 +6,7 @@ namespace Accounting.Database.Interfaces
   {
     Task<int> DeleteAsync(int blogAttachmentID, int blogID, int organizationId);
     Task<IEnumerable<BlogAttachment>> GetAllAsync(int[] ids, int organizationId);
+    Task<BlogAttachment> GetAsync(int blogAttachmentId, int organizationId);
     Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId);
     Task<int> UpdateFilePathAsync(int blogAttachmentID, string newPath, int organizationId);
   }

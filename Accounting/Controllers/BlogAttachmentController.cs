@@ -1,5 +1,6 @@
 ﻿using Accounting.Business;
 using Accounting.CustomAttributes;
+using Accounting.Models.BlogAttachmentViewModels;
 using Accounting.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,18 +36,27 @@ namespace Accounting.Controllers
       return Ok(new { BlogAttachmentID = blogAttachment.BlogAttachmentID, FileName = blogAttachment.OriginalFileName });
     }
 
-    //[HttpPost("{blogAttachmentId:int}/transcode")]
-    //public async Task<IActionResult> Transcode(int blogAttachmentId, BlogAttachmentTranscodeRequest request)
-    //{
-      //await _blogAttachmentService.ScheduleTranscodeAsync(
-        //blogAttachmentId,
-        //request.Target,
-        //GetUserId(),
-        //GetOrganizationId()!.Value,
-        //GetDatabaseName()
-      //);
+    [HttpPost("schedule-transcode/{blogAttachmentId:int}")]
+    public async Task<IActionResult> ScheduleTranscode(int blogAttachmentId, BlogAttachmentTranscodeRequest request)
+    {
+      BlogAttachment blogAttachment = await _blogAttachmentService.GetAsync(blogAttachmentId, GetOrganizationId()!.Value);
 
-      //return Ok();
-    //}
+      if (blogAttachment is null)
+      {
+        return BadRequest();
+      }
+
+
+
+      await _blogAttachmentService.ScheduleTranscodeAsync(
+        blogAttachmentId,
+        request.EncoderOption,
+        GetUserId(),
+        GetOrganizationId()!.Value,
+        GetDatabaseName()
+      );
+
+      return Ok();
+    }
   }
 }

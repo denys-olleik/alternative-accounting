@@ -9126,6 +9126,27 @@ namespace Accounting.Database
         return await con.QueryAsync<BlogAttachment>(sql, p);
       }
 
+      public async Task<BlogAttachment> GetAsync(int blogAttachmentId, int organizationId)
+      {
+        DynamicParameters p = new();
+        p.Add("@BlogAttachmentID", blogAttachmentId);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<BlogAttachment> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<BlogAttachment>("""
+            SELECT * 
+            FROM "BlogAttachment" 
+            WHERE "BlogAttachmentID" = @BlogAttachmentID
+            AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return result.SingleOrDefault();
+      }
+
       public int Update(BlogAttachment entity)
       {
         throw new NotImplementedException();
