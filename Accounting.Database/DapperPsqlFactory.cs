@@ -6066,7 +6066,7 @@ namespace Accounting.Database
         string databaseName = $"{PrefixConstants.TenantDatabasePrefix}{tenantId}";
 
         NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(_connectionString);
-        builder.Database = DatabaseThing.DatabaseConstants.DatabaseNameAdmin;
+        builder.Database = DatabaseThing.DatabaseConstants.DatabaseAdminName;
         //builder.Password = ConfigurationSingleton.Instance.DatabasePassword;
 
         using (var con = new NpgsqlConnection(builder.ConnectionString))
@@ -6112,7 +6112,7 @@ namespace Accounting.Database
         string sanitizedDbName = Regex.Replace(databaseName, @"[^a-zA-Z0-9_]", "");
 
         NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(_connectionString);
-        builder.Database = DatabaseThing.DatabaseConstants.DatabaseNameAdmin;
+        builder.Database = DatabaseThing.DatabaseConstants.DatabaseAdminName;
         builder.Password = ConfigurationSingleton.Instance.DatabasePassword;
 
         using (NpgsqlConnection con = new NpgsqlConnection(builder.ConnectionString))
@@ -6143,7 +6143,7 @@ namespace Accounting.Database
 
         //modify connection string to use admin database
         var builder = new NpgsqlConnectionStringBuilder(_connectionString);
-        builder.Database = DatabaseThing.DatabaseConstants.DatabaseNameAdmin;
+        builder.Database = DatabaseThing.DatabaseConstants.DatabaseAdminName;
         //builder.Password = ConfigurationSingleton.Instance.DatabasePassword;
 
         using (NpgsqlConnection con = new NpgsqlConnection(builder.ConnectionString))
@@ -6186,7 +6186,7 @@ namespace Accounting.Database
         }
 
         // Connect to admin DB to drop and recreate the target database
-        builder.Database = DatabaseThing.DatabaseConstants.DatabaseNameAdmin;
+        builder.Database = DatabaseThing.DatabaseConstants.DatabaseAdminName;
         builder.Password = password;
         string adminConnStr = builder.ConnectionString;
 

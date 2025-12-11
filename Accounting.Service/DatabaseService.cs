@@ -55,6 +55,9 @@ namespace Accounting.Service
       var managerFactory = new FactoryManager(null, _databasePassword);
       var tenantManager = managerFactory.GetTenantManager();
       await tenantManager.UpdateTenantDatabasePassword(tenantId, _databasePassword);
+
+      // Clear stale pooled connections after drop/restore
+      //Npgsql.NpgsqlConnection.ClearAllPools();
     }
   }
 }

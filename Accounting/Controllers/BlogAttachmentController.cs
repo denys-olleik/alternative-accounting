@@ -1,5 +1,4 @@
 ﻿using Accounting.Business;
-using Accounting.Common;
 using Accounting.CustomAttributes;
 using Accounting.Models.BlogAttachmentViewModels;
 using Accounting.Service;
@@ -57,7 +56,7 @@ namespace Accounting.Controllers
       }
 
       // FilePath is already an absolute path on disk; derive variant path from it
-      string filePath = blogAttachment.FilePath;                     // e.g. "/var/accounting/attachments/Accounting/{random}.mp4"
+      string filePath = blogAttachment.FilePath;                     
       string? directoryPart = Path.GetDirectoryName(filePath);
       string fileNameOnly = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
       string variantFileName = $"{encoderOption}.{fileNameOnly}";    // e.g. "mp3.{random}.mp4"

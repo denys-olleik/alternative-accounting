@@ -6,18 +6,18 @@ namespace Accounting.Business
   public class DatabaseThing : IIdentifiable<string>
   {
     public string? Name { get; set; }
-    public string? Owner { get; set; }
-    public string? Encoding { get; set; }
-    public string? Collation { get; set; }
-    public string? Ctype { get; set; }
-    public int ConnectionLimit { get; set; }
+    //public string? Owner { get; set; }
+    //public string? Encoding { get; set; }
+    //public string? Collation { get; set; }
+    //public string? Ctype { get; set; }
+    //public int ConnectionLimit { get; set; }
 
     public string Identifiable => this.Name!;
 
     public static class DatabaseConstants
     {
       public const string DatabaseName = "Accounting";
-      public const string DatabaseNameAdmin = "postgres";
+      public const string DatabaseAdminName = "postgres";
 
       private static readonly List<string> _all = new List<string>();
 
