@@ -70,13 +70,43 @@ namespace Accounting.Service
     }
 
     public async System.Threading.Tasks.Task ScheduleTranscodeAsync(
-      int blogAttachmentId, 
-      string encoderOption, 
-      int userId, 
-      int organizationId, 
+      int blogAttachmentId,
+      string encoderOption,
+      int userId,
+      int organizationId,
       string databaseName)
     {
-      throw new NotImplementedException();
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      var blogAttachmentManager = factoryManager.GetBlogAttachmentManager();
+      var attachment = await blogAttachmentManager.GetAsync(blogAttachmentId, organizationId);
+
+      if (attachment == null)
+      {
+        return; // silently do nothing
+      }
+
+      string fileNameOnly = Path.GetFileNameWithoutExtension(attachment.FilePath);
+
+      string permPath = ConfigurationSingleton.Instance.PermPath;
+      if (string.IsNullOrWhiteSpace(permPath))
+      {
+        return; // silently do nothing
+      }
+
+      string dbDirectory = Path.Combine(permPath, databaseName);
+      if (!Directory.Exists(dbDirectory))
+      {
+        Directory.CreateDirectory(dbDirectory);
+      }
+
+      string markerFileName = $"queued.{encoderOption}.{fileNameOnly}";
+      string markerFilePath = Path.Combine(dbDirectory, markerFileName);
+
+      // Single-line TODO placeholder; real ffmpeg command can replace this later
+      string todoLine =
+        $"TODO_FFMPEG blogAttachmentId={blogAttachmentId} path=\"{attachment.FilePath}\" encoder={encoderOption}";
+
+      System.IO.File.WriteAllText(markerFilePath, todoLine);
     }
 
     public async Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId)
