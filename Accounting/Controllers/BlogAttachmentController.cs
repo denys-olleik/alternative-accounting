@@ -1,4 +1,5 @@
 ﻿using Accounting.Business;
+using Accounting.Common;
 using Accounting.CustomAttributes;
 using Accounting.Models.BlogAttachmentViewModels;
 using Accounting.Service;
@@ -58,8 +59,8 @@ namespace Accounting.Controllers
       // FilePath is already an absolute path on disk; derive variant path from it
       string filePath = blogAttachment.FilePath;                     
       string? directoryPart = Path.GetDirectoryName(filePath);
-      string fileNameOnly = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
-      string variantFileName = $"{encoderOption}.{fileNameOnly}";    // e.g. "mp3.{random}.mp4"
+      string file = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
+      string variantFileName = $"{encoderOption}.{file}";    // e.g. "mp3.{random}.mp4"
 
       string expectedPath = Path.Combine(directoryPart, variantFileName);
 
@@ -72,7 +73,7 @@ namespace Accounting.Controllers
 
       // 2. (Stub) Check if an identical job is already queued or running
       // TODO: Replace with real lookup, e.g. _blogAttachmentService.HasActiveJobAsync(...)
-      bool alreadyQueued = false;
+      bool alreadyQueued = IsTranscodeAlreadyQueued( GetDatabaseName()!, encoderOption, Path.GetFileNameWithoutExtension(file));
       if (alreadyQueued)
       {
         // Job already enqueued/processing; don't enqueue duplicate
@@ -88,6 +89,16 @@ namespace Accounting.Controllers
       );
 
       return Ok();
+    }
+
+    private bool IsTranscodeAlreadyQueued(string databaseName, string encoderOption, string fileNameOnly)
+    {
+      // Marker file: {PermPath}/{databaseName}/queued.{encoderOption}.{fileNameOnly}
+      string permPath = ConfigurationSingleton.Instance.PermPath!;
+      string markerFileName = $"queued.{encoderOption}.{fileNameOnly}";
+      string markerFilePath = Path.Combine(permPath, databaseName, markerFileName);
+
+      return System.IO.File.Exists(markerFilePath);
     }
   }
 }
