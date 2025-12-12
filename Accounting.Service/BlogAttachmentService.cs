@@ -1,5 +1,4 @@
-﻿
-using Accounting.Business;
+﻿using Accounting.Business;
 using Accounting.Common;
 using Accounting.Database;
 
