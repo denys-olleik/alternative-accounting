@@ -9195,6 +9195,41 @@ namespace Accounting.Database
 
         return rowsAffected;
       }
+
+      public async Task<string?> UpdateTranscodeStatusAsync(int blogAttachmentId, string encoderOption, string state, int percent, int organizationId)
+      {
+        const string sql = """
+        UPDATE "BlogAttachment"
+        SET "TranscodeStatus" =
+          jsonb_set(
+            COALESCE("TranscodeStatus", '{}'::jsonb),
+            ARRAY[@EncoderOption],
+            jsonb_build_object(
+              'state', @State,
+              'percent', @Percent
+            ),
+            true
+          )
+        WHERE "BlogAttachmentID" = @BlogAttachmentID
+          AND "OrganizationId" = @OrganizationId
+          AND (
+            "TranscodeStatus" IS NULL
+            OR NOT ("TranscodeStatus" ? @EncoderOption)
+            OR COALESCE(("TranscodeStatus" -> @EncoderOption ->> 'state'), 'none') = 'none'
+          )
+        RETURNING "TranscodeStatus"::text;
+        """;
+
+        var p = new DynamicParameters();
+        p.Add("@BlogAttachmentID", blogAttachmentId);
+        p.Add("@OrganizationId", organizationId);
+        p.Add("@EncoderOption", encoderOption);
+        p.Add("@State", state);
+        p.Add("@Percent", percent);
+
+        using var con = new NpgsqlConnection(_connectionString);
+        return await con.QuerySingleOrDefaultAsync<string>(sql, p);
+      }
     }
 
     public IWalletManager GetWalletManager()
