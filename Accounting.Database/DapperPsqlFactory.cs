@@ -9196,7 +9196,12 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
-      public async Task<string?> UpdateTranscodeStatusAsync(int blogAttachmentId, string encoderOption, string state, int percent, int organizationId)
+      public async Task<string?> UpdateTranscodeStatusAsync(
+        int blogAttachmentId,
+        string encoderOption,
+        string state,
+        int percent,
+        int organizationId)
       {
         const string sql = """
         UPDATE "BlogAttachment"
@@ -9212,11 +9217,6 @@ namespace Accounting.Database
           )
         WHERE "BlogAttachmentID" = @BlogAttachmentID
           AND "OrganizationId" = @OrganizationId
-          AND (
-            "TranscodeStatus" IS NULL
-            OR NOT ("TranscodeStatus" ? @EncoderOption)
-            OR COALESCE(("TranscodeStatus" -> @EncoderOption ->> 'state'), 'none') = 'none'
-          )
         RETURNING "TranscodeStatus"::text;
         """;
 
