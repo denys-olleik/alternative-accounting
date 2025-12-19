@@ -685,7 +685,7 @@ CREATE TABLE "BlogAttachment"
 	"BlogId" INT NULL,
 	"OriginalFileName" VARCHAR(255) NOT NULL,
 	"FilePath" VARCHAR(1000) NOT NULL,
-	"TranscodeStatus" JSONB NOT NULL DEFAULT '{}'::jsonb,
+	"TranscodeStatusJSONB" JSONB NOT NULL DEFAULT '{}'::jsonb,
 	"Created" TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
 	"CreatedById" INT NOT NULL,
 	"OrganizationId" INT NULL,

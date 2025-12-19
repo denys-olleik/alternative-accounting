@@ -9,6 +9,8 @@ namespace Accounting.Business
     public int BlogId { get; set; }
     public string OriginalFileName { get; set; }
     public string FilePath { get; set; }
+    public string TranscodeStatusJSONB { get; set; }
+    public TranscodeStatus TranscodeStatus { get; set; }
     public DateTime Created { get; set; }
     public int CreatedById { get; set; }
     public int OrganizationId { get; set; }
@@ -71,5 +73,11 @@ namespace Accounting.Business
 
       public static IReadOnlyList<string> All => _all.AsReadOnly();
     }
+  }
+
+  public class TranscodeStatus
+  {
+    public string State { get; set; }
+    public int Percent { get; set; }
   }
 }
