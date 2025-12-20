@@ -26,9 +26,9 @@
 
 * Accounts
 * Journal
-  * Double-entry
-  * Forward-only
-* Transaction
+  * debit/credit
+  * forward-only
+* Operational transaction
 
 ### Journal, Chart of Accounts, and Transactions
 
