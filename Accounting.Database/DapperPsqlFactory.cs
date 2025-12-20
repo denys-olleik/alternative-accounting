@@ -9147,6 +9147,28 @@ namespace Accounting.Database
         return result.SingleOrDefault();
       }
 
+      public async Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentId, int organizationId)
+      {
+        const string sql = """
+          SELECT "TranscodeStatusJSONB"::text
+          FROM "BlogAttachment"
+          WHERE "BlogAttachmentID" = @BlogAttachmentID
+            AND "OrganizationId" = @OrganizationId
+          """;
+
+        var p = new DynamicParameters();
+        p.Add("@BlogAttachmentID", blogAttachmentId);
+        p.Add("@OrganizationId", organizationId);
+
+        using var con = new NpgsqlConnection(_connectionString);
+
+        var json = await con.QuerySingleOrDefaultAsync<string>(sql, p);
+
+        return string.IsNullOrWhiteSpace(json)
+          ? null!
+          : new TranscodeStatus { State = json, Percent = 0 };
+      }
+
       public int Update(BlogAttachment entity)
       {
         throw new NotImplementedException();
@@ -9196,7 +9218,7 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
-      public async Task<string?> UpdateTranscodeStatusAsync(
+      public async Task<string?> UpdateTranscodeStatusJSONBAsync(
         int blogAttachmentId,
         string encoderOption,
         string state,

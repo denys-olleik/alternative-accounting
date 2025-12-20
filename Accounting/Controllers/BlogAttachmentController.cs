@@ -50,6 +50,10 @@ namespace Accounting.Controllers
         return BadRequest();
       }
 
+      blogAttachment.TranscodeStatus = await _blogAttachmentService.GetTranscodeStatusAsync(blogAttachment.BlogAttachmentID, GetOrganizationId()!.Value);
+
+      throw new NotImplementedException();
+
       string? encoderOption = request.EncoderOption; // "mp3", "720p", "original"
       if (string.IsNullOrWhiteSpace(encoderOption))
       {
