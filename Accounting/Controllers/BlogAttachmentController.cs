@@ -52,57 +52,52 @@ namespace Accounting.Controllers
 
       blogAttachment.TranscodeStatus = await _blogAttachmentService.GetTranscodeStatusAsync(blogAttachment.BlogAttachmentID, GetOrganizationId()!.Value);
 
-      throw new NotImplementedException();
-
       string? encoderOption = request.EncoderOption; // "mp3", "720p", "original"
       if (string.IsNullOrWhiteSpace(encoderOption))
       {
         return BadRequest();
       }
 
-      // FilePath is already an absolute path on disk; derive variant path from it
-      string filePath = blogAttachment.FilePath;                     
-      string? directoryPart = Path.GetDirectoryName(filePath);
-      string file = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
-      string variantFileName = $"{encoderOption}.{file}";    // e.g. "mp3.{random}.mp4"
-
-      string expectedPath = Path.Combine(directoryPart, variantFileName);
+      string expectedPath = blogAttachment.FilePath;
 
       // 1. Check if variant already exists on disk
       if (System.IO.File.Exists(expectedPath))
       {
         // Variant already materialized; nothing to schedule
-        return Ok();
+        return Ok(blogAttachment.TranscodeStatus);
       }
 
-      // 2. (Stub) Check if an identical job is already queued or running
-      // TODO: Replace with real lookup, e.g. _blogAttachmentService.HasActiveJobAsync(...)
-      bool alreadyQueued = IsTranscodeAlreadyQueued( GetDatabaseName()!, encoderOption, Path.GetFileNameWithoutExtension(file));
+      bool alreadyQueued = blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued || blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing;
       if (alreadyQueued)
       {
         // Job already enqueued/processing; don't enqueue duplicate
-        return Ok();
+        return Ok(blogAttachment.TranscodeStatus);
       }
 
-      await _blogAttachmentService.ScheduleTranscodeAsync(
-        blogAttachmentId,
+      // FilePath is already an absolute path on disk; derive variant path from it
+      string filePath = blogAttachment.FilePath;
+      string? directoryPart = Path.GetDirectoryName(filePath);
+      string file = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
+      string variantFileName = $"{encoderOption}.{file}";    // e.g. "mp3.{random}.mp4"
+
+      TranscodeStatus status = await _blogAttachmentService.UpdateAsync(
+        blogAttachment.BlogAttachmentID,
         request.EncoderOption,
+        BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
+        0,
+        "",
         GetUserId(),
-        GetOrganizationId()!.Value,
-        GetDatabaseName()
-      );
+        GetOrganizationId()!.Value);
 
-      return Ok();
-    }
+      //await _blogAttachmentService.ScheduleTranscodeAsync(
+      //  blogAttachmentId,
+      //  request.EncoderOption,
+      //  GetUserId(),
+      //  GetOrganizationId()!.Value,
+      //  GetDatabaseName()
+      //);
 
-    private bool IsTranscodeAlreadyQueued(string databaseName, string encoderOption, string fileNameOnly)
-    {
-      // Marker file: {PermPath}/{databaseName}/queued.{encoderOption}.{fileNameOnly}
-      string permPath = ConfigurationSingleton.Instance.PermPath!;
-      string markerFileName = $"queued.{encoderOption}.{fileNameOnly}";
-      string markerFilePath = Path.Combine(permPath, databaseName, markerFileName);
-
-      return System.IO.File.Exists(markerFilePath);
+      return Ok(status);
     }
   }
 }

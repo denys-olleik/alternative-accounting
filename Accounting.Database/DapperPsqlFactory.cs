@@ -9218,11 +9218,13 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
-      public async Task<string?> UpdateTranscodeStatusJSONBAsync(
+      public async Task<TranscodeStatus> UpdateTranscodeStatusJSONBAsync(
         int blogAttachmentId,
         string encoderOption,
         string state,
-        int percent,
+        int progress,
+        string path,
+        int userId,
         int organizationId)
       {
         const string sql = """
@@ -9233,7 +9235,8 @@ namespace Accounting.Database
             ARRAY[@EncoderOption],
             jsonb_build_object(
               'state', @State,
-              'percent', @Percent
+              'progress', @Progress,
+              'path', @Path
             ),
             true
           )
@@ -9247,10 +9250,11 @@ namespace Accounting.Database
         p.Add("@OrganizationId", organizationId);
         p.Add("@EncoderOption", encoderOption);
         p.Add("@State", state);
-        p.Add("@Percent", percent);
+        p.Add("@Progress", progress);
+        p.Add("@Path", path);
 
         using var con = new NpgsqlConnection(_connectionString);
-        return await con.QuerySingleOrDefaultAsync<string>(sql, p);
+        return await con.QuerySingleOrDefaultAsync<TranscodeStatus>(sql, p);
       }
     }
 

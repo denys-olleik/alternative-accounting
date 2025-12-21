@@ -78,6 +78,7 @@ namespace Accounting.Business
   public class TranscodeStatus
   {
     public string State { get; set; }
-    public int Percent { get; set; }
+    public int? Percent { get; set; }
+    public string? Path { get; set; }
   }
 }

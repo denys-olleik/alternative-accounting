@@ -19,6 +19,26 @@ namespace Accounting.Service
 
     }
 
+    public async Task<TranscodeStatus> UpdateAsync(
+      int blogAttachmentID, 
+      string encoderOption, 
+      string state, 
+      int progress,
+      string path,
+      int userId, 
+      int organizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetBlogAttachmentManager().UpdateTranscodeStatusJSONBAsync(
+        blogAttachmentID, 
+        encoderOption,
+        state, 
+        0,
+        path,
+        userId, 
+        organizationId);
+    }
+
     public async System.Threading.Tasks.Task DeleteAttachmentsAsync(List<int> ids, int blogID, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
