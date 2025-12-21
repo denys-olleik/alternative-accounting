@@ -16,6 +16,7 @@ namespace Accounting.Database.Interfaces
       string state,
       int progress,
       string path,
+      string command,
       int userId,
       int organizationId);
 

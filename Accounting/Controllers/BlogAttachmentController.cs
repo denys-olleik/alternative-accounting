@@ -86,6 +86,7 @@ namespace Accounting.Controllers
         BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
         0,
         "",
+        "",
         GetUserId(),
         GetOrganizationId()!.Value);
 

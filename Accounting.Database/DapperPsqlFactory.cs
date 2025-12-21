@@ -9224,6 +9224,7 @@ namespace Accounting.Database
         string state,
         int progress,
         string path,
+        string command,
         int userId,
         int organizationId)
       {
@@ -9236,7 +9237,8 @@ namespace Accounting.Database
             jsonb_build_object(
               'state', @State,
               'progress', @Progress,
-              'path', @Path
+              'path', @Path,
+              'cmd', @Command
             ),
             true
           )

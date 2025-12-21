@@ -25,6 +25,7 @@ namespace Accounting.Service
       string state, 
       int progress,
       string path,
+      string command,
       int userId, 
       int organizationId)
     {
@@ -35,6 +36,7 @@ namespace Accounting.Service
         state, 
         0,
         path,
+        command,
         userId, 
         organizationId);
     }
