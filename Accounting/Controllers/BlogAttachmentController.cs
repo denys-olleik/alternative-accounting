@@ -3,6 +3,7 @@ using Accounting.Common;
 using Accounting.CustomAttributes;
 using Accounting.Models.BlogAttachmentViewModels;
 using Accounting.Service;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounting.Controllers
@@ -67,7 +68,8 @@ namespace Accounting.Controllers
         return Ok(blogAttachment.TranscodeStatus);
       }
 
-      bool alreadyQueued = blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued || blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing;
+      bool alreadyQueued = blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued
+        || blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing;
       if (alreadyQueued)
       {
         // Job already enqueued/processing; don't enqueue duplicate
@@ -80,13 +82,19 @@ namespace Accounting.Controllers
       string file = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
       string variantFileName = $"{encoderOption}.{file}";    // e.g. "mp3.{random}.mp4"
 
+      string inputPath = Path.Combine(directoryPart, file);
+
+      //string ffmpegArgsForOption =
+
+      //string outputPath = 
+
       TranscodeStatus status = await _blogAttachmentService.UpdateAsync(
         blogAttachment.BlogAttachmentID,
         request.EncoderOption,
         BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
         0,
         "",
-        "",
+        $"ffmpeg -y -hide_banner -i \"{inputPath}\" {ffmpegArgsForOption} \"{outputPath}\"",
         GetUserId(),
         GetOrganizationId()!.Value);
 
