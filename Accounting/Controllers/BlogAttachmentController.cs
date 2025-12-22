@@ -86,7 +86,7 @@ namespace Accounting.Controllers
 
       //string ffmpegArgsForOption =
 
-      //string outputPath = 
+      string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
 
       TranscodeStatus status = await _blogAttachmentService.UpdateAsync(
         blogAttachment.BlogAttachmentID,
@@ -107,6 +107,26 @@ namespace Accounting.Controllers
       //);
 
       return Ok(status);
+    }
+
+    private static string DeriveVariantOutputPath(string inputPath, string encoderOption)
+    {
+      string directory = Path.GetDirectoryName(inputPath);
+      string inputFileName = Path.GetFileNameWithoutExtension(inputPath);
+      string inputExt = Path.GetExtension(inputPath);
+
+      string normalized = encoderOption.Trim().ToLowerInvariant();
+
+      string outputExt = normalized switch
+      {
+        "mp3" => ".mp3",
+        "720p" => inputExt,
+        "original" => inputExt,
+        _ => inputExt
+      };
+
+      string outputFileName = $"{normalized}.{inputFileName}{outputExt}";
+      return Path.Combine(directory, outputFileName);
     }
   }
 }
