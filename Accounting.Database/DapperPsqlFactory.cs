@@ -9147,26 +9147,30 @@ namespace Accounting.Database
         return result.SingleOrDefault();
       }
 
-      public async Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentId, int organizationId)
+      public async Task<TranscodeStatus?> GetTranscodeStatusAsync(
+        int blogAttachmentId,
+        string encoderOption,
+        int organizationId)
       {
         const string sql = """
-          SELECT "TranscodeStatusJSONB"::text
+          SELECT ("TranscodeStatus" -> @EncoderOption)::text AS "Json"
           FROM "BlogAttachment"
           WHERE "BlogAttachmentID" = @BlogAttachmentID
-            AND "OrganizationId" = @OrganizationId
+            AND "OrganizationId" = @OrganizationId;
           """;
 
         var p = new DynamicParameters();
         p.Add("@BlogAttachmentID", blogAttachmentId);
         p.Add("@OrganizationId", organizationId);
+        p.Add("@EncoderOption", encoderOption);
 
         using var con = new NpgsqlConnection(_connectionString);
 
         var json = await con.QuerySingleOrDefaultAsync<string>(sql, p);
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+          return null;
 
-        return string.IsNullOrWhiteSpace(json)
-          ? null!
-          : new TranscodeStatus { State = json, Percent = 0 };
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json);
       }
 
       public int Update(BlogAttachment entity)

@@ -72,10 +72,10 @@ namespace Accounting.Service
       return await factoryManager.GetBlogAttachmentManager().GetAsync(blogAttachmentId, organizationId);
     }
 
-    public async Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentID, int organizationId)
+    public async Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentID, string encoderOption, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetBlogAttachmentManager().GetTranscodeStatusAsync(blogAttachmentID, organizationId);
+      return await factoryManager.GetBlogAttachmentManager().GetTranscodeStatusAsync(blogAttachmentID, encoderOption, organizationId);
     }
 
     public async System.Threading.Tasks.Task MoveAndUpdateBlogAttachmentPathAsync(BlogAttachment attachment, string? permPath, int organizationId, string databaseName)

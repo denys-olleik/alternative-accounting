@@ -51,13 +51,13 @@ namespace Accounting.Controllers
         return BadRequest();
       }
 
-      blogAttachment.TranscodeStatus = await _blogAttachmentService.GetTranscodeStatusAsync(blogAttachment.BlogAttachmentID, GetOrganizationId()!.Value);
-
       string? encoderOption = request.EncoderOption; // "mp3", "720p", "original"
       if (string.IsNullOrWhiteSpace(encoderOption))
       {
         return BadRequest();
       }
+
+      blogAttachment.TranscodeStatus = await _blogAttachmentService.GetTranscodeStatusAsync(blogAttachment.BlogAttachmentID, encoderOption, GetOrganizationId()!.Value);
 
       string expectedPath = blogAttachment.FilePath;
 

@@ -20,6 +20,6 @@ namespace Accounting.Database.Interfaces
       int userId,
       int organizationId);
 
-    Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentId, int organizationId);
+    Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentId, string encoderOption, int organizationId);
   }
 }
