@@ -94,7 +94,7 @@ namespace Accounting.Controllers
         BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
         0,
         "",
-        $"ffmpeg -y -hide_banner -i \"{inputPath}\" {ffmpegArgsForOption} \"{outputPath}\"",
+        $"ffmpeg -y -hide_banner -i \"{inputPath}\" {"encodeeroption"} \"{outputPath}\"",
         GetUserId(),
         GetOrganizationId()!.Value);
 
