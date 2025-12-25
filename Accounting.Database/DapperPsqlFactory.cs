@@ -8444,6 +8444,11 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
+      public async Task<int> CreateClaimAsync(int userId, string claimType, string claimValue, int organizationId, int createdById, string databaseName)
+      {
+        throw new NotImplementedException();
+      }
+
       public int Delete(int id)
       {
         throw new NotImplementedException();
