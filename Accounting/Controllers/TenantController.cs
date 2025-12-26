@@ -536,15 +536,15 @@ namespace Accounting.Controllers
           {
             await _userOrganizationService.CreateAsync(user.UserID, organizationId, tenant.DatabaseName!, tenant.DatabasePassword);
 
-            await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.RoleManager);
-            await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.OrganizationManager);
+            await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.RoleManager, tenant.DatabaseName);
+            await claimService.CreateRoleAsync(user.UserID, organizationId, UserRoleClaimConstants.OrganizationManager, tenant.DatabaseName);
 
             // Assign additional roles if provided and permitted
             if (model.SelectedRoles != null)
             {
               foreach (var role in model.SelectedRoles)
               {
-                await claimService.CreateRoleAsync(user.UserID, organizationId, role);
+                await claimService.CreateRoleAsync(user.UserID, organizationId, role, tenant.DatabaseName);
               }
             }
           }

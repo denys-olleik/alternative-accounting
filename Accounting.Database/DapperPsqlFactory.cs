@@ -8446,7 +8446,30 @@ namespace Accounting.Database
 
       public async Task<int> CreateClaimAsync(int userId, string claimType, string claimValue, int organizationId, int createdById, string databaseName)
       {
-        throw new NotImplementedException();
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@UserId", userId);
+        p.Add("@ClaimType", claimType);
+        p.Add("@ClaimValue", claimValue);
+        p.Add("@CreatedById", createdById);
+        p.Add("@OrganizationId", organizationId);
+        
+        int rowsAffected;
+        
+        NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(_connectionString)
+        {
+          Database = databaseName
+        };
+        
+        using (NpgsqlConnection con = new NpgsqlConnection(builder.ConnectionString))
+        {
+          rowsAffected = await con.ExecuteAsync("""
+            INSERT INTO "Claim" ("UserId", "ClaimType", "ClaimValue", "OrganizationId", "CreatedById") 
+            VALUES (@UserId, @ClaimType, @ClaimValue, @OrganizationId, @CreatedById)
+            ON CONFLICT ("OrganizationId", "UserId", "ClaimType", "ClaimValue") DO NOTHING
+            """, p);
+        }
+
+        return rowsAffected;
       }
 
       public int Delete(int id)
