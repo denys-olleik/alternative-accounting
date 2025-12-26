@@ -26,12 +26,13 @@
       class="display-flex flex-direction-column margin-bottom-5px">
 
   <input type="hidden" asp-for="SelectedOrganizationIdsCsv" :value="selectedOrganizationIds.join(',')" />
+  <input type="hidden" asp-for="SelectedRolesCsv" :value="selectedRoles.join(',')" />
 
   <div class="display-flex flex-direction-column margin-bottom-5px">
     <label asp-for="Email" class="background-color-antiquewhite"></label>
     <input asp-for="Email"
            class="font-size-20px"
-           maxlength="100" autocomplete="off"/>
+           maxlength="100" autocomplete="off" />
   </div>
 
   <div class="display-flex">
@@ -39,14 +40,14 @@
       <label asp-for="FirstName" class="background-color-antiquewhite">First name</label>
       <input asp-for="FirstName"
              class="font-size-20px"
-             maxlength="100" autocomplete="off"/>
+             maxlength="100" autocomplete="off" />
     </div>
     <div class="width-5px"></div>
     <div class="flex-1 display-flex flex-direction-column margin-bottom-5px">
       <label asp-for="LastName" class="background-color-antiquewhite">Last name</label>
       <input asp-for="LastName"
              class="font-size-20px"
-             maxlength="100" autocomplete="off"/>
+             maxlength="100" autocomplete="off" />
     </div>
   </div>
 
@@ -54,7 +55,7 @@
     <label asp-for="Password" class="background-color-antiquewhite">Password</label>
     <input asp-for="Password"
            class="font-size-20px"
-           maxlength="100" autocomplete="off" type="password"/>
+           maxlength="100" autocomplete="off" type="password" />
   </div>
 
   <div class="display-flex flex-direction-column margin-bottom-5px">
@@ -128,6 +129,14 @@
           this.selectedOrganizationIds.push(value);
         } else {
           this.selectedOrganizationIds = this.selectedOrganizationIds.filter(id => id !== value);
+        }
+      },
+      updateSelectedRoles(event) {
+        const value = event.target.value;
+        if (event.target.checked) {
+          if (!this.selectedRoles.includes(value)) this.selectedRoles.push(value);
+        } else {
+          this.selectedRoles = this.selectedRoles.filter(r => r !== value);
         }
       }
     }

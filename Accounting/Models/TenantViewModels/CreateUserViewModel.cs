@@ -16,6 +16,7 @@ namespace Accounting.Models.TenantViewModels
     public UserViewModel? ExistingUser { get; set; }
     public List<OrganizationViewModel> AvailableOrganizations { get; set; } = new();
     public List<string> AvailableRoles { get; set; } = new();
+    public string SelectedRolesCsv { get; set; }
     public List<string> SelectedRoles { get; set; } = new();
 
     public class OrganizationViewModel
