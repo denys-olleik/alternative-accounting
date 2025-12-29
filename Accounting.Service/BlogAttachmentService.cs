@@ -24,7 +24,7 @@ namespace Accounting.Service
       string encoderOption, 
       string state, 
       int progress,
-      string path,
+      string outputPath,
       string command,
       int userId, 
       int organizationId)
@@ -35,7 +35,7 @@ namespace Accounting.Service
         encoderOption,
         state, 
         0,
-        path,
+        outputPath,
         command,
         userId, 
         organizationId);

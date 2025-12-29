@@ -79,7 +79,7 @@ namespace Accounting.Business
   {
     public string State { get; set; }
     public int? Percent { get; set; }
-    public string? Path { get; set; }
+    public string? PerVariantOutputPath { get; set; }
     public string? Command { get; set; }
   }
 }

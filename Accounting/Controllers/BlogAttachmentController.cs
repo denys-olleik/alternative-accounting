@@ -57,54 +57,39 @@ namespace Accounting.Controllers
         return BadRequest();
       }
 
-      blogAttachment.TranscodeStatus = await _blogAttachmentService.GetTranscodeStatusAsync(blogAttachment.BlogAttachmentID, encoderOption, GetOrganizationId()!.Value);
-
-      string expectedPath = blogAttachment.FilePath;
-
-      // 1. Check if variant already exists on disk
-      if (System.IO.File.Exists(expectedPath))
-      {
-        // Variant already materialized; nothing to schedule
-        return Ok(blogAttachment.TranscodeStatus);
-      }
+      blogAttachment.TranscodeStatus = await _blogAttachmentService.GetTranscodeStatusAsync(
+        blogAttachment.BlogAttachmentID,
+        encoderOption,
+        GetOrganizationId()!.Value
+      );
 
       bool alreadyQueued = blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued
         || blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing;
       if (alreadyQueued)
       {
-        // Job already enqueued/processing; don't enqueue duplicate
         return Ok(blogAttachment.TranscodeStatus);
       }
 
-      // FilePath is already an absolute path on disk; derive variant path from it
       string filePath = blogAttachment.FilePath;
       string? directoryPart = Path.GetDirectoryName(filePath);
-      string file = Path.GetFileName(filePath);              // e.g. "{random}.mp4"
-      string variantFileName = $"{encoderOption}.{file}";    // e.g. "mp3.{random}.mp4"
+      string file = Path.GetFileName(filePath);
 
-      string inputPath = Path.Combine(directoryPart, file);
-
+      string inputPath = Path.Combine(directoryPart!, file);
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
 
       string ffmpegArgsForOption = BuildFfmpegArgs(encoderOption, inputPath, outputPath);
+      string command = $"ffmpeg {ffmpegArgsForOption}";
 
       TranscodeStatus status = await _blogAttachmentService.UpdateAsync(
         blogAttachment.BlogAttachmentID,
-        request.EncoderOption,
+        encoderOption,
         BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
         0,
         outputPath,
-        $"ffmpeg -y -hide_banner -i \"{inputPath}\" {"encodeeroption"} \"{outputPath}\"",
+        command,
         GetUserId(),
-        GetOrganizationId()!.Value);
-
-      //await _blogAttachmentService.ScheduleTranscodeAsync(
-      //  blogAttachmentId,
-      //  request.EncoderOption,
-      //  GetUserId(),
-      //  GetOrganizationId()!.Value,
-      //  GetDatabaseName()
-      //);
+        GetOrganizationId()!.Value
+      );
 
       return Ok(status);
     }

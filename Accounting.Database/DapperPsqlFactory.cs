@@ -9255,7 +9255,7 @@ namespace Accounting.Database
         string encoderOption,
         string state,
         int progress,
-        string path,
+        string perVariantOutputPath,
         string command,
         int userId,
         int organizationId)
@@ -9269,8 +9269,8 @@ namespace Accounting.Database
             jsonb_build_object(
               'state', @State,
               'progress', @Progress,
-              'path', @Path,
-              'cmd', @Command
+              'perVariantOutputPath', @PerVariantOutputPath,
+              'command', @Command
             ),
             true
           )
@@ -9285,7 +9285,7 @@ namespace Accounting.Database
         p.Add("@EncoderOption", encoderOption);
         p.Add("@State", state);
         p.Add("@Progress", progress);
-        p.Add("@Path", path);
+        p.Add("@PerVariantOutputPath", perVariantOutputPath);
 
         using var con = new NpgsqlConnection(_connectionString);
         return await con.QuerySingleOrDefaultAsync<TranscodeStatus>(sql, p);
