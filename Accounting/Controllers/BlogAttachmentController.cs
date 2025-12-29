@@ -84,16 +84,16 @@ namespace Accounting.Controllers
 
       string inputPath = Path.Combine(directoryPart, file);
 
-      //string ffmpegArgsForOption =
-
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
+
+      string ffmpegArgsForOption = BuildFfmpegArgs(encoderOption, inputPath, outputPath);
 
       TranscodeStatus status = await _blogAttachmentService.UpdateAsync(
         blogAttachment.BlogAttachmentID,
         request.EncoderOption,
         BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
         0,
-        "",
+        outputPath,
         $"ffmpeg -y -hide_banner -i \"{inputPath}\" {"encodeeroption"} \"{outputPath}\"",
         GetUserId(),
         GetOrganizationId()!.Value);
@@ -107,6 +107,29 @@ namespace Accounting.Controllers
       //);
 
       return Ok(status);
+    }
+
+    private static string BuildFfmpegArgs(string encoderOption, string inputPath, string outputPath)
+    {
+      if (string.IsNullOrWhiteSpace(encoderOption)) throw new ArgumentException(nameof(encoderOption));
+      if (string.IsNullOrWhiteSpace(inputPath)) throw new ArgumentException(nameof(inputPath));
+      if (string.IsNullOrWhiteSpace(outputPath)) throw new ArgumentException(nameof(outputPath));
+
+      var opt = encoderOption.Trim().ToLowerInvariant();
+
+      return opt switch
+      {
+        "mp3" =>
+          $"-y -hide_banner -nostdin -i \"{inputPath}\" -vn -c:a libmp3lame -q:a 2 \"{outputPath}\"",
+
+        "720p" =>
+          $"-y -hide_banner -nostdin -i \"{inputPath}\" -vf \"scale=-2:720\" -c:v libx264 -preset veryfast -crf 23 -c:a aac -b:a 128k \"{outputPath}\"",
+
+        "original" =>
+          $"-y -hide_banner -nostdin -i \"{inputPath}\" -c copy \"{outputPath}\"",
+
+        _ => throw new ArgumentOutOfRangeException(nameof(encoderOption), encoderOption, "Unsupported encoder option")
+      };
     }
 
     private static string DeriveVariantOutputPath(string inputPath, string encoderOption)
