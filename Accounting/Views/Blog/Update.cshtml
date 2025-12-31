@@ -26,14 +26,14 @@
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
           <a :href="'/api/blog-attachment/download/' + attachment.blogAttachmentID"
-             class="font-size-16px font-Roboto color-white text-decoration-none"
-             download>download</a>
+            class="font-size-16px font-Roboto color-white text-decoration-none"
+            download>download</a>
           <div class="flex-1"></div>
         </div>
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
           <a href="#" @@click.prevent="$emit('remove', attachment.blogAttachmentID)"
-             class="font-size-16px font-Roboto color-white text-decoration-none">remove</a>
+            class="font-size-16px font-Roboto color-white text-decoration-none">remove</a>
           <div class="flex-1"></div>
         </div>
       </span>
@@ -41,7 +41,7 @@
       <!-- mp4 ffmpeg options: only show when expanded AND file is .mp4 -->
       <span v-if="isExpanded && attachment.fileName &&
                attachment.fileName.toLowerCase().endsWith('.mp4')"
-            class="display-flex margin-left-2px">
+        class="display-flex margin-left-2px">
         <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
           <div class="flex-1"></div>
           <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">mp4 ffmpeg:</a>
@@ -50,19 +50,19 @@
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
           <a href="#" @@click.prevent="$emit('schedule-mp3', attachment.blogAttachmentID)"
-             class="font-size-16px font-Roboto text-decoration-none color-forestgreen">mp3</a>
+            class="font-size-16px font-Roboto text-decoration-none color-forestgreen">mp3</a>
           <div class="flex-1"></div>
         </div>
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
           <a href="#" @@click.prevent="$emit('schedule-720', attachment.blogAttachmentID)"
-             class="font-size-16px font-Roboto text-decoration-none color-forestgreen">720p</a>
+            class="font-size-16px font-Roboto text-decoration-none color-forestgreen">720p</a>
           <div class="flex-1"></div>
         </div>
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
           <a href="#" @@click.prevent="$emit('schedule-original', attachment.blogAttachmentID)"
-             class="font-size-16px font-Roboto text-decoration-none color-forestgreen">original</a>
+            class="font-size-16px font-Roboto text-decoration-none color-forestgreen">original</a>
           <div class="flex-1"></div>
         </div>
       </span>
@@ -102,12 +102,12 @@
       <tr v-for="attachment in attachments" :key="attachment.blogAttachmentID">
         <td class="padding-right-20px white-space-nowrap">
           <attachment-action :attachment="attachment"
-                             :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
-                             @@expand="handleAttachmentExpand(attachment.blogAttachmentID)"
-                             @@remove="removeAttachment"
-                             @@schedule-mp3="scheduleMp3"
-                             @@schedule-720="schedule720p"
-                             @@schedule-original="scheduleOriginal"></attachment-action>
+            :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
+            @@expand="handleAttachmentExpand(attachment.blogAttachmentID)"
+            @@remove="removeAttachment"
+            @@schedule-mp3="scheduleMp3"
+            @@schedule-720="schedule720p"
+            @@schedule-original="scheduleOriginal"></attachment-action>
         </td>
       </tr>
     </tbody>
@@ -150,7 +150,16 @@
     },
     methods: {
       scheduleMp3(id) {
-        console.log('scheduleMp3', id);
+        fetch(`/api/blog-attachment/schedule-transcode/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ encoderOption: 'mp3' })
+        })
+          .then(r => r.json())
+          .then(status => {
+            const a = this.attachments.find(x => x.blogAttachmentID === id);
+            a.transcodeStatusByVariant.mp3 = status;
+          });
       },
       schedule720p(id) {
         console.log('schedule720p', id);

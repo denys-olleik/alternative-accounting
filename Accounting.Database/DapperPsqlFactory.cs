@@ -9181,7 +9181,7 @@ namespace Accounting.Database
         int organizationId)
       {
         const string sql = """
-          SELECT ("TranscodeStatus" -> @EncoderOption)::text AS "Json"
+          SELECT ("TranscodeStatusJSONB" -> @EncoderOption)::text AS "Json"
           FROM "BlogAttachment"
           WHERE "BlogAttachmentID" = @BlogAttachmentID
             AND "OrganizationId" = @OrganizationId;
