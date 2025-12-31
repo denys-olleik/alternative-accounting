@@ -48,18 +48,17 @@ namespace Accounting.Controllers
         Title = blog.Title,
         Content = blog.Content,
         Public = !string.IsNullOrEmpty(blog.PublicId),
-        //Attachments = (await _invoiceAttachmentService.GetAllAsync(invoice.InvoiceID, GetOrganizationId()!.Value))
-        //  .Select(a => new ISupportsAttachmentsUpdate.InvoiceAttachmentViewModel
-        //  {
-        //    InvoiceAttachmentID = a.InvoiceAttachmentID,
-        //    FileName = a.OriginalFileName
-        //  }).ToList(),
         Attachments = (await _blogAttachmentService.GetAllAsync(new[] { blogID }, GetOrganizationId()!.Value))
           .Select(a => (IAttachmentViewModel)new BlogAttachmentViewModel
           {
             BlogAttachmentID = a.BlogAttachmentID,
-            FileName = a.OriginalFileName
-          }).ToList()
+            FileName = a.OriginalFileName,
+            TranscodeStatusJSONB = a.TranscodeStatusJSONB,
+            TranscodeStatusByVariant = string.IsNullOrWhiteSpace(a.TranscodeStatusJSONB)
+              ? new Dictionary<string, TranscodeStatus>()
+              : JsonConvert.DeserializeObject<Dictionary<string, TranscodeStatus>>(a.TranscodeStatusJSONB)
+          })
+          .ToList()
       };
 
       return View(updateBlogViewModel);
