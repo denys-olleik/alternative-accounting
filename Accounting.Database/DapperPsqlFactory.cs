@@ -8452,14 +8452,14 @@ namespace Accounting.Database
         p.Add("@ClaimValue", claimValue);
         p.Add("@CreatedById", createdById);
         p.Add("@OrganizationId", organizationId);
-        
+
         int rowsAffected;
-        
+
         NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(_connectionString)
         {
           Database = databaseName
         };
-        
+
         using (NpgsqlConnection con = new NpgsqlConnection(builder.ConnectionString))
         {
           rowsAffected = await con.ExecuteAsync("""
@@ -9261,34 +9261,37 @@ namespace Accounting.Database
         int organizationId)
       {
         const string sql = """
-        UPDATE "BlogAttachment"
-        SET "TranscodeStatus" =
-          jsonb_set(
-            COALESCE("TranscodeStatus", '{}'::jsonb),
-            ARRAY[@EncoderOption],
-            jsonb_build_object(
-              'state', @State,
-              'progress', @Progress,
-              'perVariantOutputPath', @PerVariantOutputPath,
-              'command', @Command
-            ),
-            true
-          )
-        WHERE "BlogAttachmentID" = @BlogAttachmentID
-          AND "OrganizationId" = @OrganizationId
-        RETURNING "TranscodeStatus"::text;
-        """;
+          UPDATE "BlogAttachment"
+          SET "TranscodeStatusJSONB" =
+            jsonb_set(
+              COALESCE("TranscodeStatusJSONB", '{}'::jsonb),
+              ARRAY[@EncoderOption],
+              jsonb_build_object(
+                'state', @State,
+                'percent', @Percent,
+                'path', @Path,
+                'command', @Command
+              ),
+              true
+            )
+          WHERE "BlogAttachmentID" = @BlogAttachmentID
+            AND "OrganizationId" = @OrganizationId
+          RETURNING ("TranscodeStatusJSONB" -> @EncoderOption)::text;
+          """;
 
         var p = new DynamicParameters();
         p.Add("@BlogAttachmentID", blogAttachmentId);
         p.Add("@OrganizationId", organizationId);
         p.Add("@EncoderOption", encoderOption);
         p.Add("@State", state);
-        p.Add("@Progress", progress);
-        p.Add("@PerVariantOutputPath", perVariantOutputPath);
+        p.Add("@Percent", progress);
+        p.Add("@Path", perVariantOutputPath);
+        p.Add("@Command", command);
 
         using var con = new NpgsqlConnection(_connectionString);
-        return await con.QuerySingleOrDefaultAsync<TranscodeStatus>(sql, p);
+
+        var json = await con.QuerySingleAsync<string>(sql, p);
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json)!;
       }
     }
 

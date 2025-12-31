@@ -61,7 +61,7 @@ namespace Accounting.Controllers
         blogAttachment.BlogAttachmentID,
         encoderOption,
         GetOrganizationId()!.Value
-      );
+      ) ?? new TranscodeStatus { State = BlogAttachment.BlogAttachmentEncoderStatusConstants.None };
 
       bool alreadyQueued = blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued
         || blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing;
