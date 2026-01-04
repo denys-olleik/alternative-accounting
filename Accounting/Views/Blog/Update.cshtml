@@ -39,30 +39,46 @@
       </span>
 
       <!-- mp4 ffmpeg options: only show when expanded AND file is .mp4 -->
-      <span v-if="isExpanded && attachment.fileName &&
-               attachment.fileName.toLowerCase().endsWith('.mp4')"
+      <span v-if="isExpanded && attachment.fileName && attachment.fileName.toLowerCase().endsWith('.mp4')"
         class="display-flex margin-left-2px">
         <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
           <div class="flex-1"></div>
-          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">mp4 ffmpeg:</a>
+          <a class="font-size-12px font-Roboto color-white text-decoration-none cursor-default">
+            mp4 ffmpeg:
+          </a>
           <div class="flex-1"></div>
         </div>
+
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
-          <a href="#" @@click.prevent="$emit('schedule-mp3', attachment.blogAttachmentID)"
-            class="font-size-16px font-Roboto text-decoration-none color-forestgreen">mp3</a>
+          <a href="#"
+            @@click.prevent="$emit('schedule-mp3', attachment.blogAttachmentID)"
+            class="font-size-16px font-Roboto text-decoration-none"
+            :class="getVariantDisplay(attachment, 'mp3').class">
+            {{ getVariantDisplay(attachment, 'mp3').text }}
+          </a>
           <div class="flex-1"></div>
         </div>
+
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
-          <a href="#" @@click.prevent="$emit('schedule-720', attachment.blogAttachmentID)"
-            class="font-size-16px font-Roboto text-decoration-none color-forestgreen">720p</a>
+          <a href="#"
+            @@click.prevent="$emit('schedule-720', attachment.blogAttachmentID)"
+            class="font-size-16px font-Roboto text-decoration-none"
+            :class="getVariantDisplay(attachment, '720p').class">
+            {{ getVariantDisplay(attachment, '720p').text }}
+          </a>
           <div class="flex-1"></div>
         </div>
+
         <div class="display-flex flex-direction-column background-color-333333 padding-right-5px padding-left-5px margin-left-2px">
           <div class="flex-1"></div>
-          <a href="#" @@click.prevent="$emit('schedule-original', attachment.blogAttachmentID)"
-            class="font-size-16px font-Roboto text-decoration-none color-forestgreen">original</a>
+          <a href="#"
+            @@click.prevent="$emit('schedule-original', attachment.blogAttachmentID)"
+            class="font-size-16px font-Roboto text-decoration-none"
+            :class="getVariantDisplay(attachment, 'original').class">
+            {{ getVariantDisplay(attachment, 'original').text }}
+          </a>
           <div class="flex-1"></div>
         </div>
       </span>
@@ -149,6 +165,13 @@
       };
     },
     methods: {
+      getVariantDisplay(attachment, variant) {
+        const p = attachment.transcodeStatusByVariant?.[variant]?.percent;
+        if (p === 0) return { text: `${variant} (0%)`, class: '' };
+        if (p > 0 && p < 100) return { text: `${variant} (${p}%)`, class: 'color-lawngreen blink-animation' };
+        if (p === 100) return { text: variant, class: 'color-lawngreen' };
+        return { text: variant, class: '' };
+      },
       scheduleMp3(id) {
         fetch(`/api/blog-attachment/schedule-transcode/${id}`, {
           method: 'POST',
@@ -168,15 +191,12 @@
         console.log('scheduleOriginal', id);
       },
       removeAttachment(id) {
-        // Add to deletedAttachmentIds if not already present
         if (!this.deletedAttachmentIds.includes(id)) {
           this.deletedAttachmentIds.push(id);
         }
-        // Remove from attachments list
         this.attachments = this.attachments.filter(
           attachment => attachment.blogAttachmentID !== id
         );
-        // Also remove from newAttachmentIds if it was just uploaded and then deleted
         this.newAttachmentIds = this.newAttachmentIds.filter(
           newId => newId !== id
         );
