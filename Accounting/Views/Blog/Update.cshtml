@@ -53,7 +53,7 @@
           <div class="flex-1"></div>
           <a href="#"
             @@click.prevent="$emit('schedule-mp3', attachment.blogAttachmentID)"
-            class="font-size-16px font-Roboto text-decoration-none"
+            class="font-size-16px font-Roboto text-decoration-none color-forestgreen"
             :class="getVariantDisplay(attachment, 'mp3').class">
             {{ getVariantDisplay(attachment, 'mp3').text }}
           </a>
@@ -64,7 +64,7 @@
           <div class="flex-1"></div>
           <a href="#"
             @@click.prevent="$emit('schedule-720', attachment.blogAttachmentID)"
-            class="font-size-16px font-Roboto text-decoration-none"
+            class="font-size-16px font-Roboto text-decoration-none color-forestgreen"
             :class="getVariantDisplay(attachment, '720p').class">
             {{ getVariantDisplay(attachment, '720p').text }}
           </a>
@@ -75,7 +75,7 @@
           <div class="flex-1"></div>
           <a href="#"
             @@click.prevent="$emit('schedule-original', attachment.blogAttachmentID)"
-            class="font-size-16px font-Roboto text-decoration-none"
+            class="font-size-16px font-Roboto text-decoration-none color-forestgreen"
             :class="getVariantDisplay(attachment, 'original').class">
             {{ getVariantDisplay(attachment, 'original').text }}
           </a>
@@ -119,6 +119,7 @@
         <td class="padding-right-20px white-space-nowrap">
           <attachment-action :attachment="attachment"
             :is-expanded="attachment.blogAttachmentID === expandedAttachmentId"
+            :get-variant-display="getVariantDisplay"
             @@expand="handleAttachmentExpand(attachment.blogAttachmentID)"
             @@remove="removeAttachment"
             @@schedule-mp3="scheduleMp3"
@@ -140,7 +141,7 @@
 
   const AttachmentAction = {
     name: 'AttachmentAction',
-    props: ['attachment', 'isExpanded'],
+    props: ['attachment', 'isExpanded', 'getVariantDisplay'],
     template: '#attachment-action-template',
     methods: {
       toggleAction() {
