@@ -186,10 +186,34 @@
           });
       },
       schedule720p(id) {
-        console.log('schedule720p', id);
+        fetch(`/api/blog-attachment/schedule-transcode/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ encoderOption: '720p' })
+        })
+          .then(r => r.json())
+          .then(status => {
+            const a = this.attachments.find(x => x.blogAttachmentID === id);
+            if (!a.transcodeStatusByVariant) {
+              a.transcodeStatusByVariant = {};
+            }
+            a.transcodeStatusByVariant['720p'] = status;
+          });
       },
       scheduleOriginal(id) {
-        console.log('scheduleOriginal', id);
+        fetch(`/api/blog-attachment/schedule-transcode/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ encoderOption: 'original' })
+        })
+          .then(r => r.json())
+          .then(status => {
+            const a = this.attachments.find(x => x.blogAttachmentID === id);
+            if (!a.transcodeStatusByVariant) {
+              a.transcodeStatusByVariant = {};
+            }
+            a.transcodeStatusByVariant['original'] = status;
+          });
       },
       removeAttachment(id) {
         if (!this.deletedAttachmentIds.includes(id)) {
