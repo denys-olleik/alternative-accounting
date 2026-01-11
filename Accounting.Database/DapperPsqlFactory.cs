@@ -9269,6 +9269,7 @@ namespace Accounting.Database
               jsonb_build_object(
                 'state', @State,
                 'percent', @Percent,
+                'percentLastUpdated', CURRENT_TIMESTAMP AT TIME ZONE 'UTC',
                 'path', @Path,
                 'command', @Command
               ),

@@ -24,6 +24,7 @@
 
 ## Core concepts
 
+* Context
 * Accounts
 * Journal
   * debit/credit
