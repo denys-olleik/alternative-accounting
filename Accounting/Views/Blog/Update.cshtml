@@ -38,8 +38,11 @@
         </div>
       </span>
 
-      <!-- mp4 ffmpeg options: only show when expanded AND file is .mp4 -->
-      <span v-if="isExpanded && attachment.fileName && attachment.fileName.toLowerCase().endsWith('.mp4')"
+      <!-- mp4 ffmpeg options: only show when expanded, file is .mp4, AND attachment is not newly added -->
+      <span v-if="isExpanded
+        && attachment.fileName
+        && attachment.fileName.toLowerCase().endsWith('.mp4')
+        && !$parent.newAttachmentIds.includes(attachment.blogAttachmentID)"
         class="display-flex margin-left-2px">
         <div class="display-flex flex-direction-column background-color-333333 padding-left-5px padding-right-5px">
           <div class="flex-1"></div>
