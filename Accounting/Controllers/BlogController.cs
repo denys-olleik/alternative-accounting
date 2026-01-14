@@ -48,7 +48,7 @@ namespace Accounting.Controllers
         Title = blog.Title,
         Content = blog.Content,
         Public = !string.IsNullOrEmpty(blog.PublicId),
-        Attachments = (await _blogAttachmentService.GetAllAsync(new[] { blogID }, GetOrganizationId()!.Value))
+        Attachments = (await _blogAttachmentService.GetAllAsync(blog.BlogID, GetOrganizationId()!.Value))
           .Select(a => (IAttachmentViewModel)new BlogAttachmentViewModel
           {
             BlogAttachmentID = a.BlogAttachmentID,

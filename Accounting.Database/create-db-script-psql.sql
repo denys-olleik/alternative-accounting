@@ -691,8 +691,7 @@ CREATE TABLE "BlogAttachment"
 	"OrganizationId" INT NULL,
 	FOREIGN KEY ("BlogId") REFERENCES "Blog"("BlogID"),
 	FOREIGN KEY ("CreatedById") REFERENCES "User"("UserID"),
-	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID"),
-	UNIQUE ("BlogId", "OriginalFileName")
+	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
 
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "Exception";'

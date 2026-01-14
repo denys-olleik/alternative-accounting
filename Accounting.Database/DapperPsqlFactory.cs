@@ -9154,6 +9154,28 @@ namespace Accounting.Database
         return await con.QueryAsync<BlogAttachment>(sql, p);
       }
 
+      public async Task<IEnumerable<BlogAttachment>> GetAllAsync(int blogId, int organizationId)
+      {
+        DynamicParameters p = new();
+        p.Add("@BlogId", blogId);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<BlogAttachment> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<BlogAttachment>("""
+            SELECT * 
+            FROM "BlogAttachment" 
+            WHERE "BlogId" = @BlogId
+            AND "OrganizationId" = @OrganizationId
+            ORDER BY "BlogAttachmentID" ASC
+            """, p);
+        }
+
+        return result;
+      }
+
       public async Task<BlogAttachment> GetAsync(int blogAttachmentId, int organizationId)
       {
         DynamicParameters p = new();

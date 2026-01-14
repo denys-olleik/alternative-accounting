@@ -60,10 +60,10 @@ namespace Accounting.Service
       }
     }
 
-    public async Task<IEnumerable<BlogAttachment>> GetAllAsync(int[] ints, int organizationId)
+    public async Task<IEnumerable<BlogAttachment>> GetAllAsync(int[] blogAttachmentIds, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetBlogAttachmentManager().GetAllAsync(ints, organizationId);
+      return await factoryManager.GetBlogAttachmentManager().GetAllAsync(blogAttachmentIds, organizationId);
     }
 
     public async Task<BlogAttachment> GetAsync(int blogAttachmentId, int organizationId)
@@ -173,6 +173,12 @@ namespace Accounting.Service
       attachment = await factoryManager.GetBlogAttachmentManager().CreateAsync(attachment);
 
       return attachment;
+    }
+
+    public async Task<IEnumerable<BlogAttachment>> GetAllAsync(int blogId, int organizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetBlogAttachmentManager().GetAllAsync(blogId, organizationId);
     }
   }
 }
