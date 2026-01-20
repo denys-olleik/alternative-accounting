@@ -46,8 +46,7 @@ namespace Accounting.Business
     }
 
     public static class BlogAttachmentEncoderStatusConstants
-    {
-      public const string None = "none";
+    { 
       public const string Queued = "queued";
       public const string Processing = "processing";
       public const string Completed = "completed";

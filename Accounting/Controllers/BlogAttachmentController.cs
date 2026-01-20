@@ -57,17 +57,18 @@ namespace Accounting.Controllers
         return BadRequest();
       }
 
-      blogAttachment.TranscodeStatus = await _blogAttachmentService.GetTranscodeStatusAsync(
+      var currentStatus = await _blogAttachmentService.GetTranscodeStatusAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
         GetOrganizationId()!.Value
-      ) ?? new TranscodeStatus { State = BlogAttachment.BlogAttachmentEncoderStatusConstants.None };
+      );
 
-      bool alreadyQueued = blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued
-        || blogAttachment.TranscodeStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing;
-      if (alreadyQueued)
+      // Only enqueue if no variant exists yet
+      if (currentStatus != null &&
+          (currentStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued ||
+           currentStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing))
       {
-        return Ok(blogAttachment.TranscodeStatus);
+        return Ok(currentStatus);
       }
 
       string filePath = blogAttachment.FilePath;
