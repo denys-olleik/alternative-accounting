@@ -9272,7 +9272,7 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
-      public async Task<TranscodeStatus> UpdateTranscodeStatusJSONBAsync(
+      public async Task<TranscodeStatus?> UpdateTranscodeStatusJSONBAsync(
         int blogAttachmentId,
         string encoderOption,
         string state,

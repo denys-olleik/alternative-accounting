@@ -10,7 +10,7 @@ namespace Accounting.Database.Interfaces
     Task<int> UpdateBlogIdAsync(int blogAttachmentID, int blogID, int organizationId);
     Task<int> UpdateFilePathAsync(int blogAttachmentID, string newPath, int organizationId);
 
-    Task<TranscodeStatus> UpdateTranscodeStatusJSONBAsync(
+    Task<TranscodeStatus?> UpdateTranscodeStatusJSONBAsync(
       int blogAttachmentId,
       string encoderOption,
       string state,
