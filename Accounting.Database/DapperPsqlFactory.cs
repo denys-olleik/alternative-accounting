@@ -9313,8 +9313,12 @@ namespace Accounting.Database
 
         using var con = new NpgsqlConnection(_connectionString);
 
-        var json = await con.QuerySingleAsync<string>(sql, p);
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json)!;
+        var json = await con.QuerySingleOrDefaultAsync<string>(sql, p);
+
+        if (string.IsNullOrWhiteSpace(json) || json == "null")
+          return null;
+
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json);
       }
     }
 

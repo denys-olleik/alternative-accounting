@@ -33,12 +33,21 @@
 
 ### Journal, Chart of Accounts, and Transactions
 
-```markdown invoice with one line item and sales tax
-| Date       | Account               | Debit | Credit |
-|------------|-----------------------|-------|--------|
-| 2024-06-20 | Accounts Receivable   | 123   |        |asset
-| 2024-06-20 | Sales Revenue         |       | 100    |revenue
-| 2024-06-20 | Sales Tax             |       | 23     |liability
+**Double entry:**
+```double entry
+| Account               | Debit | Credit |
+|-----------------------|-------|--------|
+| Accounts Receivable   | 100   |        |asset
+| Sales Revenue         |       | 100    |revenue
+```
+
+**Balanced entry:**
+```balanced entry
+| Account               | Debit | Credit |
+|-----------------------|-------|--------|
+| Accounts Receivable   | 123   |        |asset
+| Sales Revenue         |       | 100    |revenue
+| Sales Tax (VAT)       |       | 23     |liability
 ```
 
 ```markdown
