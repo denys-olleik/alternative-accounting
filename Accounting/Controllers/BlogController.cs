@@ -57,6 +57,7 @@ namespace Accounting.Controllers
             TranscodeStatusByVariant = string.IsNullOrWhiteSpace(a.TranscodeStatusJSONB)
               ? new Dictionary<string, TranscodeStatus>()
               : JsonConvert.DeserializeObject<Dictionary<string, TranscodeStatus>>(a.TranscodeStatusJSONB)
+                ?? new Dictionary<string, TranscodeStatus>()
           })
           .ToList()
       };
