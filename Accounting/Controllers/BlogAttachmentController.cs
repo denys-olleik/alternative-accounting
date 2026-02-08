@@ -57,18 +57,16 @@ namespace Accounting.Controllers
         return BadRequest();
       }
 
-      var currentStatus = await _blogAttachmentService.GetTranscodeStatusAsync(
+      var existingStatus = await _blogAttachmentService.GetTranscodeStatusAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
         GetOrganizationId()!.Value
       );
 
-      // Only enqueue if no variant exists yet
-      if (currentStatus != null &&
-          (currentStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued ||
-           currentStatus.State == BlogAttachment.BlogAttachmentEncoderStatusConstants.Processing))
+      // If a variant already exists, return its current state
+      if (existingStatus != null)
       {
-        return Ok(currentStatus);
+        return Ok(existingStatus);
       }
 
       string filePath = blogAttachment.FilePath;
@@ -81,7 +79,7 @@ namespace Accounting.Controllers
       string ffmpegArgsForOption = BuildFfmpegArgs(encoderOption, inputPath, outputPath);
       string command = $"ffmpeg {ffmpegArgsForOption}";
 
-      TranscodeStatus status = await _blogAttachmentService.UpdateAsync(
+      TranscodeStatus? status = await _blogAttachmentService.UpdateAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
         BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
