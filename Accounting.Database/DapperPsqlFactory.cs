@@ -7450,6 +7450,28 @@ namespace Accounting.Database
             """, p);
         }
       }
+
+      public async Task<List<Tenant>> GetAllTenantsAsync()
+      {
+        IEnumerable<Tenant> result;
+
+        NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(_connectionString)
+        {
+          Database = DatabaseThing.DatabaseConstants.DatabaseName,
+          Password = ConfigurationSingleton.Instance.DatabasePassword
+        };
+
+        using (NpgsqlConnection con = new NpgsqlConnection(builder.ConnectionString))
+        {
+          result = await con.QueryAsync<Tenant>("""
+            SELECT * 
+            FROM "Tenant"
+            ORDER BY "TenantID" DESC
+            """);
+        }
+
+        return result.ToList();
+      }
     }
 
     public ISecretManager GetSecretManager()

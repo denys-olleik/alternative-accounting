@@ -35,5 +35,6 @@ namespace Accounting.Database.Interfaces
     Task<int> UpdateUserEmailAsync(string oldEmail, string newEmail);
     Task<Tenant?> GetByDomainAsync(string fullyQualifiedDomainName);
     System.Threading.Tasks.Task UpdateTenantDatabasePassword(int tenantId, string databasePassword);
+    Task<List<Tenant>> GetAllTenantsAsync();
   }
 }
