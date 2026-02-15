@@ -19,7 +19,7 @@ namespace Accounting.Service
 
     }
 
-    public async Task<TranscodeStatus> UpdateAsync(
+    public async Task<TranscodeStatus?> UpdateAsync(
       int blogAttachmentID, 
       string encoderOption, 
       string state, 
