@@ -72,7 +72,7 @@ namespace Accounting.Service
       return await factoryManager.GetBlogAttachmentManager().GetAsync(blogAttachmentId, organizationId);
     }
 
-    public async Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentID, string encoderOption, int organizationId)
+    public async Task<TranscodeStatus?> GetTranscodeStatusAsync(int blogAttachmentID, string encoderOption, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetBlogAttachmentManager().GetTranscodeStatusAsync(blogAttachmentID, encoderOption, organizationId);
