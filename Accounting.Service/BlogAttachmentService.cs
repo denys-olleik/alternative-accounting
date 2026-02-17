@@ -181,7 +181,7 @@ namespace Accounting.Service
       return await factoryManager.GetBlogAttachmentManager().GetAllAsync(blogId, organizationId);
     }
 
-    public async Task<BlogAttachment> GetOldestAsync(string blogAttachmentEncoderStatusConstant)
+    public async Task<BlogAttachment?> GetOldestAsync(string blogAttachmentEncoderStatusConstant)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetBlogAttachmentManager().GetOldestAsync(blogAttachmentEncoderStatusConstant);

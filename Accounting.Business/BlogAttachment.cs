@@ -77,7 +77,7 @@ namespace Accounting.Business
   public class TranscodeStatus
   {
     public string State { get; set; }
-    public int? Percent { get; set; }
+    public string? ProgressFilePath { get; set; }
     public DateTime? PercentLastUpdated { get; set; }
     public string? PerVariantOutputPath { get; set; }
     public string? Command { get; set; }
