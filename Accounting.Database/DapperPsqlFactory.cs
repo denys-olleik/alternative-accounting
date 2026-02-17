@@ -9221,6 +9221,26 @@ namespace Accounting.Database
         return result.SingleOrDefault();
       }
 
+      public async Task<BlogAttachment?> GetOldestAsync(string blogAttachmentEncoderStatusConstant)
+      {
+        const string sql = """
+          UPDATE "BlogAttachment"
+          SET "TranscodeStatusJSONB" = jsonb_set(
+              "TranscodeStatusJSONB",
+              ARRAY[@Variant],
+              jsonb_build_object('state', 'processing'),
+              true
+          )
+          WHERE "TranscodeStatusJSONB"->@Variant->>'state' = @QueuedState
+          RETURNING * 
+          FOR UPDATE SKIP LOCKED
+          LIMIT 1;
+          """;
+
+        using var con = new NpgsqlConnection(_connectionString);
+        return await con.QuerySingleOrDefaultAsync<BlogAttachment>(sql, new { QueuedState = BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued, Variant = "mp3" });
+      }
+
       public async Task<TranscodeStatus?> GetTranscodeStatusAsync(
         int blogAttachmentId,
         string encoderOption,

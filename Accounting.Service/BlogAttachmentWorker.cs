@@ -37,7 +37,7 @@ namespace Accounting.Workers
                 tenant.DatabaseName,
                 tenant.DatabasePassword);
 
-            //BlogAttachment blogAttachment = await blogAttachmentService.GetOldestAsync(BlogAttachmentEncoderStatusConstants.Processing);
+            BlogAttachment blogAttachment = await blogAttachmentService.GetOldestAsync(BlogAttachmentEncoderStatusConstants.Processing);
           }
         }
 

@@ -22,5 +22,6 @@ namespace Accounting.Database.Interfaces
 
     Task<TranscodeStatus> GetTranscodeStatusAsync(int blogAttachmentId, string encoderOption, int organizationId);
     Task<IEnumerable<BlogAttachment>> GetAllAsync(int blogId, int organizationId);
+    Task<BlogAttachment> GetOldestAsync(string blogAttachmentEncoderStatusConstant);
   }
 }
