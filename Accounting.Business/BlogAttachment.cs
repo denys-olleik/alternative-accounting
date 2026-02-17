@@ -78,8 +78,7 @@ namespace Accounting.Business
   {
     public string State { get; set; }
     public string? ProgressFilePath { get; set; }
-    public DateTime? PercentLastUpdated { get; set; }
-    public string? PerVariantOutputPath { get; set; }
+    public string? VariantPath { get; set; }
     public string? Command { get; set; }
   }
 }
