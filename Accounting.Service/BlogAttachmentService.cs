@@ -34,7 +34,7 @@ namespace Accounting.Service
         blogAttachmentID, 
         encoderOption,
         state, 
-        0,
+        null,
         outputPath,
         command,
         userId, 

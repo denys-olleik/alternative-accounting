@@ -9339,7 +9339,7 @@ namespace Accounting.Database
         int blogAttachmentId,
         string encoderOption,
         string state,
-        int progress,
+        string? progressFilePath,
         string perVariantOutputPath,
         string command,
         int userId,
@@ -9353,10 +9353,10 @@ namespace Accounting.Database
               ARRAY[@EncoderOption],
               jsonb_build_object(
                 'state', @State,
-                'percent', @Percent,
                 'percentLastUpdated', CURRENT_TIMESTAMP AT TIME ZONE 'UTC',
                 'path', @Path,
-                'command', @Command
+                'command', @Command,
+                'progressFilePath', @ProgressFilePath
               ),
               true
             )
@@ -9370,9 +9370,9 @@ namespace Accounting.Database
         p.Add("@OrganizationId", organizationId);
         p.Add("@EncoderOption", encoderOption);
         p.Add("@State", state);
-        p.Add("@Percent", progress);
         p.Add("@Path", perVariantOutputPath);
         p.Add("@Command", command);
+        p.Add("@ProgressFilePath", progressFilePath);
 
         using var con = new NpgsqlConnection(_connectionString);
 

@@ -14,7 +14,7 @@ namespace Accounting.Database.Interfaces
       int blogAttachmentId,
       string encoderOption,
       string state,
-      int progress,
+      string? progressFilePath,
       string path,
       string command,
       int userId,
