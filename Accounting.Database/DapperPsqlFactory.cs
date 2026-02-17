@@ -9221,24 +9221,42 @@ namespace Accounting.Database
         return result.SingleOrDefault();
       }
 
-      public async Task<BlogAttachment?> GetOldestAsync(string blogAttachmentEncoderStatusConstant)
+      public async Task<BlogAttachment?> GetOldestAsync()
       {
         const string sql = """
-          UPDATE "BlogAttachment"
+          WITH next_row AS (
+              SELECT b."BlogAttachmentID"
+              FROM "BlogAttachment" b
+              WHERE EXISTS (
+                  SELECT 1
+                  FROM jsonb_each(b."TranscodeStatusJSONB")
+                  WHERE value->>'state' = 'queued'
+              )
+              ORDER BY b."Created" ASC
+              FOR UPDATE SKIP LOCKED
+              LIMIT 1
+          )
+          UPDATE "BlogAttachment" b
           SET "TranscodeStatusJSONB" = jsonb_set(
-              "TranscodeStatusJSONB",
-              ARRAY[@Variant],
+              b."TranscodeStatusJSONB",
+              ARRAY[
+                  (
+                      SELECT key
+                      FROM jsonb_each(b."TranscodeStatusJSONB")
+                      WHERE value->>'state' = 'queued'
+                      LIMIT 1
+                  )
+              ],
               jsonb_build_object('state', 'processing'),
               true
           )
-          WHERE "TranscodeStatusJSONB"->@Variant->>'state' = @QueuedState
-          RETURNING * 
-          FOR UPDATE SKIP LOCKED
-          LIMIT 1;
+          FROM next_row
+          WHERE b."BlogAttachmentID" = next_row."BlogAttachmentID"
+          RETURNING b.*;
           """;
 
         using var con = new NpgsqlConnection(_connectionString);
-        return await con.QuerySingleOrDefaultAsync<BlogAttachment>(sql, new { QueuedState = BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued, Variant = "mp3" });
+        return await con.QuerySingleOrDefaultAsync<BlogAttachment>(sql);
       }
 
       public async Task<TranscodeStatus?> GetTranscodeStatusAsync(
