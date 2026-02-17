@@ -9,6 +9,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Transactions;
+using static Accounting.Business.BlogAttachment;
 using static Accounting.Business.Claim;
 using static Dapper.SqlMapper;
 using static System.Net.Mime.MediaTypeNames;
@@ -9221,7 +9222,7 @@ namespace Accounting.Database
         return result.SingleOrDefault();
       }
 
-      public async Task<BlogAttachment?> GetOldestAsync()
+      public async Task<BlogAttachment?> GetOldestAsync(string blogAttachmentEncoderStatusConstant)
       {
         const string sql = """
           WITH next_row AS (
