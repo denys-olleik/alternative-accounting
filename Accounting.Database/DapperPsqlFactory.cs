@@ -9225,39 +9225,39 @@ namespace Accounting.Database
       public async Task<BlogAttachment?> GetOldestAsync(string blogAttachmentEncoderStatusConstant)
       {
         const string sql = """
-          WITH next_row AS (
-              SELECT b."BlogAttachmentID"
-              FROM "BlogAttachment" b
-              WHERE EXISTS (
-                  SELECT 1
-                  FROM jsonb_each(b."TranscodeStatusJSONB")
-                  WHERE value->>'state' = 'queued'
-              )
-              ORDER BY b."Created" ASC
-              FOR UPDATE SKIP LOCKED
-              LIMIT 1
+          WITH row AS (
+            SELECT b."BlogAttachmentID"
+            FROM "BlogAttachment" b
+            WHERE EXISTS (
+              SELECT 1
+              FROM jsonb_each(b."TranscodeStatusJSONB")
+              WHERE value->>'state' = 'queued'
+            )
+            ORDER BY b."Created" ASC
+            FOR UPDATE SKIP LOCKED
+            LIMIT 1
           )
           UPDATE "BlogAttachment" b
           SET "TranscodeStatusJSONB" = jsonb_set(
-              b."TranscodeStatusJSONB",
-              ARRAY[
-                  (
-                      SELECT key
-                      FROM jsonb_each(b."TranscodeStatusJSONB")
-                      WHERE value->>'state' = 'queued'
-                      LIMIT 1
-                  )
-              ],
-              jsonb_build_object('state', 'processing'),
-              true
+            b."TranscodeStatusJSONB",
+            ARRAY[
+              (
+                SELECT key
+                FROM jsonb_each(b."TranscodeStatusJSONB")
+                WHERE value->>'state' = 'queued'
+                LIMIT 1
+              )
+            ],
+            jsonb_build_object('state', @TargetStatus),
+            true
           )
-          FROM next_row
-          WHERE b."BlogAttachmentID" = next_row."BlogAttachmentID"
+          FROM row
+          WHERE b."BlogAttachmentID" = row."BlogAttachmentID"
           RETURNING b.*;
           """;
 
         using var con = new NpgsqlConnection(_connectionString);
-        return await con.QuerySingleOrDefaultAsync<BlogAttachment>(sql);
+        return await con.QuerySingleOrDefaultAsync<BlogAttachment>(sql, new { TargetStatus = blogAttachmentEncoderStatusConstant });
       }
 
       public async Task<TranscodeStatus?> GetTranscodeStatusAsync(
