@@ -7451,7 +7451,7 @@ namespace Accounting.Database
         }
       }
 
-      public async Task<List<Tenant>> GetAllTenantsAsync()
+      public async Task<List<Tenant>> GetAllTenantsAsync(bool remote = false)
       {
         IEnumerable<Tenant> result;
 
@@ -7464,10 +7464,12 @@ namespace Accounting.Database
         using (NpgsqlConnection con = new NpgsqlConnection(builder.ConnectionString))
         {
           result = await con.QueryAsync<Tenant>("""
-            SELECT * 
+            SELECT *
             FROM "Tenant"
+            WHERE (@remote = false OR "Ipv4" IS NOT NULL)
             ORDER BY "TenantID" DESC
-            """);
+            """,
+            new { remote });
         }
 
         return result.ToList();

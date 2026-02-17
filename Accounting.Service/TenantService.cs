@@ -131,10 +131,12 @@ namespace Accounting.Service
       return await factoryManager.GetTenantManager().GetByDomainAsync(fullyQualifiedDomainName);
     }
 
-    public async Task<List<Tenant>> GetAllTenantsAsync()
+    public async Task<List<Tenant>> GetAllTenantsAsync(bool remote = false)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetTenantManager().GetAllTenantsAsync();
+      return await factoryManager
+        .GetTenantManager()
+        .GetAllTenantsAsync(remote);
     }
   }
 }
