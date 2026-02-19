@@ -10,7 +10,7 @@ namespace Accounting.Business
     public string OriginalFileName { get; set; }
     public string FilePath { get; set; }
     public string TranscodeStatusJSONB { get; set; }
-    public TranscodeStatus TranscodeStatus { get; set; }
+    public Dictionary<string, TranscodeStatus> TranscodeStatus { get; set; }
     public DateTime Created { get; set; }
     public int CreatedById { get; set; }
     public int OrganizationId { get; set; }
