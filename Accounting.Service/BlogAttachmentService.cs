@@ -30,7 +30,7 @@ namespace Accounting.Service
       int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetBlogAttachmentManager().UpdateTranscodeStatusJSONBAsync(
+      return await factoryManager.GetBlogAttachmentVariantManager().UpdateTranscodeStatusJSONBAsync(
         blogAttachmentID, 
         encoderOption,
         state, 

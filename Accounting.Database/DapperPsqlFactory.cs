@@ -9335,52 +9335,102 @@ namespace Accounting.Database
         return rowsAffected;
       }
 
-      public async Task<TranscodeStatus?> UpdateTranscodeStatusJSONBAsync(
-        int blogAttachmentId,
-        string encoderOption,
-        string state,
-        string? progressFilePath,
-        string variantPath,
-        string command,
-        int userId,
-        int organizationId)
+      //public async Task<TranscodeStatus?> UpdateTranscodeStatusJSONBAsync(
+      //  int blogAttachmentId,
+      //  string encoderOption,
+      //  string state,
+      //  string? progressFilePath,
+      //  string variantPath,
+      //  string command,
+      //  int userId,
+      //  int organizationId)
+      //{
+      //  const string sql = """
+      //    UPDATE "BlogAttachment"
+      //    SET "TranscodeStatusJSONB" =
+      //      jsonb_set(
+      //        COALESCE("TranscodeStatusJSONB", '{}'::jsonb),
+      //        ARRAY[@EncoderOption],
+      //        jsonb_build_object(
+      //          'state', @State,
+      //          'progressFilePath', @ProgressFilePath,
+      //          'variantPath', @VariantPath,
+      //          'command', @Command
+      //        ),
+      //        true
+      //      )
+      //    WHERE "BlogAttachmentID" = @BlogAttachmentID
+      //      AND "OrganizationId" = @OrganizationId
+      //    RETURNING ("TranscodeStatusJSONB" -> @EncoderOption)::text;
+      //    """;
+
+      //  var p = new DynamicParameters();
+      //  p.Add("@BlogAttachmentID", blogAttachmentId);
+      //  p.Add("@OrganizationId", organizationId);
+      //  p.Add("@EncoderOption", encoderOption);
+      //  p.Add("@State", state);
+      //  p.Add("@ProgressFilePath", progressFilePath);
+      //  p.Add("@VariantPath", variantPath);
+      //  p.Add("@Command", command);
+
+      //  using var con = new NpgsqlConnection(_connectionString);
+
+      //  var json = await con.QuerySingleOrDefaultAsync<string>(sql, p);
+
+      //  if (string.IsNullOrWhiteSpace(json) || json == "null")
+      //    return null;
+
+      //  return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json);
+      //}
+    }
+
+    public IBlogAttachmentVariantManager GetBlogAttachmentVariantManager()
+    {
+      return new BlogAttachmentVariantManager(_connectionString);
+    }
+
+    public class BlogAttachmentVariantManager : IBlogAttachmentVariantManager
+    {
+      private readonly string _connectionString;
+
+      public BlogAttachmentVariantManager(string connectionString)
       {
-        const string sql = """
-          UPDATE "BlogAttachment"
-          SET "TranscodeStatusJSONB" =
-            jsonb_set(
-              COALESCE("TranscodeStatusJSONB", '{}'::jsonb),
-              ARRAY[@EncoderOption],
-              jsonb_build_object(
-                'state', @State,
-                'progressFilePath', @ProgressFilePath,
-                'variantPath', @VariantPath,
-                'command', @Command
-              ),
-              true
-            )
-          WHERE "BlogAttachmentID" = @BlogAttachmentID
-            AND "OrganizationId" = @OrganizationId
-          RETURNING ("TranscodeStatusJSONB" -> @EncoderOption)::text;
-          """;
+        _connectionString = connectionString;
+      }
 
-        var p = new DynamicParameters();
-        p.Add("@BlogAttachmentID", blogAttachmentId);
-        p.Add("@OrganizationId", organizationId);
-        p.Add("@EncoderOption", encoderOption);
-        p.Add("@State", state);
-        p.Add("@ProgressFilePath", progressFilePath);
-        p.Add("@VariantPath", variantPath);
-        p.Add("@Command", command);
+      public BlogAttachmentVariant Create(BlogAttachmentVariant entity)
+      {
+        throw new NotImplementedException();
+      }
 
-        using var con = new NpgsqlConnection(_connectionString);
+      public Task<BlogAttachmentVariant> CreateAsync(BlogAttachmentVariant entity)
+      {
+        throw new NotImplementedException();
+      }
 
-        var json = await con.QuerySingleOrDefaultAsync<string>(sql, p);
+      public int Delete(int id)
+      {
+        throw new NotImplementedException();
+      }
 
-        if (string.IsNullOrWhiteSpace(json) || json == "null")
-          return null;
+      public BlogAttachmentVariant Get(int id)
+      {
+        throw new NotImplementedException();
+      }
 
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json);
+      public IEnumerable<BlogAttachmentVariant> GetAll()
+      {
+        throw new NotImplementedException();
+      }
+
+      public int Update(BlogAttachmentVariant entity)
+      {
+        throw new NotImplementedException();
+      }
+
+      public Task<TranscodeStatus?> UpdateTranscodeStatusJSONBAsync(int blogAttachmentID, string encoderOption, string state, string vaprogressFilePathlue, string outputPath, string command, int userId, int organizationId)
+      {
+        throw new NotImplementedException();
       }
     }
 

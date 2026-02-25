@@ -3,7 +3,6 @@ using Accounting.Common;
 using Accounting.CustomAttributes;
 using Accounting.Models.BlogAttachmentViewModels;
 using Accounting.Service;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounting.Controllers
@@ -14,6 +13,7 @@ namespace Accounting.Controllers
   public class BlogAttachmentApiController : BaseController
   {
     private readonly BlogAttachmentService _blogAttachmentService;
+    //private readonly BlogAttachmentVariant _blogAttachmentVariant;
 
     public BlogAttachmentApiController(
       RequestContext requestContext)
@@ -41,51 +41,40 @@ namespace Accounting.Controllers
     [HttpPost("schedule-transcode/{blogAttachmentId:int}")]
     public async Task<IActionResult> ScheduleTranscode(int blogAttachmentId, BlogAttachmentTranscodeRequest request)
     {
-      BlogAttachment blogAttachment = await _blogAttachmentService.GetAsync(
+      BlogAttachment? blogAttachment = await _blogAttachmentService.GetAsync(
         blogAttachmentId,
-        GetOrganizationId()!.Value
-      );
+        GetOrganizationId()!.Value);
 
       if (blogAttachment is null)
-      {
-        return BadRequest();
-      }
+        return BadRequest("Blog attachment not found.");
 
-      string? encoderOption = request.EncoderOption; // "mp3", "720p", "original"
-      if (string.IsNullOrWhiteSpace(encoderOption))
-      {
-        return BadRequest();
-      }
+      if (string.IsNullOrWhiteSpace(request.EncoderOption))
+        return BadRequest("Encoder option is required.");
+
+      string encoderOption = request.EncoderOption.Trim().ToLowerInvariant();
+
+      if (!IsSupportedEncoderOption(encoderOption))
+        return BadRequest("Unsupported encoder option.");
 
       var existingStatus = await _blogAttachmentService.GetTranscodeStatusAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
-        GetOrganizationId()!.Value
-      );
+        GetOrganizationId()!.Value);
 
-      // If a variant already exists, return its current state
       if (existingStatus != null)
-      {
         return Ok(existingStatus);
-      }
 
-      string filePath = blogAttachment.FilePath;
-      string? directoryPart = Path.GetDirectoryName(filePath);
-      string file = Path.GetFileName(filePath);
-
-      string inputPath = Path.Combine(directoryPart!, file);
+      string inputPath = blogAttachment.FilePath;
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
 
-      string ffmpegArgsForOption = BuildFfmpegArgs(encoderOption, inputPath, outputPath);
-      string command = $"ffmpeg {ffmpegArgsForOption}";
-
+      // Persist structured execution intent only (NO ffmpeg command yet)
       TranscodeStatus? status = await _blogAttachmentService.UpdateAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
-        BlogAttachment.BlogAttachmentEncoderStatusConstants.Queued,
+        BlogAttachmentVariant.StateConstants.Queued,
         0,
         outputPath,
-        command,
+        command: null, // Worker will construct actual command
         GetUserId(),
         GetOrganizationId()!.Value
       );
@@ -93,38 +82,24 @@ namespace Accounting.Controllers
       return Ok(status);
     }
 
-    private static string BuildFfmpegArgs(string encoderOption, string inputPath, string outputPath)
+    private static bool IsSupportedEncoderOption(string option)
     {
-      if (string.IsNullOrWhiteSpace(encoderOption)) throw new ArgumentException(nameof(encoderOption));
-      if (string.IsNullOrWhiteSpace(inputPath)) throw new ArgumentException(nameof(inputPath));
-      if (string.IsNullOrWhiteSpace(outputPath)) throw new ArgumentException(nameof(outputPath));
-
-      var opt = encoderOption.Trim().ToLowerInvariant();
-
-      return opt switch
+      return option switch
       {
-        "mp3" =>
-          $"-y -hide_banner -nostdin -i \"{inputPath}\" -vn -c:a libmp3lame -q:a 2 \"{outputPath}\"",
-
-        "720p" =>
-          $"-y -hide_banner -nostdin -i \"{inputPath}\" -vf \"scale=-2:720\" -c:v libx264 -preset veryfast -crf 23 -c:a aac -b:a 128k \"{outputPath}\"",
-
-        "original" =>
-          $"-y -hide_banner -nostdin -i \"{inputPath}\" -c copy \"{outputPath}\"",
-
-        _ => throw new ArgumentOutOfRangeException(nameof(encoderOption), encoderOption, "Unsupported encoder option")
+        "mp3" => true,
+        "720p" => true,
+        "original" => true,
+        _ => false
       };
     }
 
     private static string DeriveVariantOutputPath(string inputPath, string encoderOption)
     {
-      string directory = Path.GetDirectoryName(inputPath);
+      string directory = Path.GetDirectoryName(inputPath)!;
       string inputFileName = Path.GetFileNameWithoutExtension(inputPath);
       string inputExt = Path.GetExtension(inputPath);
 
-      string normalized = encoderOption.Trim().ToLowerInvariant();
-
-      string outputExt = normalized switch
+      string outputExt = encoderOption switch
       {
         "mp3" => ".mp3",
         "720p" => inputExt,
@@ -132,7 +107,7 @@ namespace Accounting.Controllers
         _ => inputExt
       };
 
-      string outputFileName = $"{normalized}.{inputFileName}{outputExt}";
+      string outputFileName = $"{encoderOption}.{inputFileName}{outputExt}";
       return Path.Combine(directory, outputFileName);
     }
   }
