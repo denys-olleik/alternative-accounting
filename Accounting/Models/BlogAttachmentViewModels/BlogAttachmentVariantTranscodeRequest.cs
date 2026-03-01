@@ -1,6 +1,6 @@
 ﻿namespace Accounting.Models.BlogAttachmentViewModels
 {
-  public class BlogAttachmentTranscodeRequest
+  public class BlogAttachmentVariantTranscodeRequest
   {
     public string EncoderOption { get; set; }
   }

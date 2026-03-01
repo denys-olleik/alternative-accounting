@@ -13,7 +13,7 @@ namespace Accounting.Controllers
   public class BlogAttachmentApiController : BaseController
   {
     private readonly BlogAttachmentService _blogAttachmentService;
-    //private readonly BlogAttachmentVariant _blogAttachmentVariant;
+    private readonly BlogAttachmentVariantService _blogAttachmentVariantService;
 
     public BlogAttachmentApiController(
       RequestContext requestContext)
@@ -39,7 +39,7 @@ namespace Accounting.Controllers
     }
 
     [HttpPost("schedule-transcode/{blogAttachmentId:int}")]
-    public async Task<IActionResult> ScheduleTranscode(int blogAttachmentId, BlogAttachmentTranscodeRequest request)
+    public async Task<IActionResult> ScheduleTranscode(int blogAttachmentId, BlogAttachmentVariantTranscodeRequest request)
     {
       BlogAttachment? blogAttachment = await _blogAttachmentService.GetAsync(
         blogAttachmentId,
