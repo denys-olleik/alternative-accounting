@@ -9423,6 +9423,32 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+      public async Task<BlogAttachmentVariant> GetBlogAttachmentVariantAsync(
+        int blogAttachmentID,
+        string encoderOption,
+        int organizationId)
+      {
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@BlogAttachmentID", blogAttachmentID);
+        p.Add("@EncoderOption", encoderOption);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<BlogAttachmentVariant> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<BlogAttachmentVariant>("""
+            SELECT *
+            FROM "BlogAttachmentVariant"
+            WHERE "BlogAttachmentID" = @BlogAttachmentID
+            AND "EncoderOption" = @EncoderOption
+            AND "OrganizationId" = @OrganizationId
+            """, p);
+        }
+
+        return result.SingleOrDefault()!;
+      }
+
       public int Update(BlogAttachmentVariant entity)
       {
         throw new NotImplementedException();

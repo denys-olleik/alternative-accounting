@@ -56,13 +56,13 @@ namespace Accounting.Controllers
       if (!IsSupportedEncoderOption(encoderOption))
         return BadRequest("Unsupported encoder option.");
 
-      var existingStatus = await _blogAttachmentService.GetTranscodeStatusAsync(
+      BlogAttachmentVariant existingVariant = await _blogAttachmentVariantService.GetBlogAttachmentVariantAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
         GetOrganizationId()!.Value);
 
-      if (existingStatus != null)
-        return Ok(existingStatus);
+      if (existingVariant != null)
+        return Ok(existingVariant);
 
       string inputPath = blogAttachment.FilePath;
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);

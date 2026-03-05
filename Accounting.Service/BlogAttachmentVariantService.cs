@@ -19,5 +19,14 @@ namespace Accounting.Service
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
       return await factoryManager.GetBlogAttachmentVariantManager().CreateAsync(variant);
     }
+
+    public async Task<BlogAttachmentVariant> GetBlogAttachmentVariantAsync(
+      int blogAttachmentID, 
+      string encoderOption, 
+      int organizationId)
+    {
+      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
+      return await factoryManager.GetBlogAttachmentVariantManager().GetBlogAttachmentVariantAsync(blogAttachmentID, encoderOption, organizationId);
+    }
   }
 }
