@@ -9454,9 +9454,62 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public Task<TranscodeStatus?> UpdateTranscodeStatusJSONBAsync(int blogAttachmentID, string encoderOption, string state, string vaprogressFilePathlue, string outputPath, string command, int userId, int organizationId)
+      public async Task<TranscodeStatus?> UpdateAsync(
+        int blogAttachmentID,
+        string encoderOption,
+        string state,
+        string vaprogressFilePathlue,
+        string outputPath,
+        string command,
+        int userId,
+        int organizationId)
       {
-        throw new NotImplementedException();
+        DynamicParameters p = new DynamicParameters();
+        p.Add("@BlogAttachmentID", blogAttachmentID);
+        p.Add("@EncoderOption", encoderOption);
+        p.Add("@State", state);
+        p.Add("@ProgressFilePath", vaprogressFilePathlue);
+        p.Add("@VariantPath", outputPath);
+        p.Add("@Command", command);
+        p.Add("@CreatedById", userId);
+        p.Add("@OrganizationId", organizationId);
+
+        IEnumerable<TranscodeStatus> result;
+
+        using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+        {
+          result = await con.QueryAsync<TranscodeStatus>("""
+            INSERT INTO "BlogAttachmentVariant" (
+              "BlogAttachmentID",
+              "EncoderOption",
+              "State",
+              "ProgressFilePath",
+              "VariantPath",
+              "Command",
+              "CreatedById",
+              "OrganizationId",
+              "Created")
+            VALUES (
+              @BlogAttachmentID,
+              @EncoderOption,
+              @State,
+              @ProgressFilePath,
+              @VariantPath,
+              @Command,
+              @CreatedById,
+              @OrganizationId,
+              CURRENT_TIMESTAMP)
+            ON CONFLICT ("BlogAttachmentID","EncoderOption")
+            DO UPDATE SET
+              "State" = EXCLUDED."State",
+              "ProgressFilePath" = EXCLUDED."ProgressFilePath",
+              "VariantPath" = EXCLUDED."VariantPath",
+              "Command" = EXCLUDED."Command"
+            RETURNING *;
+            """, p);
+        }
+
+        return result.SingleOrDefault();
       }
     }
 

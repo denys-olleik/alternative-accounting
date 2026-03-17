@@ -34,21 +34,21 @@
 ### Journal, Chart of Accounts, and Transactions
 
 **Double entry:**
-```double entry
+```
 | Account               | Debit | Credit |
 |-----------------------|-------|--------|
-| Accounts Receivable   | 100   |        |asset
-| Sales Revenue         |       | 100    |revenue
+| Accounts Receivable   | 100   |        |asset / актив
+| Sales Revenue         |       | 100    |revenue / доход
+```
+**Balanced entry:**
+```
+| Account               | Debit | Credit |
+|-----------------------|-------|--------|
+| Accounts Receivable   | 106   |        |asset / актив
+| Sales Revenue         |       | 100    |revenue / доход
+| Sales Tax (VAT)       |       | 6      |liability / обязательство
 ```
 
-**Balanced entry:**
-```balanced entry
-| Account               | Debit | Credit |
-|-----------------------|-------|--------|
-| Accounts Receivable   | 123   |        |asset
-| Sales Revenue         |       | 100    |revenue
-| Sales Tax (VAT)       |       | 23     |liability
-```
 
 ```markdown
 | Account    | Debit    | Credit   |
