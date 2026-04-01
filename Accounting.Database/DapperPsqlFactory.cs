@@ -9260,31 +9260,31 @@ namespace Accounting.Database
         return await con.QuerySingleOrDefaultAsync<BlogAttachment>(sql, new { TargetStatus = blogAttachmentEncoderStatusConstant });
       }
 
-      public async Task<TranscodeStatus?> GetTranscodeStatusAsync(
-        int blogAttachmentId,
-        string encoderOption,
-        int organizationId)
-      {
-        const string sql = """
-          SELECT ("TranscodeStatusJSONB" -> @EncoderOption)::text AS "Json"
-          FROM "BlogAttachment"
-          WHERE "BlogAttachmentID" = @BlogAttachmentID
-            AND "OrganizationId" = @OrganizationId;
-          """;
+      //public async Task<TranscodeStatus?> GetTranscodeStatusAsync(
+      //  int blogAttachmentId,
+      //  string encoderOption,
+      //  int organizationId)
+      //{
+      //  const string sql = """
+      //    SELECT ("TranscodeStatusJSONB" -> @EncoderOption)::text AS "Json"
+      //    FROM "BlogAttachment"
+      //    WHERE "BlogAttachmentID" = @BlogAttachmentID
+      //      AND "OrganizationId" = @OrganizationId;
+      //    """;
 
-        var p = new DynamicParameters();
-        p.Add("@BlogAttachmentID", blogAttachmentId);
-        p.Add("@OrganizationId", organizationId);
-        p.Add("@EncoderOption", encoderOption);
+      //  var p = new DynamicParameters();
+      //  p.Add("@BlogAttachmentID", blogAttachmentId);
+      //  p.Add("@OrganizationId", organizationId);
+      //  p.Add("@EncoderOption", encoderOption);
 
-        using var con = new NpgsqlConnection(_connectionString);
+      //  using var con = new NpgsqlConnection(_connectionString);
 
-        var json = await con.QuerySingleOrDefaultAsync<string>(sql, p);
-        if (string.IsNullOrWhiteSpace(json) || json == "null")
-          return null;
+      //  var json = await con.QuerySingleOrDefaultAsync<string>(sql, p);
+      //  if (string.IsNullOrWhiteSpace(json) || json == "null")
+      //    return null;
 
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json);
-      }
+      //  return Newtonsoft.Json.JsonConvert.DeserializeObject<TranscodeStatus>(json);
+      //}
 
       public int Update(BlogAttachment entity)
       {
@@ -9454,7 +9454,7 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
-      public async Task<TranscodeStatus?> UpdateAsync(
+      public async Task<BlogAttachmentVariant?> UpdateAsync(
         int blogAttachmentID,
         string encoderOption,
         string state,
@@ -9474,11 +9474,11 @@ namespace Accounting.Database
         p.Add("@CreatedById", userId);
         p.Add("@OrganizationId", organizationId);
 
-        IEnumerable<TranscodeStatus> result;
+        IEnumerable<BlogAttachmentVariant> result;
 
         using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
         {
-          result = await con.QueryAsync<TranscodeStatus>("""
+          result = await con.QueryAsync<BlogAttachmentVariant>("""
             INSERT INTO "BlogAttachmentVariant" (
               "BlogAttachmentID",
               "EncoderOption",

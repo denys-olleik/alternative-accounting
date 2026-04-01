@@ -8,7 +8,7 @@ namespace Accounting.Database.Interfaces
       int blogAttachmentID, 
       string encoderOption, 
       int organizationId);
-    Task<TranscodeStatus?> UpdateAsync(
+    Task<BlogAttachmentVariant?> UpdateAsync(
       int blogAttachmentID, 
       string encoderOption, 
       string state, 

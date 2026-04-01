@@ -35,34 +35,35 @@ namespace Accounting.Controllers
     [HttpGet("update/{blogID}")]
     public async Task<IActionResult> Update(int blogID)
     {
-      Blog blog = await _blogService.GetAsync(blogID);
+      //Blog blog = await _blogService.GetAsync(blogID);
 
-      if (blog == null)
-      {
-        return NotFound();
-      }
+      //if (blog == null)
+      //{
+      //  return NotFound();
+      //}
 
-      var updateBlogViewModel = new UpdateBlogViewModel
-      {
-        BlogID = blog.BlogID,
-        Title = blog.Title,
-        Content = blog.Content,
-        Public = !string.IsNullOrEmpty(blog.PublicId),
-        Attachments = (await _blogAttachmentService.GetAllAsync(blog.BlogID, GetOrganizationId()!.Value))
-          .Select(a => (IAttachmentViewModel)new BlogAttachmentViewModel
-          {
-            BlogAttachmentID = a.BlogAttachmentID,
-            FileName = a.OriginalFileName,
-            TranscodeStatusJSONB = a.TranscodeStatusJSONB,
-            TranscodeStatusByVariant = string.IsNullOrWhiteSpace(a.TranscodeStatusJSONB)
-              ? new Dictionary<string, TranscodeStatus>()
-              : JsonConvert.DeserializeObject<Dictionary<string, TranscodeStatus>>(a.TranscodeStatusJSONB)
-                ?? new Dictionary<string, TranscodeStatus>()
-          })
-          .ToList()
-      };
+      //var updateBlogViewModel = new UpdateBlogViewModel
+      //{
+      //  BlogID = blog.BlogID,
+      //  Title = blog.Title,
+      //  Content = blog.Content,
+      //  Public = !string.IsNullOrEmpty(blog.PublicId),
+      //  Attachments = (await _blogAttachmentService.GetAllAsync(blog.BlogID, GetOrganizationId()!.Value))
+      //    .Select(a => (IAttachmentViewModel)new BlogAttachmentViewModel
+      //    {
+      //      BlogAttachmentID = a.BlogAttachmentID,
+      //      FileName = a.OriginalFileName,
+      //      TranscodeStatusJSONB = a.TranscodeStatusJSONB,
+      //      TranscodeStatusByVariant = string.IsNullOrWhiteSpace(a.TranscodeStatusJSONB)
+      //        ? new Dictionary<string, TranscodeStatus>()
+      //        : JsonConvert.DeserializeObject<Dictionary<string, TranscodeStatus>>(a.TranscodeStatusJSONB)
+      //          ?? new Dictionary<string, TranscodeStatus>()
+      //    })
+      //    .ToList()
+      //};
 
-      return View(updateBlogViewModel);
+      //return View(updateBlogViewModel);
+      return View();
     }
 
     [HttpPost("update/{blogID}")]

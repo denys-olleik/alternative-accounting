@@ -79,7 +79,7 @@ builder.Services.AddScoped<PlayerService>();
 builder.Services.AddScoped<ReserveService>();
 builder.Services.AddScoped<FfmpegService>();
 builder.Services.AddScoped<BlogAttachmentService>();
-builder.Services.AddHostedService<Accounting.Workers.BlogAttachmentWorker>();
+//builder.Services.AddHostedService<Accounting.Workers.BlogAttachmentWorker>();
 
 ConfigurationSingleton.Instance.ApplicationName =
     !string.IsNullOrEmpty(builder.Configuration["Whitelabel"])

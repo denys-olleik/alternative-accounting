@@ -9,8 +9,6 @@ namespace Accounting.Business
     public int BlogId { get; set; }
     public string OriginalFileName { get; set; }
     public string FilePath { get; set; }
-    public string TranscodeStatusJSONB { get; set; }
-    public Dictionary<string, TranscodeStatus> TranscodeStatus { get; set; }
     public DateTime Created { get; set; }
     public int CreatedById { get; set; }
     public int OrganizationId { get; set; }
@@ -74,11 +72,11 @@ namespace Accounting.Business
     //}
   }
 
-  public class TranscodeStatus
-  {
-    public string State { get; set; }
-    public string? ProgressFilePath { get; set; }
-    public string? VariantPath { get; set; }
-    public string? Command { get; set; }
-  }
+  //public class TranscodeStatus
+  //{
+    //public string State { get; set; }
+    //public string? ProgressFilePath { get; set; }
+    //public string? VariantPath { get; set; }
+    //public string? Command { get; set; }
+  //}
 }
