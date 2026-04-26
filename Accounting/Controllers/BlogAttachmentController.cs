@@ -21,6 +21,10 @@ namespace Accounting.Controllers
       _blogAttachmentService = new BlogAttachmentService(
         requestContext.DatabaseName,
         requestContext.DatabasePassword);
+
+      _blogAttachmentVariantService = new BlogAttachmentVariantService(
+        requestContext.DatabaseName, 
+        requestContext.DatabasePassword);
     }
 
     [Route("upload")]

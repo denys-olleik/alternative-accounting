@@ -13,6 +13,14 @@ namespace Accounting.Models.BlogViewModels
 
     // Optional: convenience typed view for Vue (so you don’t parse JSON everywhere).
     // If you don’t want to send both, you can omit this and only send TranscodeStatusJSONB.
-    public Dictionary<string, BlogAttachmentVariant>? TranscodeStatusByVariant { get; set; }
+    public Dictionary<string, BlogAttachmentVariantViewModel>? TranscodeStatusByVariant { get; set; }
+
+    public class BlogAttachmentVariantViewModel
+    {
+      public string? EncoderOption { get; set; }
+      public string? State { get; set; }
+      public string? ProgressFilePath { get; set; }
+      public string? VariantPath { get; set; }
+    }
   }
 }
