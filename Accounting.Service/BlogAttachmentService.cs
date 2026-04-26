@@ -19,28 +19,6 @@ namespace Accounting.Service
 
     }
 
-    public async Task<BlogAttachmentVariant?> UpdateAsync(
-      int blogAttachmentID, 
-      string encoderOption, 
-      string state, 
-      int progress,
-      string outputPath,
-      string command,
-      int userId, 
-      int organizationId)
-    {
-      var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetBlogAttachmentVariantManager().UpdateAsync(
-        blogAttachmentID, 
-        encoderOption,
-        state, 
-        null,
-        outputPath,
-        command,
-        userId, 
-        organizationId);
-    }
-
     public async System.Threading.Tasks.Task DeleteAttachmentsAsync(List<int> ids, int blogID, int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
