@@ -6,7 +6,7 @@ namespace Accounting.Business
   public class BlogAttachmentVariant : IIdentifiable<int>
   {
     public int BlogAttachmentVariantID { get; set; }
-    public int BlogAttachmentID { get; set; }
+    public int BlogAttachmentId { get; set; }
     public string? EncoderOption { get; set; }
     public string? State { get; set; }
     public string? ProgressFilePath { get; set; }

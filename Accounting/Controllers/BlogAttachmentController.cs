@@ -72,7 +72,7 @@ namespace Accounting.Controllers
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
 
       // Persist structured execution intent only (NO ffmpeg command yet)
-      BlogAttachmentVariant? status = await _blogAttachmentVariantService.UpdateAsync(
+      BlogAttachmentVariant? blogAttachmentVariant = await _blogAttachmentVariantService.UpdateAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
         BlogAttachmentVariant.StateConstants.Queued,
@@ -83,7 +83,7 @@ namespace Accounting.Controllers
         GetOrganizationId()!.Value
       );
 
-      return Ok(status);
+      return Ok(blogAttachmentVariant);
     }
 
     private static bool IsSupportedEncoderOption(string option)

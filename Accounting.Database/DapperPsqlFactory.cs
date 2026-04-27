@@ -9454,12 +9454,30 @@ namespace Accounting.Database
         throw new NotImplementedException();
       }
 
+//CREATE TABLE "BlogAttachmentVariant"
+//(
+//	"BlogAttachmentVariantID" SERIAL PRIMARY KEY NOT NULL,
+//	"BlogAttachmentID" INT NOT NULL,
+//	"EncoderOption" VARCHAR(100) NOT NULL CHECK("EncoderOption" IN ('mp3','720p','original')),
+//	"State" VARCHAR(50) NOT NULL CHECK("State" IN ('queued','processing','completed')),
+//	"ProgressFilePath" VARCHAR(1000) NULL,
+//	"VariantPath" VARCHAR(1000) NULL,
+//	"Command" TEXT NULL,
+//	"Created" TIMESTAMPTZ NOT NULL DEFAULT(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+//	"CreatedById" INT NOT NULL,
+//	"OrganizationId" INT NOT NULL,
+//	UNIQUE("BlogAttachmentID","EncoderOption"),
+//	FOREIGN KEY("BlogAttachmentID") REFERENCES "BlogAttachment"("BlogAttachmentID"),
+//	FOREIGN KEY("CreatedById") REFERENCES "User"("UserID"),
+//	FOREIGN KEY("OrganizationId") REFERENCES "Organization"("OrganizationID")
+//);
+
       public async Task<BlogAttachmentVariant?> UpdateAsync(
         int blogAttachmentID,
         string encoderOption,
         string state,
         string vaprogressFilePathlue,
-        string outputPath,
+        string variantPath,
         string command,
         int userId,
         int organizationId)
@@ -9469,7 +9487,7 @@ namespace Accounting.Database
         p.Add("@EncoderOption", encoderOption);
         p.Add("@State", state);
         p.Add("@ProgressFilePath", vaprogressFilePathlue);
-        p.Add("@VariantPath", outputPath);
+        p.Add("@VariantPath", variantPath);
         p.Add("@Command", command);
         p.Add("@CreatedById", userId);
         p.Add("@OrganizationId", organizationId);

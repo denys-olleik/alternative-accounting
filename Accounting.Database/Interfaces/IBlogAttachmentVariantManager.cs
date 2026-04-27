@@ -13,7 +13,7 @@ namespace Accounting.Database.Interfaces
       string encoderOption, 
       string state, 
       string vaprogressFilePathlue, 
-      string outputPath, 
+      string variantPath, 
       string command, 
       int userId, 
       int organizationId);
