@@ -31,7 +31,7 @@ namespace Accounting.Service
      int organizationId)
     {
       var factoryManager = new FactoryManager(_databaseName, _databasePassword);
-      return await factoryManager.GetBlogAttachmentVariantManager().UpdateAsync(
+      return await factoryManager.GetBlogAttachmentVariantManager().ScheduleAsync(
         blogAttachmentID,
         encoderOption,
         state,

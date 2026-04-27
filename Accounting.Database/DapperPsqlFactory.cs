@@ -9472,7 +9472,7 @@ namespace Accounting.Database
 //	FOREIGN KEY("OrganizationId") REFERENCES "Organization"("OrganizationID")
 //);
 
-      public async Task<BlogAttachmentVariant?> UpdateAsync(
+      public async Task<BlogAttachmentVariant?> ScheduleAsync(
         int blogAttachmentID,
         string encoderOption,
         string state,
