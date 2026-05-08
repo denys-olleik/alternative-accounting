@@ -20,7 +20,7 @@ namespace Accounting.Service
       return await factoryManager.GetBlogAttachmentVariantManager().CreateAsync(variant);
     }
 
-    public async Task<BlogAttachmentVariant?> UpdateAsync(
+    public async Task<BlogAttachmentVariant?> ScheduleAsync(
      int blogAttachmentID,
      string encoderOption,
      string state,

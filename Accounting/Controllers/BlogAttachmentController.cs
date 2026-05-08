@@ -72,7 +72,7 @@ namespace Accounting.Controllers
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
 
       // Persist structured execution intent only (NO ffmpeg command yet)
-      BlogAttachmentVariant? blogAttachmentVariant = await _blogAttachmentVariantService.UpdateAsync(
+      BlogAttachmentVariant? blogAttachmentVariant = await _blogAttachmentVariantService.ScheduleAsync(
         blogAttachment.BlogAttachmentID,
         encoderOption,
         BlogAttachmentVariant.StateConstants.Queued,
