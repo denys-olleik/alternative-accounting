@@ -564,6 +564,8 @@ CREATE TABLE "JournalInvoiceInvoiceLinePayment"
 	FOREIGN KEY ("OrganizationId") REFERENCES "Organization"("OrganizationID")
 );
 
+--JournalVideoBytesRange
+
 -- sudo -i -u postgres psql -d Accounting -c 'SELECT * FROM "JournalReconciliationTransaction";'
 CREATE TABLE "JournalReconciliationTransaction"
 (
