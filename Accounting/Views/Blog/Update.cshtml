@@ -171,11 +171,19 @@
     methods: {
       getVariantDisplay(attachment, variant) {
         const p = attachment.transcodeStatusByVariant?.[variant]?.percent;
-        if (p === 0) return { text: `${variant} (0%)`, class: '' };
-        if (p > 0 && p < 100) return { text: `${variant} (${p}%)`, class: 'color-lawngreen blink-animation' };
-        if (p === 100) return { text: variant, class: 'color-lawngreen' };
+
+        if (p === 0)
+          return { text: `${variant} (0%)`, class: '' };
+
+        if (p > 0 && p < 100)
+          return { text: `${variant} (${p}%)`, class: 'color-lawngreen blink-animation' };
+
+        if (p === 100)
+          return { text: variant, class: 'color-lawngreen' };
+
         return { text: variant, class: '' };
       },
+
       scheduleMp3(id) {
         fetch(`/api/blog-attachment/schedule-transcode/${id}`, {
           method: 'POST',
@@ -185,9 +193,17 @@
           .then(r => r.json())
           .then(status => {
             const a = this.attachments.find(x => x.blogAttachmentID === id);
-            a.transcodeStatusByVariant.mp3 = status;
+
+            if (!a.transcodeStatusByVariant) {
+              a.transcodeStatusByVariant = {};
+            }
+
+            a.transcodeStatusByVariant.mp3 = {
+              percent: status.percent
+            };
           });
       },
+
       schedule720p(id) {
         fetch(`/api/blog-attachment/schedule-transcode/${id}`, {
           method: 'POST',
@@ -197,12 +213,17 @@
           .then(r => r.json())
           .then(status => {
             const a = this.attachments.find(x => x.blogAttachmentID === id);
+
             if (!a.transcodeStatusByVariant) {
               a.transcodeStatusByVariant = {};
             }
-            a.transcodeStatusByVariant['720p'] = status;
+
+            a.transcodeStatusByVariant['720p'] = {
+              percent: status.percent
+            };
           });
       },
+
       scheduleOriginal(id) {
         fetch(`/api/blog-attachment/schedule-transcode/${id}`, {
           method: 'POST',
@@ -212,27 +233,37 @@
           .then(r => r.json())
           .then(status => {
             const a = this.attachments.find(x => x.blogAttachmentID === id);
+
             if (!a.transcodeStatusByVariant) {
               a.transcodeStatusByVariant = {};
             }
-            a.transcodeStatusByVariant['original'] = status;
+
+            a.transcodeStatusByVariant['original'] = {
+              percent: status.percent
+            };
           });
       },
+
       removeAttachment(id) {
         if (!this.deletedAttachmentIds.includes(id)) {
           this.deletedAttachmentIds.push(id);
         }
+
         this.attachments = this.attachments.filter(
           attachment => attachment.blogAttachmentID !== id
         );
+
         this.newAttachmentIds = this.newAttachmentIds.filter(
           newId => newId !== id
         );
       },
+
       uploadFile(event) {
         const file = event.target.files[0];
         const formData = new FormData();
+
         formData.append('formFile', file);
+
         fetch('/api/blog-attachment/upload', {
           method: 'POST',
           body: formData,
@@ -241,6 +272,7 @@
             if (response.ok) {
               return response.json();
             }
+
             throw new Error('Network response was not ok.');
           })
           .then(data => {
@@ -252,6 +284,7 @@
             console.log('There was a problem with the fetch operation: ', error);
           });
       },
+
       handleAttachmentExpand(id) {
         this.expandedAttachmentId = this.expandedAttachmentId === id ? null : id;
       },
