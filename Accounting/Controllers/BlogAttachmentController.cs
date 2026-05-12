@@ -66,7 +66,7 @@ namespace Accounting.Controllers
         GetOrganizationId()!.Value);
 
       if (existingVariant != null)
-        return Ok();
+        return Ok(new { Percent = existingVariant.Progress });
 
       string inputPath = blogAttachment.FilePath;
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
@@ -83,7 +83,7 @@ namespace Accounting.Controllers
         GetOrganizationId()!.Value
       );
 
-      return Ok();
+      return Ok(new { Percent = 0 });
     }
 
     private static bool IsSupportedEncoderOption(string option)

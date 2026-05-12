@@ -9,6 +9,7 @@ namespace Accounting.Business
     public int BlogAttachmentId { get; set; }
     public string? EncoderOption { get; set; }
     public string? State { get; set; }
+    public int Progress { get; set; }
     public string? ProgressFilePath { get; set; }
     public string? VariantPath { get; set; }
     public string? Command { get; set; }
