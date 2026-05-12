@@ -66,7 +66,7 @@ namespace Accounting.Controllers
         GetOrganizationId()!.Value);
 
       if (existingVariant != null)
-        return Ok(existingVariant);
+        return Ok();
 
       string inputPath = blogAttachment.FilePath;
       string outputPath = DeriveVariantOutputPath(inputPath, encoderOption);
@@ -83,7 +83,7 @@ namespace Accounting.Controllers
         GetOrganizationId()!.Value
       );
 
-      return Ok(blogAttachmentVariant);
+      return Ok();
     }
 
     private static bool IsSupportedEncoderOption(string option)
