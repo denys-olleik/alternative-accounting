@@ -24,7 +24,7 @@
 
 ## Core concepts
 
-* Context
+* Context, hybrid programming.
 * Accounts
 * Journal
   * debit/credit
