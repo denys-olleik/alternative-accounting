@@ -8,33 +8,56 @@ export function createRadar({
   gradientWidth = 500,
   scanSpeed = 2
 }) {
-  const scanLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 }); // RED
+  const scanLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
   let scanLineX = 0;
   let scanLine;
   let gradientMesh;
+  let active = false;
+
+  function removeScanLine() {
+    if (scanLine) {
+      scene.remove(scanLine);
+      scanLine.geometry.dispose();
+      scanLine = null;
+    }
+  }
+
+  function removeGradient() {
+    if (gradientMesh) {
+      scene.remove(gradientMesh);
+      gradientMesh.geometry.dispose();
+      gradientMesh.material.dispose();
+      gradientMesh = null;
+    }
+  }
+
+  function hide() {
+    removeScanLine();
+    removeGradient();
+    active = false;
+  }
 
   function createScanLine(x) {
-    if (scanLine) scene.remove(scanLine);
+    removeScanLine();
+
     const scanGeom = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(x, 0, 0.3),
       new THREE.Vector3(x, height, 0.3)
     ]);
+
     scanLine = new THREE.Line(scanGeom, scanLineMaterial);
     scene.add(scanLine);
   }
 
   function createOrUpdateGradient(x) {
-    if (gradientMesh) scene.remove(gradientMesh);
+    removeGradient();
 
-    // The gradient should always be 500px wide, with its right edge at 'x'.
-    // When x > width, it should continue off the right side.
-    let leftEdge = x - gradientWidth;
-    let rightEdge = x;
+    const leftEdge = x - gradientWidth;
+    const rightEdge = x;
 
-    const w = gradientWidth;
     if (rightEdge <= 0) return;
 
-    const geometry = new THREE.PlaneGeometry(w, height);
+    const geometry = new THREE.PlaneGeometry(gradientWidth, height);
 
     const material = new THREE.ShaderMaterial({
       transparent: true,
@@ -63,19 +86,34 @@ export function createRadar({
     });
 
     gradientMesh = new THREE.Mesh(geometry, material);
-    gradientMesh.position.set(leftEdge + w / 2, height / 2, 0.29);
+    gradientMesh.position.set(leftEdge + gradientWidth / 2, height / 2, 0.29);
     scene.add(gradientMesh);
   }
 
+  function restart() {
+    scanLineX = 0;
+    active = true;
+    createScanLine(scanLineX);
+    createOrUpdateGradient(scanLineX);
+  }
+
   function update() {
+    if (!active) return;
+
     scanLineX += scanSpeed;
-    if (scanLineX > width + gradientWidth) scanLineX = 0;
+
+    if (scanLineX > width + gradientWidth) {
+      hide();
+      return;
+    }
+
     createScanLine(scanLineX);
     createOrUpdateGradient(scanLineX);
   }
 
   function setScanLineX(x) {
     scanLineX = x;
+    active = true;
     createScanLine(scanLineX);
     createOrUpdateGradient(scanLineX);
   }
@@ -84,17 +122,22 @@ export function createRadar({
     return scanLineX;
   }
 
+  function isActive() {
+    return active;
+  }
+
   function dispose() {
-    if (scanLine) scene.remove(scanLine);
-    if (gradientMesh) scene.remove(gradientMesh);
-    scanLine = null;
-    gradientMesh = null;
+    hide();
+    scanLineMaterial.dispose();
   }
 
   return {
     update,
+    restart,
     setScanLineX,
     getScanLineX,
+    isActive,
+    hide,
     dispose
   };
 }

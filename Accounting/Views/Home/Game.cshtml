@@ -110,14 +110,14 @@
     scene.add(horizontalLine);
   }
 
-  // --- Radar (Scan Line + Gradient) ---
+  // --- Radar ---
   const radar = createRadar({
     THREE,
     scene,
     width,
     height,
     gradientWidth: 500,
-    scanSpeed: .5
+    scanSpeed: 0.5
   });
 
   // --- User Interaction State ---
@@ -144,9 +144,11 @@
     playerAPI.handlePlayerMove(mouseX, mouseY, mouseOverCanvas);
     playerAPI.setNeedsRender(true);
   });
+
   renderer.domElement.addEventListener('mouseenter', () => {
     mouseOverCanvas = true;
   });
+
   renderer.domElement.addEventListener('mouseleave', async () => {
     mouseOverCanvas = false;
     await playerAPI.handleMouseLeave(mouseX, mouseY);
@@ -182,15 +184,15 @@
     await playerAPI.handlePlayerMove(mouseX, mouseY, true);
   })();
 
-  // Click to claim (sector claims will update via onSectorClaims callback)
+  // Click to claim and restart one radar sweep
   renderer.domElement.addEventListener('click', async (e) => {
     const rect = renderer.domElement.getBoundingClientRect();
     const clickX = Math.floor((e.clientX - rect.left) * (width / rect.width));
     const clickY = Math.floor((e.clientY - rect.top) * (height / rect.height));
+
+    radar.restart();
     await playerAPI.handlePlayerClick(clickX, clickY);
   });
-
-  // No setInterval for reporting; debounce is handled in player.js
 
   updateHighlight(mouseX, mouseY);
 
@@ -198,16 +200,16 @@
   function animate(now) {
     now = now || performance.now();
 
-    // --- Radar update (scanning line and gradient) ---
+    // --- Radar update; only active after click and hides at end ---
     radar.update();
 
     // --- Radar sweep illumination for players ---
     const scanLineX = radar.getScanLineX();
     const gradientWidth = 500; // Must match radar's gradientWidth
-    const gradientLeft = scanLineX - gradientWidth;
-    const gradientRight = scanLineX;
+    const gradientLeft = radar.isActive() ? scanLineX - gradientWidth : -1;
+    const gradientRight = radar.isActive() ? scanLineX : -1;
 
-    let needsRender = playerAPI.updatePlayers(now, {gradientLeft, gradientRight});
+    playerAPI.updatePlayers(now, { gradientLeft, gradientRight });
 
     renderer.render(scene, camera);
     playerAPI.setNeedsRender(false);
