@@ -17,7 +17,12 @@
   // --- Config ---
   const width = 2560, height = 1440;
   const pixelSize = 1;
-  const gridSize = 60;
+
+  // Hex config
+  // hexSize is the distance from center to corner.
+  // Around 45 gives a hex with roughly similar area to the old 60x60 square sector.
+  const hexSize = 45;
+  const hexMapRadius = 12;
 
   // --- User ID ---
   let userId = localStorage.getItem('userId');
@@ -35,55 +40,160 @@
   const container = document.getElementById('app');
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
   renderer.setSize(width, height);
-  renderer.setClearColor(0x20232a);
+  renderer.setClearColor(0x000000);
   container.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(0, width, height, 0, -1, 1);
 
-  // --- Grid ---
-  function createGrid(gridSize, color = 0x444444) {
-    const gridLines = [];
-    for (let x = 0; x <= width; x += gridSize) {
-      gridLines.push(
-        new THREE.Vector3(x, 0, 0),
-        new THREE.Vector3(x, height, 0)
-      );
-    }
-    for (let y = 0; y <= height; y += gridSize) {
-      gridLines.push(
-        new THREE.Vector3(0, y, 0),
-        new THREE.Vector3(width, y, 0)
-      );
-    }
-    const geometry = new THREE.BufferGeometry().setFromPoints(gridLines);
-    const material = new THREE.LineBasicMaterial({ color: color, linewidth: 1 });
-    return new THREE.LineSegments(geometry, material);
+  // --- Hex Helpers ---
+  const hexOrigin = {
+    x: width / 2,
+    y: height / 2
+  };
+
+  function axialToPixel(q, r) {
+    // Pointy-top hex layout
+    const x = hexSize * Math.sqrt(3) * (q + r / 2);
+    const y = hexSize * 1.5 * r;
+
+    return {
+      x: hexOrigin.x + x,
+      y: hexOrigin.y + y
+    };
   }
-  const grid = createGrid(gridSize, 0x444444);
+
+  function pixelToAxial(x, y) {
+    const px = x - hexOrigin.x;
+    const py = y - hexOrigin.y;
+
+    const q = (Math.sqrt(3) / 3 * px - 1 / 3 * py) / hexSize;
+    const r = (2 / 3 * py) / hexSize;
+
+    return axialRound(q, r);
+  }
+
+  function axialRound(q, r) {
+    let x = q;
+    let z = r;
+    let y = -x - z;
+
+    let rx = Math.round(x);
+    let ry = Math.round(y);
+    let rz = Math.round(z);
+
+    const xDiff = Math.abs(rx - x);
+    const yDiff = Math.abs(ry - y);
+    const zDiff = Math.abs(rz - z);
+
+    if (xDiff > yDiff && xDiff > zDiff) {
+      rx = -ry - rz;
+    } else if (yDiff > zDiff) {
+      ry = -rx - rz;
+    } else {
+      rz = -rx - ry;
+    }
+
+    return {
+      q: rx,
+      r: rz
+    };
+  }
+
+  function isInsideHexMap(q, r) {
+    const s = -q - r;
+    return Math.max(Math.abs(q), Math.abs(r), Math.abs(s)) < hexMapRadius;
+  }
+
+  function createHexShape(size) {
+    const shape = new THREE.Shape();
+
+    for (let i = 0; i < 6; i++) {
+      const angle = THREE.MathUtils.degToRad(60 * i - 30);
+      const x = size * Math.cos(angle);
+      const y = size * Math.sin(angle);
+
+      if (i === 0) {
+        shape.moveTo(x, y);
+      } else {
+        shape.lineTo(x, y);
+      }
+    }
+
+    shape.closePath();
+    return shape;
+  }
+
+  function createHexLineGeometry(size) {
+    const points = [];
+
+    for (let i = 0; i <= 6; i++) {
+      const angle = THREE.MathUtils.degToRad(60 * (i % 6) - 30);
+      points.push(new THREE.Vector3(
+        size * Math.cos(angle),
+        size * Math.sin(angle),
+        0
+      ));
+    }
+
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }
+
+  // --- Hex Grid ---
+  function createHexGrid() {
+    const group = new THREE.Group();
+    const material = new THREE.LineBasicMaterial({
+      color: 0x444444,
+      linewidth: 1
+    });
+
+    const geometry = createHexLineGeometry(hexSize);
+
+    for (let q = -hexMapRadius + 1; q <= hexMapRadius - 1; q++) {
+      for (let r = -hexMapRadius + 1; r <= hexMapRadius - 1; r++) {
+        if (!isInsideHexMap(q, r)) continue;
+
+        const pos = axialToPixel(q, r);
+        const line = new THREE.LineLoop(geometry.clone(), material);
+        line.position.set(pos.x, pos.y, 0);
+        group.add(line);
+      }
+    }
+
+    return group;
+  }
+
+  const grid = createHexGrid();
   scene.add(grid);
 
-  // --- Highlight Square ---
-  const squareGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
-  const squareMaterial = new THREE.MeshBasicMaterial({
+  // --- Highlight Hex ---
+  const hexShape = createHexShape(hexSize);
+  const hexGeometry = new THREE.ShapeGeometry(hexShape);
+
+  const hexMaterial = new THREE.MeshBasicMaterial({
     color: 0xffff99,
     transparent: true,
-    opacity: 0.32
+    opacity: 0.32,
+    depthTest: false
   });
-  const squareGlow = new THREE.Mesh(squareGeometry, squareMaterial);
 
-  const borderGeometry = new THREE.PlaneGeometry(gridSize + 8, gridSize + 8);
-  const borderMaterial = new THREE.MeshBasicMaterial({
+  const hexGlow = new THREE.Mesh(hexGeometry, hexMaterial);
+  hexGlow.position.set(-9999, -9999, 0.1);
+  scene.add(hexGlow);
+
+  const hexBorderShape = createHexShape(hexSize + 5);
+  const hexBorderGeometry = new THREE.ShapeGeometry(hexBorderShape);
+
+  const hexBorderMaterial = new THREE.MeshBasicMaterial({
     color: 0xffff99,
     transparent: true,
-    opacity: 0.14
+    opacity: 0.14,
+    depthTest: false
   });
-  const squareBorder = new THREE.Mesh(borderGeometry, borderMaterial);
 
-  squareGlow.position.set(-gridSize, -gridSize, 0.1);
-  squareBorder.position.set(-gridSize, -gridSize, 0.09);
-  scene.add(squareBorder);
-  scene.add(squareGlow);
+  const hexBorder = new THREE.Mesh(hexBorderGeometry, hexBorderMaterial);
+  hexBorder.position.set(-9999, -9999, 0.09);
+  scene.add(hexBorder);
 
   // --- Crosshairs ---
   const crosshairMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
@@ -91,6 +201,7 @@
 
   function createCrosshair(x, y) {
     const flippedY = height - y;
+
     if (verticalLine) scene.remove(verticalLine);
     if (horizontalLine) scene.remove(horizontalLine);
 
@@ -127,20 +238,28 @@
   createCrosshair(mouseX, mouseY);
 
   function updateHighlight(x, y) {
-    const col = Math.floor(x / gridSize);
-    const row = Math.floor(y / gridSize);
-    const squareX = col * gridSize + gridSize / 2;
-    const squareY = height - (row * gridSize + gridSize / 2);
-    squareGlow.position.set(squareX, squareY, 0.1);
-    squareBorder.position.set(squareX, squareY, 0.09);
+    const worldY = height - y;
+    const hex = pixelToAxial(x, worldY);
+
+    if (!isInsideHexMap(hex.q, hex.r)) {
+      hexGlow.position.set(-9999, -9999, 0.1);
+      hexBorder.position.set(-9999, -9999, 0.09);
+      return;
+    }
+
+    const pos = axialToPixel(hex.q, hex.r);
+    hexGlow.position.set(pos.x, pos.y, 0.1);
+    hexBorder.position.set(pos.x, pos.y, 0.09);
   }
 
   renderer.domElement.addEventListener('mousemove', (e) => {
     const rect = renderer.domElement.getBoundingClientRect();
     mouseX = Math.floor((e.clientX - rect.left) * (width / rect.width));
     mouseY = Math.floor((e.clientY - rect.top) * (height / rect.height));
+
     createCrosshair(mouseX, mouseY);
     updateHighlight(mouseX, mouseY);
+
     playerAPI.handlePlayerMove(mouseX, mouseY, mouseOverCanvas);
     playerAPI.setNeedsRender(true);
   });
@@ -158,9 +277,11 @@
   const sectorsAPI = initSectors({
     THREE,
     scene,
-    gridSize,
     width,
     height,
+    hexSize,
+    hexMapRadius,
+    hexOrigin,
     color: 0x99ccff,
     opacity: 0.25,
     z: 0.05
@@ -190,7 +311,10 @@
     const clickX = Math.floor((e.clientX - rect.left) * (width / rect.width));
     const clickY = Math.floor((e.clientY - rect.top) * (height / rect.height));
 
-    radar.restart();
+    if (radar.restart) {
+      radar.restart();
+    }
+
     await playerAPI.handlePlayerClick(clickX, clickY);
   });
 
@@ -200,14 +324,13 @@
   function animate(now) {
     now = now || performance.now();
 
-    // --- Radar update; only active after click and hides at end ---
     radar.update();
 
-    // --- Radar sweep illumination for players ---
     const scanLineX = radar.getScanLineX();
-    const gradientWidth = 500; // Must match radar's gradientWidth
-    const gradientLeft = radar.isActive() ? scanLineX - gradientWidth : -1;
-    const gradientRight = radar.isActive() ? scanLineX : -1;
+    const gradientWidth = 500;
+    const radarActive = radar.isActive ? radar.isActive() : true;
+    const gradientLeft = radarActive ? scanLineX - gradientWidth : -1;
+    const gradientRight = radarActive ? scanLineX : -1;
 
     playerAPI.updatePlayers(now, { gradientLeft, gradientRight });
 

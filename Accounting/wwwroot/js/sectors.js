@@ -1,18 +1,57 @@
 ﻿// js/sectors.js
-// Module to display shaded claimed sectors on the game grid using Three.js
+// Module to display shaded claimed hex sectors on the game grid using Three.js
 
 export function initSectors({
   THREE,
   scene,
-  gridSize,
   width,
   height,
-  color = 0x99ccff, // Light blue
+  hexSize,
+  hexMapRadius,
+  hexOrigin,
+  color = 0x99ccff,
   opacity = 0.25,
   z = 0.05
 }) {
   // Map: "SectorX:SectorY" -> { mesh, timeoutId }
   const sectorMeshes = new Map();
+
+  function axialToPixel(q, r) {
+    // Pointy-top hex layout
+    const x = hexSize * Math.sqrt(3) * (q + r / 2);
+    const y = hexSize * 1.5 * r;
+
+    return {
+      x: hexOrigin.x + x,
+      y: hexOrigin.y + y
+    };
+  }
+
+  function isInsideHexMap(q, r) {
+    const s = -q - r;
+    return Math.max(Math.abs(q), Math.abs(r), Math.abs(s)) < hexMapRadius;
+  }
+
+  function createHexShape(size) {
+    const shape = new THREE.Shape();
+
+    for (let i = 0; i < 6; i++) {
+      const angle = THREE.MathUtils.degToRad(60 * i - 30);
+      const x = size * Math.cos(angle);
+      const y = size * Math.sin(angle);
+
+      if (i === 0) {
+        shape.moveTo(x, y);
+      } else {
+        shape.lineTo(x, y);
+      }
+    }
+
+    shape.closePath();
+    return shape;
+  }
+
+  const hexGeometry = new THREE.ShapeGeometry(createHexShape(hexSize));
 
   function removeSector(key) {
     const entry = sectorMeshes.get(key);
@@ -59,14 +98,19 @@ export function initSectors({
 
       if (sectorX == null || sectorY == null) continue;
 
-      const key = `${sectorX}:${sectorY}`;
+      const q = sectorX;
+      const r = sectorY;
+
+      if (!isInsideHexMap(q, r)) continue;
+
+      const key = `${q}:${r}`;
       keepKeys.add(key);
 
       let entry = sectorMeshes.get(key);
 
       if (!entry) {
         const mesh = new THREE.Mesh(
-          new THREE.PlaneGeometry(gridSize, gridSize),
+          hexGeometry.clone(),
           new THREE.MeshBasicMaterial({
             color: color,
             transparent: true,
@@ -75,9 +119,8 @@ export function initSectors({
           })
         );
 
-        const x = sectorX * gridSize + gridSize / 2;
-        const y = height - (sectorY * gridSize + gridSize / 2);
-        mesh.position.set(x, y, z);
+        const pos = axialToPixel(q, r);
+        mesh.position.set(pos.x, pos.y, z);
 
         scene.add(mesh);
 
