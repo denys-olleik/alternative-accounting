@@ -56,6 +56,7 @@
 | Asset      | Increase | Decrease |
 | Liability  | Decrease | Increase |
 | Equity     | Decrease | Increase |
+| Capital    | Decrease | Increase |
 | Revenue    | Decrease | Increase |
 | Expense    | Increase | Decrease |
 ```
